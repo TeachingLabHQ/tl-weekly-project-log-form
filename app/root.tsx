@@ -14,11 +14,13 @@ import {
 import { MetaFunction, LinksFunction } from "@remix-run/node"; // Depends on the runtime you choose
 
 import { ServerStyleContext, ClientStyleContext } from "./context";
+import { Navbar } from "./components/navigation/navbar";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 export const meta: MetaFunction = () => {
   return [
     { charSet: "utf-8" },
-    { title: "New Remix App" },
+    { title: "Weekly Project Log" },
     { name: "viewport", content: "width=device-width, initial-scale=1" },
   ];
 };
@@ -69,6 +71,15 @@ const Document = withEmotionCache(
               dangerouslySetInnerHTML={{ __html: css }}
             />
           ))}
+          {/* <script
+            src="https://apis.google.com/js/platform.js"
+            async
+            defer
+          ></script> */}
+          {/* <meta
+            name="google-signin-client_id"
+            content="908203966684-tl3or1jsfs1vc2juqkn7m3jnf6nah4gr.apps.googleusercontent.com"
+          /> */}
         </head>
         <body>
           {children}
@@ -83,9 +94,12 @@ const Document = withEmotionCache(
 export default function App() {
   return (
     <Document>
-      <ChakraProvider value={defaultSystem}>
-        <Outlet />
-      </ChakraProvider>
+      <GoogleOAuthProvider clientId="908203966684-tl3or1jsfs1vc2juqkn7m3jnf6nah4gr.apps.googleusercontent.com">
+        <ChakraProvider value={defaultSystem}>
+          <Navbar />
+          <Outlet />
+        </ChakraProvider>
+      </GoogleOAuthProvider>
     </Document>
   );
 }
