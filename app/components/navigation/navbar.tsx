@@ -1,31 +1,48 @@
-import { Box, Flex, Image, Text, Link } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
-import TLLogo from "../../assets/tllogo.png";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { GoogleLogin, googleLogout, useGoogleLogin } from "@react-oauth/google";
-import axios from "axios";
+import { Box, Button, Flex, Image, Link, Text } from "@chakra-ui/react";
+import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { Button } from "@chakra-ui/react";
+import React, { useState } from "react";
+import TLLogo from "../../assets/tllogo.png";
+import { employeeRepository } from "../../domains/employee/repository";
+import { employeeService } from "../../domains/employee/service";
 
 interface UserProfile {
   name: string;
   email: string;
-  picture: string;
+  buesinessFunction: string | null;
 }
 
 export const Navbar = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
-
-  const responseMessage = (response: any) => {
+  const newEmployeeService = employeeService(employeeRepository());
+  const responseMessage = async (response: any) => {
     try {
       // Decode the JWT credential
       const decodedToken: any = jwtDecode(response.credential);
 
       // Extract user details from the decoded token
       const { name, email, picture } = decodedToken;
+      console.log(email);
+      try {
+        const { data: mondayEmployeeInfo, error } =
+          await newEmployeeService.fetchMondayEmployee(email);
+        if (error) {
+          console.error(
+            "Failed to get employee information from Monday",
+            error
+          );
+        }
+
+        setUser({
+          name: mondayEmployeeInfo?.name || "",
+          email: mondayEmployeeInfo?.email || "",
+          buesinessFunction: mondayEmployeeInfo?.businessFunction || "",
+        });
+      } catch (e) {
+        console.error(e);
+      }
 
       // Set the user details in the state
-      setUser({ name, email, picture });
     } catch (error) {
       console.error("Error decoding token:", error);
     }
@@ -35,6 +52,7 @@ export const Navbar = () => {
   };
 
   const logOut = () => {
+    console.log(user);
     setUser(null); // Clear user state
   };
 
