@@ -1,7 +1,6 @@
 import React from "react";
-import { Navbar } from "../components/navigation/navbar";
-import { Box } from "@chakra-ui/react";
 import BackgroundImg from "../assets/background.png";
+import { ProjectLogForm } from "../components/weekly-project-log/project-log-form";
 export const headers = () => {
   return {
     "Cross-Origin-Opener-Policy": "unsafe-none",
@@ -11,14 +10,13 @@ export const headers = () => {
 
 export default function Index() {
   return (
-    <Box
-      bgImage={`url(${BackgroundImg})`}
-      bgRepeat="no-repeat"
-      bgSize="cover"
-      h="100vh"
-      w="100%"
+    <div
+      className="h-screen w-full bg-no-repeat bg-cover"
+      style={{ backgroundImage: `url(${BackgroundImg})` }}
     >
+      <ProjectLogForm />
+
       {/* Content goes here */}
-    </Box>
+    </div>
   );
 }

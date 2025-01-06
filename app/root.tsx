@@ -2,7 +2,7 @@
 import React, { useContext, useEffect } from "react";
 import { withEmotionCache } from "@emotion/react";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
-
+import "@mantine/core/styles.css";
 import {
   Links,
   LiveReload,
@@ -12,11 +12,12 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import { MetaFunction, LinksFunction } from "@remix-run/node"; // Depends on the runtime you choose
-
+import "@mantine/dates/styles.css";
 import { ServerStyleContext, ClientStyleContext } from "./context";
 import { Navbar } from "./components/navigation/navbar";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-
+import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+import "./tailwind.css";
 export const meta: MetaFunction = () => {
   return [
     { charSet: "utf-8" },
@@ -64,6 +65,7 @@ const Document = withEmotionCache(
         <head>
           <Meta />
           <Links />
+          <ColorSchemeScript />
           {serverStyleData?.map(({ key, ids, css }) => (
             <style
               key={key}
@@ -71,18 +73,9 @@ const Document = withEmotionCache(
               dangerouslySetInnerHTML={{ __html: css }}
             />
           ))}
-          {/* <script
-            src="https://apis.google.com/js/platform.js"
-            async
-            defer
-          ></script> */}
-          {/* <meta
-            name="google-signin-client_id"
-            content="908203966684-tl3or1jsfs1vc2juqkn7m3jnf6nah4gr.apps.googleusercontent.com"
-          /> */}
         </head>
         <body>
-          {children}
+          <MantineProvider>{children}</MantineProvider>
           <ScrollRestoration />
           <Scripts />
           <LiveReload />

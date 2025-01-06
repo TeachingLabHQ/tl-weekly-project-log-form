@@ -1,10 +1,15 @@
-import { Box, Button, Flex, Image, Link, Text } from "@chakra-ui/react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import React, { useState } from "react";
 import TLLogo from "../../assets/tllogo.png";
 import { employeeRepository } from "../../domains/employee/repository";
 import { employeeService } from "../../domains/employee/service";
+import { Button } from "@mantine/core";
+import { Link } from "@remix-run/react";
+
+function Demo() {
+  return <Button variant="filled">Button</Button>;
+}
 
 interface UserProfile {
   name: string;
@@ -21,7 +26,7 @@ export const Navbar = () => {
       const decodedToken: any = jwtDecode(response.credential);
 
       // Extract user details from the decoded token
-      const { name, email, picture } = decodedToken;
+      const { email } = decodedToken;
       console.log(email);
       try {
         const { data: mondayEmployeeInfo, error } =
@@ -57,40 +62,32 @@ export const Navbar = () => {
   };
 
   return (
-    <Box
-      w="100%"
-      paddingX={16}
-      paddingY={5}
-      display={"flex"}
-      bg="#F7FAFC"
-      justifyContent={"space-between"}
-      alignItems={"center"}
-    >
-      <Flex gap={"5"}>
-        <Link href="/" _hover={{ textDecoration: "none" }}>
-          <Flex gap={2} align={"center"}>
-            <Image src={TLLogo} h="40px" />
-            <Text fontSize={"2xl"}>Teaching Lab Form Hub</Text>
-          </Flex>
+    <div className="w-full px-16 py-5 flex bg-[#F7FAFC] justify-between items-center">
+      <div className="flex flex-row gap-5 items-center">
+        <Link to="/">
+          <div className="flex gap-2 items-center">
+            <img src={TLLogo} className="h-[40px]" />
+            <p className="text-2xl">Teaching Lab Form Hub</p>
+          </div>
         </Link>
-        <Flex>
-          <Link href="/weekly-project-log">
-            <Text>Weekly Project Log</Text>
+        <div>
+          <Link to="/weekly-project-log">
+            <p>Weekly Project Log</p>
           </Link>
-        </Flex>
-      </Flex>
+        </div>
+      </div>
 
-      <Box>
+      <div>
         {user ? (
-          <Box>
-            <Button variant={"outline"} onClick={logOut}>
+          <div>
+            <Button variant="outline" onClick={logOut}>
               Log Out
             </Button>
-          </Box>
+          </div>
         ) : (
           <GoogleLogin onSuccess={responseMessage} onError={errorMessage} />
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
