@@ -36,8 +36,8 @@ export const ProjectLogsWidget = () => {
   return (
     <div className="grid grid-rows gap-4">
       <div
-        className={cn("grid gap-4 mb-4 grid-cols-4", {
-          "grid-cols-5": rows.length > 1,
+        className={cn("grid gap-4 mb-4 grid-cols-5", {
+          "grid-cols-6": rows.length > 1,
         })}
       >
         <div className="">
@@ -50,15 +50,18 @@ export const ProjectLogsWidget = () => {
           <Text fw={500}>Project Role*</Text>
         </div>
         <div className="">
-          <Text fw={500}>Work Hours*</Text>
+          <Text fw={500}>Actual Hours*</Text>
+        </div>
+        <div className="">
+          <Text fw={500}>Budgeted Hours*</Text>
         </div>
       </div>
       {/* Dynamic rows */}
       {rows.map((row, index) => (
         <div
           key={index}
-          className={cn("grid gap-4 mb-4 grid-cols-4", {
-            "grid-cols-5": rows.length > 1,
+          className={cn("grid gap-4 mb-4 grid-cols-5", {
+            "grid-cols-6": rows.length > 1,
           })}
         >
           <div>
@@ -81,6 +84,13 @@ export const ProjectLogsWidget = () => {
               value={row.projectRole}
               placeholder="Pick value"
               data={["Project Names"]}
+            />
+          </div>
+          <div>
+            <TextInput
+              value={row.workHours}
+              onChange={(e) => handleChange(index, "workHours", e.target.value)}
+              placeholder="Enter work hours"
             />
           </div>
           <div>
