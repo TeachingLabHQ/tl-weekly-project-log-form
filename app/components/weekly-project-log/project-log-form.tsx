@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "@mantine/form";
 import { DateInput } from "@mantine/dates";
 import { ProjectLogsWidget } from "./project-logs-widget";
+import { Textarea } from "@mantine/core";
 
 export const ProjectLogForm = () => {
   const form = useForm({
@@ -26,6 +27,13 @@ export const ProjectLogForm = () => {
           </div>
           <div>
             <ProjectLogsWidget />
+          </div>
+          <div>
+            <Textarea
+              label="Do you have any additional comments?"
+              description="Please use this notes section to add details about time allocation this week. If you have concerns about your capacity or your projects, please discuss with your home manager and/or project lead."
+              placeholder=""
+            />
           </div>
         </form>
       </div>

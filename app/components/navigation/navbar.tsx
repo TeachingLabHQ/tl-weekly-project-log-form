@@ -6,20 +6,11 @@ import { employeeRepository } from "../../domains/employee/repository";
 import { employeeService } from "../../domains/employee/service";
 import { Button } from "@mantine/core";
 import { Link } from "@remix-run/react";
-
-function Demo() {
-  return <Button variant="filled">Button</Button>;
-}
-
-interface UserProfile {
-  name: string;
-  email: string;
-  buesinessFunction: string | null;
-}
+import { useSession } from "../hooks/useSession";
 
 export const Navbar = () => {
-  const [user, setUser] = useState<UserProfile | null>(null);
   const newEmployeeService = employeeService(employeeRepository());
+  const { session, setSession, isAuthenticated } = useSession();
   const responseMessage = async (response: any) => {
     try {
       // Decode the JWT credential
@@ -27,7 +18,6 @@ export const Navbar = () => {
 
       // Extract user details from the decoded token
       const { email } = decodedToken;
-      console.log(email);
       try {
         const { data: mondayEmployeeInfo, error } =
           await newEmployeeService.fetchMondayEmployee(email);
@@ -37,8 +27,7 @@ export const Navbar = () => {
             error
           );
         }
-
-        setUser({
+        setSession({
           name: mondayEmployeeInfo?.name || "",
           email: mondayEmployeeInfo?.email || "",
           buesinessFunction: mondayEmployeeInfo?.businessFunction || "",
@@ -57,8 +46,8 @@ export const Navbar = () => {
   };
 
   const logOut = () => {
-    console.log(user);
-    setUser(null); // Clear user state
+    console.log(session);
+    setSession(null);
   };
 
   return (
@@ -78,7 +67,7 @@ export const Navbar = () => {
       </div>
 
       <div>
-        {user ? (
+        {isAuthenticated ? (
           <div>
             <Button variant="outline" onClick={logOut}>
               Log Out

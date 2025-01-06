@@ -1,5 +1,5 @@
 // root.tsx
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { withEmotionCache } from "@emotion/react";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import "@mantine/core/styles.css";
@@ -18,6 +18,7 @@ import { Navbar } from "./components/navigation/navbar";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import "./tailwind.css";
+import { Session, SessionContext } from "./components/context/sessionContext";
 export const meta: MetaFunction = () => {
   return [
     { charSet: "utf-8" },
@@ -85,13 +86,30 @@ const Document = withEmotionCache(
   }
 );
 export default function App() {
+  const [session, setSessionState] = useState<Session | null>(null);
+  useEffect(() => {
+    const storedSession = sessionStorage.getItem("storedSession");
+    if (storedSession) {
+      setSessionState(JSON.parse(storedSession));
+    }
+  }, []);
+  const setSession = (newSession: Session | null) => {
+    if (newSession) {
+      sessionStorage.setItem("storedSession", JSON.stringify(newSession));
+    } else {
+      sessionStorage.removeItem("storedSession");
+    }
+    setSessionState(newSession);
+  };
   return (
     <Document>
       <GoogleOAuthProvider clientId="908203966684-tl3or1jsfs1vc2juqkn7m3jnf6nah4gr.apps.googleusercontent.com">
-        <ChakraProvider value={defaultSystem}>
-          <Navbar />
-          <Outlet />
-        </ChakraProvider>
+        <SessionContext.Provider value={{ session, setSession }}>
+          <ChakraProvider value={defaultSystem}>
+            <Navbar />
+            <Outlet />
+          </ChakraProvider>
+        </SessionContext.Provider>
       </GoogleOAuthProvider>
     </Document>
   );
