@@ -1,4 +1,5 @@
 import { Errorable } from "../../utils/errorable";
+import { fetchMondayData } from "../utils";
 import { EmployeeProfile } from "./model";
 
 export interface EmployeeRepository {
@@ -10,25 +11,13 @@ export function employeeRepository(): EmployeeRepository {
     fetchEmployee: async (email: string) => {
       try {
         let queryEmployee = `{boards(ids:2227132353) {items_page (limit: 1, query_params: {rules: [{column_id: "text25", compare_value: ["${email}"]}], operator: and}) { items { name column_values(ids:"dropdown7"){text}}}}}`;
-        const response = await fetch("https://api.monday.com/v2", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              "eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjIzNDI2ODE2OCwidWlkIjozMTI4ODQ0NCwiaWFkIjoiMjAyMy0wMi0wM1QwMDozNjoyMC4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6ODg4NDgxOSwicmduIjoidXNlMSJ9.oM37gRdrLf8UnnmuZIM-QWDRoT_GtgFLLyHpvnxGUtQ",
-            "API-Version": "2023-10",
-          },
-          body: JSON.stringify({
-            query: queryEmployee,
-            // 'variables' : JSON.stringify(req.body.vars)
-          }),
-        });
+        const response = await fetchMondayData(queryEmployee);
 
         const result = await response.json();
-        console.log(result);
+
         const isEmployeePresent =
           result.data.boards[0].items_page.items.length === 0 ? false : true;
-        console.log(isEmployeePresent);
+
         if (!isEmployeePresent)
           return { data: null, error: "Employee does not exist" };
         const businessFunction =

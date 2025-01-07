@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
 import { DateInput } from "@mantine/dates";
 import { ProjectLogsWidget } from "./project-logs-widget";
 import { Textarea } from "@mantine/core";
+import { projectService } from "../../domains/project/service";
+import { projectRepository } from "../../domains/project/repository";
+import { useLoaderData } from "@remix-run/react";
+import { useSession } from "../hooks/useSession";
 
 export const ProjectLogForm = () => {
   const form = useForm({
@@ -12,6 +16,9 @@ export const ProjectLogForm = () => {
     },
   });
   const [value, setValue] = useState<Date | null>(null);
+
+  const { session, setSession, isAuthenticated } = useSession();
+
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div className="w-2/4 p-[3%] rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white mb-12">

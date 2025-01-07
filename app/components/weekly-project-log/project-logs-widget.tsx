@@ -7,10 +7,31 @@ import {
   Text,
   Stack,
 } from "@mantine/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "../../utils/utils";
-
+import { projectService } from "../../domains/project/service";
+import { projectRepository } from "../../domains/project/repository";
+type ProjectRowKeys = keyof {
+  projectType: string;
+  projectName: string;
+  projectRole: string;
+  workHours: string;
+};
 export const ProjectLogsWidget = () => {
+  const newProjectService = projectService(projectRepository());
+  const fetchProgramProjects = async () => {
+    const { data, error } = await newProjectService.fetchProgramProjects();
+    console.log(data);
+  };
+  const fetchProgramProjectsWithHours = async () => {
+    const { data, error } =
+      await newProjectService.fetchProgramProjectWithHours();
+    console.log(data);
+  };
+  useEffect(() => {
+    fetchProgramProjects();
+    fetchProgramProjectsWithHours();
+  });
   const [rows, setRows] = useState([
     { projectType: "", projectName: "", projectRole: "", workHours: "" },
   ]);
@@ -22,13 +43,19 @@ export const ProjectLogsWidget = () => {
     ]);
   };
 
-  const handleChange = (index, field, value) => {
+  const handleChange = (
+    index: number,
+    field: ProjectRowKeys,
+    value: string | null
+  ) => {
     const updatedRows = [...rows];
-    updatedRows[index][field] = value;
+    if (updatedRows[index]) {
+      updatedRows[index][field] = value || "";
+    }
     setRows(updatedRows);
   };
 
-  const handleDeleteRow = (index) => {
+  const handleDeleteRow = (index: number) => {
     const updatedRows = rows.filter((_, i) => i !== index);
     setRows(updatedRows);
   };
