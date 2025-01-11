@@ -1,22 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useForm } from "@mantine/form";
-import { DateInput } from "@mantine/dates";
-import { ProjectLogsWidget } from "./project-logs-widget";
 import { Textarea } from "@mantine/core";
-import { projectService } from "../../domains/project/service";
-import { projectRepository } from "../../domains/project/repository";
-import { useLoaderData } from "@remix-run/react";
+import { DateInput } from "@mantine/dates";
+import { useForm } from "@mantine/form";
+import React, { useState } from "react";
+import { cn } from "~/utils/utils";
 import { useSession } from "../hooks/useSession";
+import { ProjectLogsWidget } from "./project-logs-widget";
+export type FormValues = {
+  email: string;
+  date: Date | null;
+  comment: string;
+};
 
 export const ProjectLogForm = () => {
-  const form = useForm({
-    mode: "uncontrolled",
-    initialValues: {
-      email: "",
-    },
-  });
-
-  const { session, setSession, isAuthenticated } = useSession();
   const [pickedDate, setPickedDate] = useState<Date | null>(() => {
     const today = new Date();
     const dayOfWeek = today.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
@@ -38,31 +33,68 @@ export const ProjectLogForm = () => {
     // Otherwise, return the last Monday
     return lastMonday;
   });
+  const { session, setSession, isAuthenticated } = useSession();
+  const form = useForm({
+    initialValues: {
+      email: session?.email || "",
+      date: pickedDate,
+      comment: "",
+    },
+    validate: {
+      email: (value) => (value ? null : "Email is required"),
+      date: (value) => (value ? null : "date is required"),
+    },
+  });
+
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleSubmit = async (
+    values: typeof form.values,
+    event: React.FormEvent<HTMLFormElement> | undefined
+  ) => {
+    setIsSubmitted(true);
+  };
 
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div className="w-4/5 p-[3%] rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white mb-12">
-        <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(form.values, e);
+          }}
+        >
           <h1>Weekly Project Log Form</h1>
           <div>
             <DateInput
               value={pickedDate}
-              onChange={setPickedDate}
               label="Date input"
               placeholder="Date input"
               excludeDate={(date) => date.getDay() !== 1}
+              key={form.key("date")}
+              {...form.getInputProps("date")}
             />
           </div>
           <div>
-            <ProjectLogsWidget />
+            <ProjectLogsWidget isSubmitted={isSubmitted} />
           </div>
           <div>
             <Textarea
               label="Do you have any additional comments?"
               description="Please use this notes section to add details about time allocation this week. If you have concerns about your capacity or your projects, please discuss with your home manager and/or project lead."
               placeholder=""
+              key={form.key("comment")}
+              {...form.getInputProps("comment")}
             />
           </div>
+          <button
+            type="submit"
+            className={cn(
+              "h-10 w-fit self-end rounded bg-blue px-4 py-2 font-sans font-semibold text-sm text-white leading-[18px] transition-colors hover:bg-primary-600"
+            )}
+          >
+            Submit
+          </button>
         </form>
       </div>
     </div>

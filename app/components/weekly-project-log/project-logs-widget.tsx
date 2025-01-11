@@ -1,16 +1,8 @@
-import {
-  Select,
-  TextInput,
-  Group,
-  Button,
-  Alert,
-  Text,
-  Stack,
-} from "@mantine/core";
-import React, { useEffect, useState } from "react";
-import { cn } from "../../utils/utils";
+import { Button, Select, Text, TextInput } from "@mantine/core";
 import { useLoaderData } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import { loader } from "~/routes/_index";
+import { cn } from "../../utils/utils";
 import { useSession } from "../hooks/useSession";
 import { getPreAssignedProgramProjects, projectRolesList } from "./utils";
 
@@ -21,7 +13,11 @@ type ProjectRowKeys = keyof {
   workHours: string;
   budgetedHours: string;
 };
-export const ProjectLogsWidget = () => {
+export const ProjectLogsWidget = ({
+  isSubmitted,
+}: {
+  isSubmitted: boolean;
+}) => {
   const {
     programProjectsWithBudgetedHours,
     programProjectsStaffing,
@@ -127,6 +123,11 @@ export const ProjectLogsWidget = () => {
               onChange={(value) => handleChange(index, "projectType", value)}
               placeholder="Pick value"
               data={["Program-related Project", "Internal Project"]}
+              error={
+                isSubmitted && !row.projectType
+                  ? "Project type is required"
+                  : null
+              }
             />
           </div>
           <div>
@@ -136,6 +137,11 @@ export const ProjectLogsWidget = () => {
               placeholder="Pick value"
               data={handleProjectOptions(row.projectType)}
               searchable
+              error={
+                isSubmitted && !row.projectName
+                  ? "Project name is required"
+                  : null
+              }
             />
           </div>
           <div>
@@ -145,6 +151,11 @@ export const ProjectLogsWidget = () => {
               placeholder="Pick value"
               data={projectRolesList}
               searchable
+              error={
+                isSubmitted && !row.projectRole
+                  ? "Project Role is required"
+                  : null
+              }
             />
           </div>
           <div>
@@ -152,6 +163,9 @@ export const ProjectLogsWidget = () => {
               value={row.workHours}
               onChange={(e) => handleChange(index, "workHours", e.target.value)}
               placeholder="Enter work hours"
+              error={
+                isSubmitted && !row.workHours ? "Work hour is required" : null
+              }
             />
           </div>
           <div>
