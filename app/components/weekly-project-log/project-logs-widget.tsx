@@ -11,26 +11,49 @@ import React, { useEffect, useState } from "react";
 import { cn } from "../../utils/utils";
 import { useLoaderData } from "@remix-run/react";
 import { loader } from "~/routes/_index";
+import { useSession } from "../hooks/useSession";
+import { getPreAssignedProgramProjects, projectRolesList } from "./utils";
 
 type ProjectRowKeys = keyof {
   projectType: string;
   projectName: string;
   projectRole: string;
   workHours: string;
+  budgetedHours: string;
 };
 export const ProjectLogsWidget = () => {
   const { programProjectsWithBudgetedHours, programProjectsStaffing } =
     useLoaderData<typeof loader>();
-  console.log(programProjectsWithBudgetedHours);
-  console.log("programProjectsStaffing", programProjectsStaffing);
+  const { session, setSession, isAuthenticated } = useSession();
   const [rows, setRows] = useState([
-    { projectType: "", projectName: "", projectRole: "", workHours: "" },
+    {
+      projectType: "",
+      projectName: "",
+      projectRole: "",
+      workHours: "",
+      budgetedHours: "",
+    },
   ]);
+  useEffect(() => {
+    const preAssignedProgramProjects = getPreAssignedProgramProjects(
+      programProjectsStaffing,
+      programProjectsWithBudgetedHours,
+      rows,
+      setRows,
+      "Erik Reitinger"
+    );
+  }, []);
 
   const handleAddRow = () => {
     setRows([
       ...rows,
-      { projectType: "", projectName: "", projectRole: "", workHours: "" },
+      {
+        projectType: "",
+        projectName: "",
+        projectRole: "",
+        workHours: "",
+        budgetedHours: "",
+      },
     ]);
   };
 
@@ -59,19 +82,19 @@ export const ProjectLogsWidget = () => {
         })}
       >
         <div className="">
-          <Text fw={500}>Project Type*</Text>
+          <Text fw={500}>Project Type</Text>
         </div>
         <div className="">
-          <Text fw={500}>Project Name*</Text>
+          <Text fw={500}>Project Name</Text>
         </div>
         <div className="">
-          <Text fw={500}>Project Role*</Text>
+          <Text fw={500}>Project Role</Text>
         </div>
         <div className="">
-          <Text fw={500}>Actual Hours*</Text>
+          <Text fw={500}>Work Hours</Text>
         </div>
         <div className="">
-          <Text fw={500}>Budgeted Hours*</Text>
+          <Text fw={500}>Budgeted Hours</Text>
         </div>
       </div>
       {/* Dynamic rows */}
@@ -93,6 +116,7 @@ export const ProjectLogsWidget = () => {
           <div>
             <Select
               value={row.projectName}
+              onChange={(value) => handleChange(index, "projectName", value)}
               placeholder="Pick value"
               data={["Project Names"]}
             />
@@ -100,8 +124,9 @@ export const ProjectLogsWidget = () => {
           <div>
             <Select
               value={row.projectRole}
+              onChange={(value) => handleChange(index, "projectRole", value)}
               placeholder="Pick value"
-              data={["Project Names"]}
+              data={projectRolesList}
             />
           </div>
           <div>
@@ -112,11 +137,7 @@ export const ProjectLogsWidget = () => {
             />
           </div>
           <div>
-            <TextInput
-              value={row.workHours}
-              onChange={(e) => handleChange(index, "workHours", e.target.value)}
-              placeholder="Enter work hours"
-            />
+            <TextInput value={row.budgetedHours} placeholder="N/A" readOnly />
           </div>
           {rows.length > 1 && (
             <div>

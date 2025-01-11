@@ -84,7 +84,11 @@ export function projectRepository(): ProjectRepository {
             projectName: "",
             projectMembers: [],
           };
-          programProject.projectName = staffedProject.name;
+          //use the projecet name from the Project Log Name column
+          programProject.projectName = staffedProject["column_values"].find(
+            (c: { column: { title: string }; title: string }) =>
+              c.column.title === "Project Log Name"
+          ).text;
           let projectMembers: ProjectMember[] = [];
           for (const projectMember of staffedProject["column_values"]) {
             //the names are Monday profile names
@@ -95,6 +99,8 @@ export function projectRepository(): ProjectRepository {
                   return {
                     name: member.trim(),
                     role: projectMember.column.title,
+                    projectName: programProject.projectName,
+                    budgetedHours: undefined,
                   };
                 });
               projectMembers.push(...members);
@@ -109,7 +115,7 @@ export function projectRepository(): ProjectRepository {
         console.error(e);
         return {
           data: null,
-          error: new Error("fetchProgramProjects went wrong"),
+          error: new Error("fetchProgramProjects() went wrong"),
         };
       }
     },
@@ -138,7 +144,7 @@ export function projectRepository(): ProjectRepository {
         console.error(e);
         return {
           data: null,
-          error: new Error("fetchProgramProjectWithHours went wrong"),
+          error: new Error("fetchProgramProjectWithHours() went wrong"),
         };
       }
     },

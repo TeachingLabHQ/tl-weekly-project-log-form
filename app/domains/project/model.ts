@@ -1,8 +1,16 @@
 export type ProjectMember = {
   name: string;
   role: string;
-  budgetedHour: string | undefined;
   projectName: string | undefined;
+  budgetedHours: string | undefined;
+};
+
+export type ProjectLogRows = {
+  projectType: string;
+  projectName: string;
+  projectRole: string;
+  workHours: string;
+  budgetedHours: string;
 };
 export type ProgramProject = {
   projectName: string;
