@@ -15,9 +15,29 @@ export const ProjectLogForm = () => {
       email: "",
     },
   });
-  const [value, setValue] = useState<Date | null>(null);
 
   const { session, setSession, isAuthenticated } = useSession();
+  const [pickedDate, setPickedDate] = useState<Date | null>(() => {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+
+    // Calculate the current week's Monday
+    const currentMonday = new Date(today);
+    currentMonday.setDate(
+      today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
+    ); //Monday is start of a new week
+
+    // Calculate the next week's Monday
+    const lastMonday = new Date(currentMonday);
+    lastMonday.setDate(currentMonday.getDate() - 7);
+
+    // If today is between Thursday and Sunday, return current Monday
+    if (dayOfWeek >= 4 || dayOfWeek === 0) {
+      return currentMonday;
+    }
+    // Otherwise, return the last Monday
+    return lastMonday;
+  });
 
   return (
     <div className="w-full h-full flex items-center justify-center">
@@ -26,10 +46,11 @@ export const ProjectLogForm = () => {
           <h1>Weekly Project Log Form</h1>
           <div>
             <DateInput
-              value={value}
-              onChange={setValue}
+              value={pickedDate}
+              onChange={setPickedDate}
               label="Date input"
               placeholder="Date input"
+              excludeDate={(date) => date.getDay() !== 1}
             />
           </div>
           <div>
