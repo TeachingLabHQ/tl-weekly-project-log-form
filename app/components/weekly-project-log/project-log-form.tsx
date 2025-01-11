@@ -1,10 +1,11 @@
-import { Textarea } from "@mantine/core";
+import { Button, Textarea } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import React, { useState } from "react";
 import { cn } from "~/utils/utils";
 import { useSession } from "../hooks/useSession";
 import { ProjectLogsWidget } from "./project-logs-widget";
+import { isProjectLogComplete } from "./utils";
 export type FormValues = {
   email: string;
   date: Date | null;
@@ -47,12 +48,30 @@ export const ProjectLogForm = () => {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [projectWorkEntries, setProjectWorkEntries] = useState([
+    {
+      projectType: "",
+      projectName: "",
+      projectRole: "",
+      workHours: "",
+      budgetedHours: "",
+    },
+  ]);
 
   const handleSubmit = async (
     values: typeof form.values,
     event: React.FormEvent<HTMLFormElement> | undefined
   ) => {
     setIsSubmitted(true);
+
+    // Check if all project logs are complete
+    const areAllLogsComplete = projectWorkEntries.every(isProjectLogComplete);
+
+    if (!areAllLogsComplete) {
+      console.error("Please fill in all fields for each project");
+      return; // Prevent form submission
+    }
+    console.log("setProjectWorkEntries", projectWorkEntries);
   };
 
   return (
@@ -76,7 +95,11 @@ export const ProjectLogForm = () => {
             />
           </div>
           <div>
-            <ProjectLogsWidget isSubmitted={isSubmitted} />
+            <ProjectLogsWidget
+              isSubmitted={isSubmitted}
+              projectWorkEntries={projectWorkEntries}
+              setProjectWorkEntries={setProjectWorkEntries}
+            />
           </div>
           <div>
             <Textarea
@@ -87,14 +110,7 @@ export const ProjectLogForm = () => {
               {...form.getInputProps("comment")}
             />
           </div>
-          <button
-            type="submit"
-            className={cn(
-              "h-10 w-fit self-end rounded bg-blue px-4 py-2 font-sans font-semibold text-sm text-white leading-[18px] transition-colors hover:bg-primary-600"
-            )}
-          >
-            Submit
-          </button>
+          <Button type="submit">Submit</Button>
         </form>
       </div>
     </div>

@@ -15,8 +15,28 @@ type ProjectRowKeys = keyof {
 };
 export const ProjectLogsWidget = ({
   isSubmitted,
+  projectWorkEntries,
+  setProjectWorkEntries,
 }: {
   isSubmitted: boolean;
+  projectWorkEntries: {
+    projectType: string;
+    projectName: string;
+    projectRole: string;
+    workHours: string;
+    budgetedHours: string;
+  }[];
+  setProjectWorkEntries: React.Dispatch<
+    React.SetStateAction<
+      {
+        projectType: string;
+        projectName: string;
+        projectRole: string;
+        workHours: string;
+        budgetedHours: string;
+      }[]
+    >
+  >;
 }) => {
   const {
     programProjectsWithBudgetedHours,
@@ -24,28 +44,19 @@ export const ProjectLogsWidget = ({
     allProjects,
   } = useLoaderData<typeof loader>();
   const { session, setSession, isAuthenticated } = useSession();
-  const [rows, setRows] = useState([
-    {
-      projectType: "",
-      projectName: "",
-      projectRole: "",
-      workHours: "",
-      budgetedHours: "",
-    },
-  ]);
   useEffect(() => {
     getPreAssignedProgramProjects(
       programProjectsStaffing,
       programProjectsWithBudgetedHours,
-      rows,
-      setRows,
+      projectWorkEntries,
+      setProjectWorkEntries,
       "Erik Reitinger"
     );
   }, []);
 
   const handleAddRow = () => {
-    setRows([
-      ...rows,
+    setProjectWorkEntries([
+      ...projectWorkEntries,
       {
         projectType: "",
         projectName: "",
@@ -61,16 +72,16 @@ export const ProjectLogsWidget = ({
     field: ProjectRowKeys,
     value: string | null
   ) => {
-    const updatedRows = [...rows];
+    const updatedRows = [...projectWorkEntries];
     if (updatedRows[index]) {
       updatedRows[index][field] = value || "";
     }
-    setRows(updatedRows);
+    setProjectWorkEntries(updatedRows);
   };
 
   const handleDeleteRow = (index: number) => {
-    const updatedRows = rows.filter((_, i) => i !== index);
-    setRows(updatedRows);
+    const updatedRows = projectWorkEntries.filter((_, i) => i !== index);
+    setProjectWorkEntries(updatedRows);
   };
 
   const handleProjectOptions = (projectType: string) => {
@@ -90,7 +101,7 @@ export const ProjectLogsWidget = ({
     <div className="grid grid-rows gap-4">
       <div
         className={cn("grid gap-4 mb-4 grid-cols-5", {
-          "grid-cols-6": rows.length > 1,
+          "grid-cols-6": projectWorkEntries.length > 1,
         })}
       >
         <div className="">
@@ -110,11 +121,11 @@ export const ProjectLogsWidget = ({
         </div>
       </div>
       {/* Dynamic rows */}
-      {rows.map((row, index) => (
+      {projectWorkEntries.map((row, index) => (
         <div
           key={index}
           className={cn("grid gap-4 mb-4 grid-cols-5", {
-            "grid-cols-6": rows.length > 1,
+            "grid-cols-6": projectWorkEntries.length > 1,
           })}
         >
           <div>
@@ -171,7 +182,7 @@ export const ProjectLogsWidget = ({
           <div>
             <TextInput value={row.budgetedHours} placeholder="N/A" readOnly />
           </div>
-          {rows.length > 1 && (
+          {projectWorkEntries.length > 1 && (
             <div>
               <Button color="red" onClick={() => handleDeleteRow(index)}>
                 Delete

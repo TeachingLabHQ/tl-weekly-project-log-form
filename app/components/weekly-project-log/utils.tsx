@@ -14,6 +14,20 @@ export const projectRolesList = [
   "Other",
 ];
 
+export const isProjectLogComplete = (log: {
+  projectType: string;
+  projectRole: string;
+  projectName: string;
+  workHours: string;
+}) => {
+  return (
+    log.projectType !== "" &&
+    log.projectRole !== "" &&
+    log.projectName !== "" &&
+    log.workHours !== ""
+  );
+};
+
 export const getPreAssignedProgramProjects = (
   programProjectsStaffing: any,
   programProjectsWithBudgetedHours: any,
