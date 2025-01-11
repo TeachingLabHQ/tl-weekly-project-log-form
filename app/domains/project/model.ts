@@ -5,6 +5,11 @@ export type ProjectMember = {
   budgetedHours: string | undefined;
 };
 
+export type projectsByTypes = {
+  projectType: string;
+  projects: string[];
+};
+
 export type ProjectLogRows = {
   projectType: string;
   projectName: string;

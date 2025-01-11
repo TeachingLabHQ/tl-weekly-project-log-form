@@ -22,8 +22,11 @@ type ProjectRowKeys = keyof {
   budgetedHours: string;
 };
 export const ProjectLogsWidget = () => {
-  const { programProjectsWithBudgetedHours, programProjectsStaffing } =
-    useLoaderData<typeof loader>();
+  const {
+    programProjectsWithBudgetedHours,
+    programProjectsStaffing,
+    allProjects,
+  } = useLoaderData<typeof loader>();
   const { session, setSession, isAuthenticated } = useSession();
   const [rows, setRows] = useState([
     {
@@ -35,7 +38,7 @@ export const ProjectLogsWidget = () => {
     },
   ]);
   useEffect(() => {
-    const preAssignedProgramProjects = getPreAssignedProgramProjects(
+    getPreAssignedProgramProjects(
       programProjectsStaffing,
       programProjectsWithBudgetedHours,
       rows,
@@ -72,6 +75,19 @@ export const ProjectLogsWidget = () => {
   const handleDeleteRow = (index: number) => {
     const updatedRows = rows.filter((_, i) => i !== index);
     setRows(updatedRows);
+  };
+
+  const handleProjectOptions = (projectType: string) => {
+    if (!allProjects) {
+      return [];
+    }
+    if (projectType === "Program-related Project") {
+      return allProjects[0]?.projects || [];
+    }
+    if (projectType === "Internal Project") {
+      return allProjects[1]?.projects || [];
+    }
+    return [];
   };
 
   return (
@@ -118,7 +134,8 @@ export const ProjectLogsWidget = () => {
               value={row.projectName}
               onChange={(value) => handleChange(index, "projectName", value)}
               placeholder="Pick value"
-              data={["Project Names"]}
+              data={handleProjectOptions(row.projectType)}
+              searchable
             />
           </div>
           <div>
@@ -127,6 +144,7 @@ export const ProjectLogsWidget = () => {
               onChange={(value) => handleChange(index, "projectRole", value)}
               placeholder="Pick value"
               data={projectRolesList}
+              searchable
             />
           </div>
           <div>

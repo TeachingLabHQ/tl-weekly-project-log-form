@@ -19,7 +19,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     await newProjectService.fetchProgramProjectsWithHours();
   const { data: programProjectsStaffing } =
     await newProjectService.fetchProgramProjectsStaffing();
-  return { programProjectsWithBudgetedHours, programProjectsStaffing };
+  const { data: allProjects } = await newProjectService.fetchAllProjects();
+  return {
+    programProjectsWithBudgetedHours,
+    programProjectsStaffing,
+    allProjects,
+  };
 };
 export default function Index() {
   return (

@@ -4,16 +4,52 @@ import {
   ProgramProject,
   ProgramProjectWithHours,
   ProjectMember,
+  projectsByTypes,
 } from "./model";
 
 import { google } from "googleapis";
 
 export interface ProjectRepository {
+  fetchAllProjects(): Promise<Errorable<projectsByTypes[]>>;
   fetchProgramProjects(): Promise<Errorable<ProgramProject[]>>;
   fetchProgramProjectWithHours(): Promise<Errorable<String[][]>>;
 }
 export function projectRepository(): ProjectRepository {
   return {
+    fetchAllProjects: async () => {
+      try {
+        console.log(1111);
+
+        const query =
+          "{boards(ids: 4271509592) { items_page (limit:500) { items { name group{title} }}}}";
+        const rawMondayData = await fetchMondayData(query);
+        const rawItemData = rawMondayData.data.boards[0].items_page.items;
+        const internalProjectsList = rawItemData.filter((i: any) => {
+          return i.group.title == "Internal Project";
+        });
+        const programProjectsList = rawItemData.filter((i: any) => {
+          return i.group.title == "Program Project";
+        });
+
+        const allProjectsList = [
+          {
+            projectType: "Program-related Project",
+            projects: programProjectsList.map((p: any) => p.name),
+          },
+          {
+            projectType: "Internal Project",
+            projects: internalProjectsList.map((p: any) => p.name),
+          },
+        ];
+        return { data: allProjectsList, error: null };
+      } catch (e) {
+        return {
+          data: null,
+          error: new Error("fetchAllProjects() went wrong"),
+        };
+      }
+    },
+
     fetchProgramProjects: async () => {
       try {
         // Define the query to fetch staffing data from Monday
