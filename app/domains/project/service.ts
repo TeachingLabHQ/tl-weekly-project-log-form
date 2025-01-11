@@ -1,9 +1,10 @@
+import { ProjectMember } from "./model";
 import { ProjectRepository } from "./repository";
 
 export function projectService(projectRepository: ProjectRepository) {
   return {
-    fetchProgramProjects: projectRepository.fetchProgramProjects,
-    fetchProgramProjectWithHours:
+    fetchProgramProjectsStaffing: projectRepository.fetchProgramProjects,
+    fetchProgramProjectsWithHours:
       projectRepository.fetchProgramProjectWithHours,
   };
 }

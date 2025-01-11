@@ -12,15 +12,15 @@ export const headers = () => {
     "Cross-Origin-Resource-Policy": "cross-origin",
   };
 };
-// export const loader = async (args: LoaderFunctionArgs) => {
-//   const newProjectService = projectService(projectRepository());
+export const loader = async (args: LoaderFunctionArgs) => {
+  const newProjectService = projectService(projectRepository());
 
-//   const { data: programProjectsWithBudgetedHours } =
-//     await newProjectService.fetchProgramProjectWithHours();
-//   const { data: programProjectsStaffing } =
-//     await newProjectService.fetchProgramProjects();
-//   return { programProjectsStaffing };
-// };
+  const { data: programProjectsWithBudgetedHours } =
+    await newProjectService.fetchProgramProjectsWithHours();
+  const { data: programProjectsStaffing } =
+    await newProjectService.fetchProgramProjectsStaffing();
+  return { programProjectsWithBudgetedHours, programProjectsStaffing };
+};
 export default function Index() {
   return (
     <div

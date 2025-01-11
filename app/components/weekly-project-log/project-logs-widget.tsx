@@ -9,8 +9,9 @@ import {
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { cn } from "../../utils/utils";
-import { projectService } from "../../domains/project/service";
-import { projectRepository } from "../../domains/project/repository";
+import { useLoaderData } from "@remix-run/react";
+import { loader } from "~/routes/_index";
+
 type ProjectRowKeys = keyof {
   projectType: string;
   projectName: string;
@@ -18,20 +19,10 @@ type ProjectRowKeys = keyof {
   workHours: string;
 };
 export const ProjectLogsWidget = () => {
-  const newProjectService = projectService(projectRepository());
-  const fetchProgramProjects = async () => {
-    const { data, error } = await newProjectService.fetchProgramProjects();
-    console.log(data);
-  };
-  const fetchProgramProjectsWithHours = async () => {
-    const { data, error } =
-      await newProjectService.fetchProgramProjectWithHours();
-    console.log(data);
-  };
-  useEffect(() => {
-    fetchProgramProjects();
-    fetchProgramProjectsWithHours();
-  });
+  const { programProjectsWithBudgetedHours, programProjectsStaffing } =
+    useLoaderData<typeof loader>();
+  console.log(programProjectsWithBudgetedHours);
+  console.log("programProjectsStaffing", programProjectsStaffing);
   const [rows, setRows] = useState([
     { projectType: "", projectName: "", projectRole: "", workHours: "" },
   ]);

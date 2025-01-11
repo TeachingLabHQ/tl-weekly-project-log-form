@@ -5,7 +5,6 @@ import {
   ProgramProjectWithHours,
   ProjectMember,
 } from "./model";
-import { GoogleAuth } from "google-auth-library";
 
 import { google } from "googleapis";
 
@@ -116,70 +115,24 @@ export function projectRepository(): ProjectRepository {
     },
     fetchProgramProjectWithHours: async () => {
       try {
-        ///why JWT gives issue i thought remix is SSR
-        // const keysEnvVar = import.meta.env.VITE_GOOGLE_SERVICE_CREDENTIALS;
-        // if (!keysEnvVar) {
-        //   throw new Error("The $CREDS environment variable was not found!");
-        // }
-        // const keys = JSON.parse(keysEnvVar);
-        // const SCOPES = [
-        //   "https://www.googleapis.com/auth/spreadsheets.readonly",
-        // ];
-        // const auth = new GoogleAuth({
-        //   credentials: {
-        //     client_email: keys.client_email,
-        //     private_key: keys.private_key,
-        //   },
-        //   scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-        // });
-        // const authClient = await auth.getClient();
-        // const googleSheets = google.sheets({
-        //   version: "v4",
-        //   auth: authClient as any,
-        // });
-        // const data = await googleSheets.spreadsheets.values.get({
-        //   spreadsheetId: "1XQ5X2ZFiorz2mgYX_Td3tpvkOoEUACeZZFdXVpwhf5c",
-        //   range: "Estimated Hours",
-        //   majorDimension: "ROWS",
-        // });
-        // const rows = data.data.values as string[][];
-        // let budgetedHours;
-        // console.log(rows[1]);
-        // if (rows && rows.length > 2) {
-        //   const projectRoleIndex = rows[1]?.findIndex(
-        //     (rowItem) => rowItem === projectRole
-        //   );
-        //   const project = rows.filter((r) => r[0] === projecName);
-        //   if (projectRoleIndex && project && project[0]) {
-        //     budgetedHours = project[0][projectRoleIndex];
-        //   }
-        // }
-        // console.log(budgetedHours);
-        const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY; // You'll need this instead of service account
-        if (!API_KEY) {
-          throw new Error("Google API key not found in environment variables!");
-        }
+        const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_SERVICE_CLIENTEMAIL;
+        const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_SERVICE_PRIVATEKEY;
+        const client = new google.auth.JWT({
+          email: GOOGLE_CLIENT_EMAIL,
+          key: GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+          scopes: [
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive",
+          ],
+        });
 
-        const SPREADSHEET_ID = "1XQ5X2ZFiorz2mgYX_Td3tpvkOoEUACeZZFdXVpwhf5c";
-        const RANGE = "Estimated Hours";
-
-        const response = await fetch(
-          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        const rows = data.values as string[][];
-        console.log(rows);
+        const sheets = google.sheets({ version: "v4", auth: client });
+        const data = await sheets.spreadsheets.values.get({
+          spreadsheetId: "1XQ5X2ZFiorz2mgYX_Td3tpvkOoEUACeZZFdXVpwhf5c",
+          range: "Estimated Hours",
+          majorDimension: "ROWS",
+        });
+        const rows = data.data.values as string[][];
         return { data: rows, error: null };
       } catch (e) {
         console.error(e);

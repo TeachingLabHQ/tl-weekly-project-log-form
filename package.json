@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node ./server.js",
+    "dev": "remix vite:dev",
     "start": "cross-env NODE_ENV=production node ./server.js",
     "typecheck": "tsc"
   },
@@ -33,7 +33,6 @@
     "dayjs": "^1.11.13",
     "express": "^4.21.2",
     "framer-motion": "^6.5.1",
-    "google-auth-library": "^9.14.1",
     "googleapis": "^144.0.0",
     "intl-parse-accept-language": "^1.0.0",
     "is-ip": "^5.0.1",

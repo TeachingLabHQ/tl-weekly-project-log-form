@@ -21,7 +21,7 @@ export const ProjectLogForm = () => {
 
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <div className="w-2/4 p-[3%] rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white mb-12">
+      <div className="w-3/5 p-[3%] rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white mb-12">
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <h1>Weekly Project Log Form</h1>
           <div>

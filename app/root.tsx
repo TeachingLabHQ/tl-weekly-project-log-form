@@ -79,7 +79,6 @@ const Document = withEmotionCache(
           <MantineProvider>{children}</MantineProvider>
           <ScrollRestoration />
           <Scripts />
-          <LiveReload />
         </body>
       </html>
     );
