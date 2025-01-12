@@ -37,12 +37,10 @@ export const ProjectLogForm = () => {
   const { session, setSession, isAuthenticated } = useSession();
   const form = useForm({
     initialValues: {
-      email: session?.email || "",
       date: pickedDate,
       comment: "",
     },
     validate: {
-      email: (value) => (value ? null : "Email is required"),
       date: (value) => (value ? null : "date is required"),
     },
   });
@@ -71,7 +69,7 @@ export const ProjectLogForm = () => {
       console.error("Please fill in all fields for each project");
       return; // Prevent form submission
     }
-    console.log("setProjectWorkEntries", projectWorkEntries);
+    console.log(form.values);
   };
 
   return (
