@@ -29,12 +29,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
 export default function Index() {
   return (
     <div
-      className="h-screen w-full bg-no-repeat bg-cover"
-      style={{ backgroundImage: `url(${BackgroundImg})` }}
+      className=" bg-no-repeat bg-cover"
+      style={{
+        backgroundImage: `url(${BackgroundImg})`,
+      }}
     >
-      <ProjectLogForm />
-
-      {/* Content goes here */}
+      <div className="min-h-screen w-full overflow-auto">
+        <ProjectLogForm />
+      </div>
     </div>
   );
 }

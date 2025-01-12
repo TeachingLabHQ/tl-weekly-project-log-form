@@ -75,7 +75,7 @@ export const ProjectLogForm = () => {
   };
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="w-full h-full flex items-center justify-center py-16">
       <div className="w-4/5 p-[3%] rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white mb-12">
         <form
           onSubmit={(e) => {
