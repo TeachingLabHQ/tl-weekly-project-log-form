@@ -18,8 +18,6 @@ export function projectRepository(): ProjectRepository {
   return {
     fetchAllProjects: async () => {
       try {
-        console.log(1111);
-
         const query =
           "{boards(ids: 4271509592) { items_page (limit:500) { items { name group{title} }}}}";
         const rawMondayData = await fetchMondayData(query);

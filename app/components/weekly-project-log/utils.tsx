@@ -68,7 +68,7 @@ export const getPreAssignedProgramProjects = (
           projectRole: member.role,
           projectName: projectName,
           workHours: "",
-          budgetedHours: "",
+          budgetedHours: "N/A",
         });
       }
     }
@@ -87,4 +87,49 @@ export const getPreAssignedProgramProjects = (
     setRows(projectMembersInfo);
   }
   return projectMembersInfo;
+};
+
+export const handleProjectTypeByTeam = (businessFunction: string) => {
+  const projectTypes = ["Internal Project", "Program-related Project"];
+
+  switch (businessFunction) {
+    case "Operations&Technology":
+      return projectTypes;
+    case "Finance":
+      return projectTypes;
+    case "Strategy & Communications":
+      return ["Internal Project"];
+    case "People & Culture":
+      return projectTypes;
+    case "Strategic Growth & Marketing":
+      return ["Program-related Project"];
+    case "Program":
+      return ["Program-related Project"];
+    case "Innovation Studio":
+      return projectTypes;
+    case "Learning & Research":
+      return projectTypes;
+    case "Office of the CEO":
+      return projectTypes;
+    case "Shared Operations":
+      return projectTypes;
+    case "Facilitation":
+      return projectTypes;
+    case "":
+      return projectTypes;
+    default:
+      return projectTypes;
+  }
+};
+
+export const updateTotalWorkHours = (
+  updatedProjectLogEntries: ProjectLogRows[],
+  setTotalWorkHours: React.Dispatch<React.SetStateAction<number>>
+) => {
+  let totalWorkHours = 0;
+  for (const projectLog of updatedProjectLogEntries) {
+    const { workHours } = projectLog;
+    totalWorkHours += Number(workHours);
+  }
+  setTotalWorkHours(totalWorkHours);
 };

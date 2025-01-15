@@ -1,4 +1,4 @@
-import { Button, Textarea } from "@mantine/core";
+import { Button, Loader, Textarea } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import React, { useState } from "react";
@@ -6,6 +6,9 @@ import { cn } from "~/utils/utils";
 import { useSession } from "../hooks/useSession";
 import { ProjectLogsWidget } from "./project-logs-widget";
 import { isProjectLogComplete } from "./utils";
+import { Reminders } from "./reminders";
+import { IconX, IconCheck } from "@tabler/icons-react";
+import { Notification } from "@mantine/core";
 export type FormValues = {
   email: string;
   date: Date | null;
@@ -13,7 +16,23 @@ export type FormValues = {
 };
 
 export const ProjectLogForm = () => {
-  const [pickedDate, setPickedDate] = useState<Date | null>(() => {
+  const { session, setSession, isAuthenticated } = useSession();
+  const [totalWorkHours, setTotalWorkHours] = useState<number>(0);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSuccessful, setIsSuccessful] = useState<boolean | null>(null);
+  const [projectWorkEntries, setProjectWorkEntries] = useState([
+    {
+      projectType: "",
+      projectName: "",
+      projectRole: "",
+      workHours: "",
+      budgetedHours: "N/A",
+    },
+  ]);
+  const xIcon = <IconX size={20} />;
+  const checkIcon = <IconCheck size={20} />;
+
+  const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
     const today = new Date();
     const dayOfWeek = today.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
 
@@ -34,10 +53,10 @@ export const ProjectLogForm = () => {
     // Otherwise, return the last Monday
     return lastMonday;
   });
-  const { session, setSession, isAuthenticated } = useSession();
+
   const form = useForm({
     initialValues: {
-      date: pickedDate,
+      date: selectedDate,
       comment: "",
     },
     validate: {
@@ -45,47 +64,64 @@ export const ProjectLogForm = () => {
     },
   });
 
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [projectWorkEntries, setProjectWorkEntries] = useState([
-    {
-      projectType: "",
-      projectName: "",
-      projectRole: "",
-      workHours: "",
-      budgetedHours: "",
-    },
-  ]);
-
   const handleSubmit = async (
     values: typeof form.values,
     event: React.FormEvent<HTMLFormElement> | undefined
   ) => {
-    setIsSubmitted(true);
-
+    if (!session?.name) {
+      console.error("Please log in first");
+      return; // Prevent form submission
+    }
+    const userName = session.name;
     // Check if all project logs are complete
     const areAllLogsComplete = projectWorkEntries.every(isProjectLogComplete);
-
     if (!areAllLogsComplete) {
       console.error("Please fill in all fields for each project");
       return; // Prevent form submission
     }
-    console.log(form.values);
+    try {
+      setIsSubmitted(true);
+      const response = await fetch("/api/weekly-project-log/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: userName,
+          date: selectedDate,
+          projectLogEntries: projectWorkEntries,
+          comment: values.comment,
+        }),
+      });
+      if (!response.ok) {
+        console.log("Form submission went wrong");
+        setIsSuccessful(false);
+        return;
+      }
+      setIsSuccessful(true);
+      console.log("Form submitted successfully");
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
-    <div className="w-full h-full flex items-center justify-center py-16">
-      <div className="w-4/5 p-[3%] rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white mb-12">
+    <div className="w-full h-full flex py-16 gap-10 grid grid-cols-11 ">
+      <div className="col-start-2 col-span-6  h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white ">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit(form.values, e);
           }}
+          className="flex flex-col gap-4"
         >
-          <h1>Weekly Project Log Form</h1>
-          <div>
+          <h1 className="font-bold text-3xl">Weekly Project Log Form</h1>
+          <div className="flex flex-col gap-1">
+            <h1 className="font-medium text-lg">
+              Enter the Monday of the week:
+            </h1>
             <DateInput
-              value={pickedDate}
-              label="Date input"
+              value={selectedDate}
               placeholder="Date input"
               excludeDate={(date) => date.getDay() !== 1}
               key={form.key("date")}
@@ -97,20 +133,54 @@ export const ProjectLogForm = () => {
               isSubmitted={isSubmitted}
               projectWorkEntries={projectWorkEntries}
               setProjectWorkEntries={setProjectWorkEntries}
+              setTotalWorkHours={setTotalWorkHours}
             />
           </div>
-          <div>
+          <div className="flex flex-col gap-1">
+            <h1 className="font-medium text-lg">
+              Do you have any additional comments?
+            </h1>
             <Textarea
-              label="Do you have any additional comments?"
-              description="Please use this notes section to add details about time allocation this week. If you have concerns about your capacity or your projects, please discuss with your home manager and/or project lead."
               placeholder=""
               key={form.key("comment")}
               {...form.getInputProps("comment")}
             />
           </div>
-          <Button type="submit">Submit</Button>
+          {(isSubmitted === false || isSuccessful !== null) && (
+            <Button type="submit">Submit</Button>
+          )}
+          {isSubmitted && isSuccessful === null && <Loader size={30} />}
+          {isSubmitted && isSuccessful && (
+            <Notification
+              icon={checkIcon}
+              color="teal"
+              title="Form is submitted successfully!"
+              mt="md"
+            ></Notification>
+          )}
+          {isSubmitted && isSuccessful === false && (
+            <Notification
+              icon={xIcon}
+              color="red"
+              title="Something went wrong"
+            ></Notification>
+          )}
         </form>
+      </div>
+      <div className="col-start-8 col-span-3 flex flex-col items-center">
+        <Reminders />
+        <div className="w-fit py-5 px-10 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col items-center gap-3 ">
+          <h3 className="text-2xl font-bold">Total Time</h3>
+          <h1 className="text-2xl font-bold">{totalWorkHours}</h1>
+        </div>
       </div>
     </div>
   );
 };
+
+//test out the code - submission logic
+//conditional render on internal and program projects - debug
+// total time counter - styling
+//implement submission notication
+//styling overall
+// log in notification when users

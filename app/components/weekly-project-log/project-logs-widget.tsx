@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import { loader } from "~/routes/_index";
 import { cn } from "../../utils/utils";
 import { useSession } from "../hooks/useSession";
-import { getPreAssignedProgramProjects, projectRolesList } from "./utils";
+import {
+  getPreAssignedProgramProjects,
+  handleProjectTypeByTeam,
+  projectRolesList,
+  updateTotalWorkHours,
+} from "./utils";
+import { IconX } from "@tabler/icons-react";
 
 type ProjectRowKeys = keyof {
   projectType: string;
@@ -17,6 +23,7 @@ export const ProjectLogsWidget = ({
   isSubmitted,
   projectWorkEntries,
   setProjectWorkEntries,
+  setTotalWorkHours,
 }: {
   isSubmitted: boolean;
   projectWorkEntries: {
@@ -37,6 +44,7 @@ export const ProjectLogsWidget = ({
       }[]
     >
   >;
+  setTotalWorkHours: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   const {
     programProjectsWithBudgetedHours,
@@ -62,7 +70,7 @@ export const ProjectLogsWidget = ({
         projectName: "",
         projectRole: "",
         workHours: "",
-        budgetedHours: "",
+        budgetedHours: "N/A",
       },
     ]);
   };
@@ -77,11 +85,13 @@ export const ProjectLogsWidget = ({
       updatedRows[index][field] = value || "";
     }
     setProjectWorkEntries(updatedRows);
+    updateTotalWorkHours(updatedRows, setTotalWorkHours);
   };
 
   const handleDeleteRow = (index: number) => {
     const updatedRows = projectWorkEntries.filter((_, i) => i !== index);
     setProjectWorkEntries(updatedRows);
+    updateTotalWorkHours(updatedRows, setTotalWorkHours);
   };
 
   const handleProjectOptions = (projectType: string) => {
@@ -100,7 +110,7 @@ export const ProjectLogsWidget = ({
   return (
     <div className="grid grid-rows gap-4">
       <div
-        className={cn("grid gap-4 mb-4 grid-cols-5", {
+        className={cn("grid gap-4 grid-cols-5", {
           "grid-cols-6": projectWorkEntries.length > 1,
         })}
       >
@@ -124,7 +134,7 @@ export const ProjectLogsWidget = ({
       {projectWorkEntries.map((row, index) => (
         <div
           key={index}
-          className={cn("grid gap-4 mb-4 grid-cols-5", {
+          className={cn("grid gap-4 grid-cols-5", {
             "grid-cols-6": projectWorkEntries.length > 1,
           })}
         >
@@ -132,8 +142,8 @@ export const ProjectLogsWidget = ({
             <Select
               value={row.projectType}
               onChange={(value) => handleChange(index, "projectType", value)}
-              placeholder="Pick value"
-              data={["Program-related Project", "Internal Project"]}
+              placeholder="Select a type"
+              data={handleProjectTypeByTeam(session?.buesinessFunction || "")}
               error={
                 isSubmitted && !row.projectType
                   ? "Project type is required"
@@ -145,7 +155,7 @@ export const ProjectLogsWidget = ({
             <Select
               value={row.projectName}
               onChange={(value) => handleChange(index, "projectName", value)}
-              placeholder="Pick value"
+              placeholder="Select a project"
               data={handleProjectOptions(row.projectType)}
               searchable
               error={
@@ -159,7 +169,7 @@ export const ProjectLogsWidget = ({
             <Select
               value={row.projectRole}
               onChange={(value) => handleChange(index, "projectRole", value)}
-              placeholder="Pick value"
+              placeholder="Select a role"
               data={projectRolesList}
               searchable
               error={
@@ -184,8 +194,12 @@ export const ProjectLogsWidget = ({
           </div>
           {projectWorkEntries.length > 1 && (
             <div>
-              <Button color="red" onClick={() => handleDeleteRow(index)}>
-                Delete
+              <Button
+                color="red"
+                onClick={() => handleDeleteRow(index)}
+                size="xs"
+              >
+                <IconX size={20} />
               </Button>
             </div>
           )}
