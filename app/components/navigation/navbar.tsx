@@ -21,11 +21,18 @@ export const Navbar = () => {
       try {
         const { data: mondayEmployeeInfo, error } =
           await newEmployeeService.fetchMondayEmployee(email);
-        if (error) {
+        if (error || !mondayEmployeeInfo) {
           console.error(
             "Failed to get employee information from Monday",
             error
           );
+          //pass in email to verify if it's TL associated
+          setSession({
+            name: "",
+            email: email,
+            buesinessFunction: "",
+          });
+          return;
         }
         setSession({
           name: mondayEmployeeInfo?.name || "",

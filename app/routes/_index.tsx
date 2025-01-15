@@ -6,6 +6,7 @@ import { projectRepository } from "~/domains/project/repository";
 import { projectService } from "~/domains/project/service";
 import { useSession } from "~/components/hooks/useSession";
 import { useLoaderData } from "@remix-run/react";
+import { LandingPage } from "~/components/ui/landing-page";
 export const headers = () => {
   return {
     "Cross-Origin-Opener-Policy": "unsafe-none",
@@ -27,6 +28,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 };
 export default function Index() {
+  const { session, setSession, isAuthenticated, errorMessage } = useSession();
   return (
     <div
       className=" bg-no-repeat bg-cover"
@@ -34,8 +36,12 @@ export default function Index() {
         backgroundImage: `url(${BackgroundImg})`,
       }}
     >
-      <div className="min-h-screen w-full overflow-auto">
-        <ProjectLogForm />
+      <div className="min-h-screen w-full overflow-auto flex justify-center items-center">
+        {isAuthenticated ? (
+          <ProjectLogForm />
+        ) : (
+          <LandingPage errorMessage={errorMessage} />
+        )}
       </div>
     </div>
   );

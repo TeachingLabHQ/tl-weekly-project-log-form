@@ -97,6 +97,12 @@ export default function App() {
       sessionStorage.setItem("storedSession", JSON.stringify(newSession));
     } else {
       sessionStorage.removeItem("storedSession");
+      //to ensure error message is clear
+      setSessionState({
+        name: "",
+        email: "",
+        buesinessFunction: "",
+      });
     }
     setSessionState(newSession);
   };
