@@ -109,8 +109,12 @@ export const ProjectLogForm = () => {
   };
 
   return (
-    <div className="w-full h-full flex py-16 gap-10 grid grid-cols-12 ">
-      <div className="col-start-2 col-span-8  h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white ">
+    <div className="w-full h-full grid grid-cols-12 grid-rows-[auto_auto] gap-8 py-8">
+      <div className="row-start-1 col-start-2 col-span-10">
+        <Reminders />
+      </div>
+
+      <div className="row-start-2 col-start-2 col-span-8 h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -170,8 +174,9 @@ export const ProjectLogForm = () => {
           )}
         </form>
       </div>
-      <div className="col-start-10 col-span-2 flex flex-col items-center">
-        <div className="w-fit py-5 px-10 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col items-center gap-3 ">
+
+      <div className="row-start-2 col-start-10 col-span-2 flex flex-col items-center">
+        <div className="w-fit py-5 px-10 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col items-center gap-3">
           <h3 className="text-xl font-bold">Total Time</h3>
           <h1 className="text-xl font-bold">{totalWorkHours}</h1>
         </div>

@@ -2,7 +2,7 @@ import { Divider } from "@mantine/core";
 
 export const Reminders = () => {
   return (
-    <div className="w-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white mb-12 flex flex-col gap-5 overflow-auto h-3/5 ">
+    <div className="w-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col gap-5 overflow-auto ">
       <div>
         <p
           style={{
