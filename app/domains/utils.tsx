@@ -3,8 +3,7 @@ export async function fetchMondayData(queryBody: string): Promise<any> {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization:
-        "eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjIzNDI2ODE2OCwidWlkIjozMTI4ODQ0NCwiaWFkIjoiMjAyMy0wMi0wM1QwMDozNjoyMC4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6ODg4NDgxOSwicmduIjoidXNlMSJ9.oM37gRdrLf8UnnmuZIM-QWDRoT_GtgFLLyHpvnxGUtQ",
+      Authorization: import.meta.env.VITE_MONDAY_API_KEY,
       "API-Version": "2023-10",
     },
     body: JSON.stringify({
@@ -20,8 +19,7 @@ export async function insertMondayData(query: string, vars: any): Promise<any> {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization:
-        "eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjIzNDI2ODE2OCwidWlkIjozMTI4ODQ0NCwiaWFkIjoiMjAyMy0wMi0wM1QwMDozNjoyMC4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6ODg4NDgxOSwicmduIjoidXNlMSJ9.oM37gRdrLf8UnnmuZIM-QWDRoT_GtgFLLyHpvnxGUtQ",
+      Authorization: import.meta.env.VITE_MONDAY_API_KEY,
       "API-Version": "2023-10",
     },
     body: JSON.stringify({
