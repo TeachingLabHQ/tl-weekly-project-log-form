@@ -9,6 +9,7 @@ import {
   handleProjectTypeByTeam,
   projectRolesList,
   updateTotalWorkHours,
+  getBudgetedHours,
 } from "./utils";
 import { IconX } from "@tabler/icons-react";
 
@@ -58,7 +59,7 @@ export const ProjectLogsWidget = ({
       programProjectsWithBudgetedHours,
       projectWorkEntries,
       setProjectWorkEntries,
-      "Erik Reitinger"
+      session?.name || ""
     );
   }, []);
 
@@ -88,6 +89,7 @@ export const ProjectLogsWidget = ({
               ...entry,
               projectType: value || "",
               projectName: "",
+              budgetedHours: "N/A",
             };
           }
           return entry;
@@ -98,10 +100,25 @@ export const ProjectLogsWidget = ({
       setProjectWorkEntries((prevEntries) => {
         const updatedRows = prevEntries.map((entry, i) => {
           if (i === index) {
-            return {
+            const updatedEntry = {
               ...entry,
               [field]: value || "",
             };
+
+            if (
+              updatedEntry.projectType === "Program-related Project" &&
+              ((field === "projectName" && updatedEntry.projectRole) ||
+                (field === "projectRole" && updatedEntry.projectName))
+            ) {
+              const budgetedHours = getBudgetedHours(
+                updatedEntry.projectName,
+                updatedEntry.projectRole,
+                programProjectsWithBudgetedHours
+              );
+              updatedEntry.budgetedHours = budgetedHours || "N/A";
+            }
+
+            return updatedEntry;
           }
           return entry;
         });

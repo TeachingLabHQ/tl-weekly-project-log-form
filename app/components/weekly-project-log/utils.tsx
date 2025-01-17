@@ -51,10 +51,6 @@ export const getPreAssignedProgramProjects = (
   >,
   userName: string
 ) => {
-  console.log(
-    "programProjectsWithBudgetedHours",
-    programProjectsWithBudgetedHours
-  );
   let projectMembersInfo: ProjectLogRows[] = [];
   if (programProjectsStaffing) {
     for (const project of programProjectsStaffing) {
@@ -87,6 +83,20 @@ export const getPreAssignedProgramProjects = (
     setRows(projectMembersInfo);
   }
   return projectMembersInfo;
+};
+
+export const getBudgetedHours = (
+  projectName: string,
+  projectRole: string,
+  programProjectsWithBudgetedHours: any
+) => {
+  const projectRoleIdx = programProjectsWithBudgetedHours[1].findIndex(
+    (v: string) => v === projectRole
+  );
+  const budgetedHours = programProjectsWithBudgetedHours.find(
+    (p: (string | undefined)[]) => p[0] === projectName
+  )[projectRoleIdx];
+  return budgetedHours;
 };
 
 export const handleProjectTypeByTeam = (businessFunction: string) => {
