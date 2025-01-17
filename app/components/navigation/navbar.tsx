@@ -75,7 +75,8 @@ export const Navbar = () => {
 
       <div>
         {isAuthenticated ? (
-          <div>
+          <div className="flex flex-row gap-4 items-center">
+            <p className="text-blue">Hi {session?.name}!</p>
             <Button variant="outline" onClick={logOut}>
               Log Out
             </Button>
