@@ -18,6 +18,7 @@ export type FormValues = {
 export const ProjectLogForm = () => {
   const { session, setSession, isAuthenticated } = useSession();
   const [totalWorkHours, setTotalWorkHours] = useState<number>(0);
+  const [isValidated, setIsValidated] = useState<boolean | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSuccessful, setIsSuccessful] = useState<boolean | null>(null);
   const [projectWorkEntries, setProjectWorkEntries] = useState([
@@ -70,18 +71,35 @@ export const ProjectLogForm = () => {
   ) => {
     if (!session?.name) {
       console.error("Please log in first");
-      return; // Prevent form submission
+      return;
     }
-    const userName = session.name;
+
+    // Check if date is selected
+    if (!values.date) {
+      setIsValidated(false);
+      return;
+    }
+
     // Check if all project logs are complete
-    const areAllLogsComplete = projectWorkEntries.every(isProjectLogComplete);
+    const areAllLogsComplete = projectWorkEntries.every(
+      (entry) =>
+        entry.projectType &&
+        entry.projectName &&
+        entry.projectRole &&
+        entry.workHours
+    );
+
     if (!areAllLogsComplete) {
-      console.error("Please fill in all fields for each project");
-      return; // Prevent form submission
+      setIsValidated(false);
+      return;
     }
+
+    const userName = session.name;
+
     try {
-      setIsSuccessful(null);
       setIsSubmitted(true);
+      setIsValidated(true);
+      setIsSuccessful(null);
       const response = await fetch("/api/weekly-project-log/submit", {
         method: "POST",
         headers: {
@@ -94,17 +112,24 @@ export const ProjectLogForm = () => {
           comment: values.comment,
         }),
       });
+
       if (!response.ok) {
         console.log("Form submission went wrong");
         setIsSuccessful(false);
         setIsSubmitted(false);
+        setIsValidated(null);
         return;
       }
+
       setIsSuccessful(true);
       setIsSubmitted(false);
+      setIsValidated(null);
       console.log("Form submitted successfully");
     } catch (e) {
       console.error(e);
+      setIsSuccessful(false);
+      setIsSubmitted(false);
+      setIsValidated(null);
     }
   };
 
@@ -132,12 +157,17 @@ export const ProjectLogForm = () => {
               placeholder="Date input"
               excludeDate={(date) => date.getDay() !== 1}
               key={form.key("date")}
+              error={
+                isValidated === false && !selectedDate
+                  ? "Date is required"
+                  : null
+              }
               {...form.getInputProps("date")}
             />
           </div>
           <div>
             <ProjectLogsWidget
-              isSubmitted={isSubmitted}
+              isValidated={isValidated}
               projectWorkEntries={projectWorkEntries}
               setProjectWorkEntries={setProjectWorkEntries}
               setTotalWorkHours={setTotalWorkHours}
@@ -156,7 +186,9 @@ export const ProjectLogForm = () => {
           {(isSubmitted === false || isSuccessful !== null) && (
             <Button type="submit">Submit</Button>
           )}
-          {isSubmitted && isSuccessful === null && <Loader size={30} />}
+          {isSubmitted && isValidated && isSuccessful === null && (
+            <Loader size={30} color="rgba(255, 255, 255, 1)" />
+          )}
           {isSuccessful === true && (
             <Notification
               icon={checkIcon}

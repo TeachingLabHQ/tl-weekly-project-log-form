@@ -20,12 +20,12 @@ type ProjectRowKeys = keyof {
   budgetedHours: string;
 };
 export const ProjectLogsWidget = ({
-  isSubmitted,
+  isValidated,
   projectWorkEntries,
   setProjectWorkEntries,
   setTotalWorkHours,
 }: {
-  isSubmitted: boolean;
+  isValidated: boolean | null;
   projectWorkEntries: {
     projectType: string;
     projectName: string;
@@ -172,7 +172,7 @@ export const ProjectLogsWidget = ({
               placeholder="Select a type"
               data={handleProjectTypeByTeam(session?.buesinessFunction || "")}
               error={
-                isSubmitted && !row.projectType
+                isValidated === false && !row.projectType
                   ? "Project type is required"
                   : null
               }
@@ -180,6 +180,7 @@ export const ProjectLogsWidget = ({
           </div>
           <div>
             <Select
+              //so the select is re-rendered when the project type is changed
               key={`project-name-${row.projectType}-${index}`}
               value={row.projectName}
               onChange={(value) => handleChange(index, "projectName", value)}
@@ -187,7 +188,7 @@ export const ProjectLogsWidget = ({
               data={handleProjectOptions(row.projectType)}
               searchable
               error={
-                isSubmitted && !row.projectName
+                isValidated === false && !row.projectName
                   ? "Project name is required"
                   : null
               }
@@ -201,7 +202,7 @@ export const ProjectLogsWidget = ({
               data={projectRolesList}
               searchable
               error={
-                isSubmitted && !row.projectRole
+                isValidated === false && !row.projectRole
                   ? "Project Role is required"
                   : null
               }
@@ -213,7 +214,9 @@ export const ProjectLogsWidget = ({
               onChange={(e) => handleChange(index, "workHours", e.target.value)}
               placeholder="Enter work hours"
               error={
-                isSubmitted && !row.workHours ? "Work hour is required" : null
+                isValidated === false && !row.workHours
+                  ? "Work hour is required"
+                  : null
               }
             />
           </div>
