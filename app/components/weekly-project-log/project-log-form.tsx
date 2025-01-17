@@ -80,6 +80,7 @@ export const ProjectLogForm = () => {
       return; // Prevent form submission
     }
     try {
+      setIsSuccessful(null);
       setIsSubmitted(true);
       const response = await fetch("/api/weekly-project-log/submit", {
         method: "POST",
@@ -96,9 +97,11 @@ export const ProjectLogForm = () => {
       if (!response.ok) {
         console.log("Form submission went wrong");
         setIsSuccessful(false);
+        setIsSubmitted(false);
         return;
       }
       setIsSuccessful(true);
+      setIsSubmitted(false);
       console.log("Form submitted successfully");
     } catch (e) {
       console.error(e);
@@ -106,8 +109,8 @@ export const ProjectLogForm = () => {
   };
 
   return (
-    <div className="w-full h-full flex py-16 gap-10 grid grid-cols-11 ">
-      <div className="col-start-2 col-span-6  h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white ">
+    <div className="w-full h-full flex py-16 gap-10 grid grid-cols-12 ">
+      <div className="col-start-2 col-span-8  h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white ">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -150,7 +153,7 @@ export const ProjectLogForm = () => {
             <Button type="submit">Submit</Button>
           )}
           {isSubmitted && isSuccessful === null && <Loader size={30} />}
-          {isSubmitted && isSuccessful && (
+          {isSuccessful === true && (
             <Notification
               icon={checkIcon}
               color="teal"
@@ -158,7 +161,7 @@ export const ProjectLogForm = () => {
               mt="md"
             ></Notification>
           )}
-          {isSubmitted && isSuccessful === false && (
+          {isSuccessful === false && (
             <Notification
               icon={xIcon}
               color="red"
@@ -167,20 +170,12 @@ export const ProjectLogForm = () => {
           )}
         </form>
       </div>
-      <div className="col-start-8 col-span-3 flex flex-col items-center">
-        <Reminders />
+      <div className="col-start-10 col-span-2 flex flex-col items-center">
         <div className="w-fit py-5 px-10 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col items-center gap-3 ">
-          <h3 className="text-2xl font-bold">Total Time</h3>
-          <h1 className="text-2xl font-bold">{totalWorkHours}</h1>
+          <h3 className="text-xl font-bold">Total Time</h3>
+          <h1 className="text-xl font-bold">{totalWorkHours}</h1>
         </div>
       </div>
     </div>
   );
 };
-
-//test out the code - submission logic
-//conditional render on internal and program projects - debug
-// total time counter - styling
-//implement submission notication
-//styling overall
-// log in notification when users

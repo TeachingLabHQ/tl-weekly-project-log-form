@@ -80,12 +80,37 @@ export const ProjectLogsWidget = ({
     field: ProjectRowKeys,
     value: string | null
   ) => {
-    const updatedRows = [...projectWorkEntries];
-    if (updatedRows[index]) {
-      updatedRows[index][field] = value || "";
+    if (field === "projectType") {
+      setProjectWorkEntries((prevEntries) => {
+        const updatedRows = prevEntries.map((entry, i) => {
+          if (i === index) {
+            return {
+              ...entry,
+              projectType: value || "",
+              projectName: "",
+            };
+          }
+          return entry;
+        });
+        return updatedRows;
+      });
+    } else {
+      setProjectWorkEntries((prevEntries) => {
+        const updatedRows = prevEntries.map((entry, i) => {
+          if (i === index) {
+            return {
+              ...entry,
+              [field]: value || "",
+            };
+          }
+          return entry;
+        });
+        if (field === "workHours") {
+          updateTotalWorkHours(updatedRows, setTotalWorkHours);
+        }
+        return updatedRows;
+      });
     }
-    setProjectWorkEntries(updatedRows);
-    updateTotalWorkHours(updatedRows, setTotalWorkHours);
   };
 
   const handleDeleteRow = (index: number) => {
@@ -110,8 +135,9 @@ export const ProjectLogsWidget = ({
   return (
     <div className="grid grid-rows gap-4">
       <div
-        className={cn("grid gap-4 grid-cols-5", {
-          "grid-cols-6": projectWorkEntries.length > 1,
+        className={cn("grid gap-4 grid-cols-[1fr_2fr_1fr_1fr_1fr]", {
+          "grid-cols-[1fr_2fr_1fr_1fr_1fr_0.5fr]":
+            projectWorkEntries.length > 1,
         })}
       >
         <div className="">
@@ -134,8 +160,9 @@ export const ProjectLogsWidget = ({
       {projectWorkEntries.map((row, index) => (
         <div
           key={index}
-          className={cn("grid gap-4 grid-cols-5", {
-            "grid-cols-6": projectWorkEntries.length > 1,
+          className={cn("grid gap-4 grid-cols-[1fr_2fr_1fr_1fr_1fr]", {
+            "grid-cols-[1fr_2fr_1fr_1fr_1fr_0.5fr]":
+              projectWorkEntries.length > 1,
           })}
         >
           <div>
@@ -153,6 +180,7 @@ export const ProjectLogsWidget = ({
           </div>
           <div>
             <Select
+              key={`project-name-${row.projectType}-${index}`}
               value={row.projectName}
               onChange={(value) => handleChange(index, "projectName", value)}
               placeholder="Select a project"
