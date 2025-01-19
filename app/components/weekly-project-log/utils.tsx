@@ -93,10 +93,13 @@ export const getBudgetedHours = (
   const projectRoleIdx = programProjectsWithBudgetedHours[1].findIndex(
     (v: string) => v === projectRole
   );
-  const budgetedHours = programProjectsWithBudgetedHours.find(
+  const projectRow = programProjectsWithBudgetedHours.find(
     (p: (string | undefined)[]) => p[0] === projectName
-  )[projectRoleIdx];
-  return budgetedHours;
+  );
+  if (projectRow) {
+    return projectRow[projectRoleIdx];
+  }
+  return "N/A";
 };
 
 export const handleProjectTypeByTeam = (businessFunction: string) => {

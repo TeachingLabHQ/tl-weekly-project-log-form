@@ -1,7 +1,6 @@
 // root.tsx
 import React, { useContext, useEffect, useState } from "react";
 import { withEmotionCache } from "@emotion/react";
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import "@mantine/core/styles.css";
 import {
   Links,
@@ -37,53 +36,24 @@ export const links: LinksFunction = () => {
     },
   ];
 };
-
-interface DocumentProps {
-  children: React.ReactNode;
+export function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta />
+        <Links />
+        <ColorSchemeScript />
+      </head>
+      <body>
+        <MantineProvider withGlobalClasses={false}>{children}</MantineProvider>
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
 }
-
-const Document = withEmotionCache(
-  ({ children }: DocumentProps, emotionCache) => {
-    const serverStyleData = useContext(ServerStyleContext);
-    const clientStyleData = useContext(ClientStyleContext);
-
-    // Only executed on client
-    useEffect(() => {
-      // re-link sheet container
-      emotionCache.sheet.container = document.head;
-      // re-inject tags
-      const tags = emotionCache.sheet.tags;
-      emotionCache.sheet.flush();
-      tags.forEach((tag) => {
-        (emotionCache.sheet as any)._insertTag(tag);
-      });
-      // reset cache to reapply global styles
-      clientStyleData?.reset();
-    }, []);
-
-    return (
-      <html lang="en">
-        <head>
-          <Meta />
-          <Links />
-          <ColorSchemeScript />
-          {serverStyleData?.map(({ key, ids, css }) => (
-            <style
-              key={key}
-              data-emotion={`${key} ${ids.join(" ")}`}
-              dangerouslySetInnerHTML={{ __html: css }}
-            />
-          ))}
-        </head>
-        <body>
-          <MantineProvider>{children}</MantineProvider>
-          <ScrollRestoration />
-          <Scripts />
-        </body>
-      </html>
-    );
-  }
-);
 export default function App() {
   const [session, setSessionState] = useState<Session | null>(null);
   useEffect(() => {
@@ -107,15 +77,11 @@ export default function App() {
     setSessionState(newSession);
   };
   return (
-    <Document>
-      <GoogleOAuthProvider clientId="908203966684-tl3or1jsfs1vc2juqkn7m3jnf6nah4gr.apps.googleusercontent.com">
-        <SessionContext.Provider value={{ session, setSession }}>
-          <ChakraProvider value={defaultSystem}>
-            <Navbar />
-            <Outlet />
-          </ChakraProvider>
-        </SessionContext.Provider>
-      </GoogleOAuthProvider>
-    </Document>
+    <GoogleOAuthProvider clientId="908203966684-tl3or1jsfs1vc2juqkn7m3jnf6nah4gr.apps.googleusercontent.com">
+      <SessionContext.Provider value={{ session, setSession }}>
+        <Navbar />
+        <Outlet />
+      </SessionContext.Provider>
+    </GoogleOAuthProvider>
   );
 }
