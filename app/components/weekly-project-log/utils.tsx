@@ -154,4 +154,9 @@ export const executiveAssistantMappings: ExecutiveAssistantMapping[] = [
     executiveName: "HaMy Vu",
     executiveEmail: "hamy.vu@teachinglab.org",
   },
+  {
+    executiveAssistantEmail: "alli.franken@teachinglab.org",
+    executiveName: "Sarah Johnson",
+    executiveEmail: "sarah.johnson@teachinglab.org",
+  },
 ];
