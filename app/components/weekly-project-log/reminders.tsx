@@ -74,19 +74,13 @@ export const Reminders = () => {
         >
           - New projects are created when partner contracts have been signed, or
           internal project budgets have been created. If you do not see your
-          client project listed in the drop down, please contact{" "}
+          client project listed in the drop down, please contact finance team,
+          attention{" "}
           <a
-            href="mailto:daissan.colbert@teachinglab.org"
+            href="mailto:eric.vandonge@teachinglab.org"
             style={{ textDecoration: "underline" }}
           >
-            Daissan Colbert
-          </a>{" "}
-          and{" "}
-          <a
-            href="mailto:kelly.sanders@teachinglab.org"
-            style={{ textDecoration: "underline" }}
-          >
-            Kelly Sanders
+            Eric Van Donge
           </a>
           .
         </p>
