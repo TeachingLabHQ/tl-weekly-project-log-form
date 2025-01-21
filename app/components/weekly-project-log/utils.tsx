@@ -1,4 +1,5 @@
 import { ProjectLogRows, ProjectMember } from "~/domains/project/model";
+import { ExecutiveAssistantMapping } from "./executive-assistant-selector";
 
 export const projectRolesList = [
   "Analyst",
@@ -146,3 +147,11 @@ export const updateTotalWorkHours = (
   }
   setTotalWorkHours(totalWorkHours);
 };
+
+export const executiveAssistantMappings: ExecutiveAssistantMapping[] = [
+  {
+    executiveAssistantEmail: "savanna.worthington@teachinglab.org",
+    executiveName: "HaMy Vu",
+    executiveEmail: "hamy.vu@teachinglab.org",
+  },
+];

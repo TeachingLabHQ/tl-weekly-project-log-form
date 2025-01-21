@@ -1,18 +1,29 @@
-import { Button, Loader, Textarea } from "@mantine/core";
+import { Button, Loader, Notification, Textarea } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
-import React, { useState } from "react";
-import { cn } from "~/utils/utils";
+import { IconCheck, IconX } from "@tabler/icons-react";
+import React, { useEffect, useState } from "react";
 import { useSession } from "../hooks/useSession";
+import { ExecutiveAssistantSelector } from "./executive-assistant-selector";
 import { ProjectLogsWidget } from "./project-logs-widget";
-import { isProjectLogComplete } from "./utils";
 import { Reminders } from "./reminders";
-import { IconX, IconCheck } from "@tabler/icons-react";
-import { Notification } from "@mantine/core";
+import { executiveAssistantMappings } from "./utils";
+
 export type FormValues = {
   email: string;
   date: Date | null;
   comment: string;
+};
+
+export type SubmissionUser = {
+  name: string;
+  email: string;
+  isExecutiveAssistant: boolean;
+  submittedForYourself: boolean | null;
+  executiveDetails?: {
+    name: string;
+    email: string;
+  };
 };
 
 export const ProjectLogForm = () => {
@@ -55,6 +66,55 @@ export const ProjectLogForm = () => {
     return lastMonday;
   });
 
+  const [submissionUser, setSubmissionUser] = useState<SubmissionUser>(() => ({
+    name: session?.name || "",
+    email: session?.email || "",
+    isExecutiveAssistant: false,
+    submittedForYourself: null,
+  }));
+
+  useEffect(() => {
+    if (session?.email) {
+      const isEA = executiveAssistantMappings.some(
+        (mapping) => mapping.executiveAssistantEmail === session.email
+      );
+      setSubmissionUser({
+        name: session.name,
+        email: session.email,
+        isExecutiveAssistant: isEA,
+        submittedForYourself: true,
+      });
+    }
+  }, [session?.email]);
+
+  const handleExecutiveSelection = (executiveName: string | null) => {
+    if (!executiveName) {
+      setSubmissionUser({
+        name: session?.name || "",
+        email: session?.email || "",
+        isExecutiveAssistant: true,
+        submittedForYourself: true,
+      });
+      return;
+    }
+
+    const mapping = executiveAssistantMappings.find(
+      (m) => m.executiveName === executiveName
+    );
+    if (mapping) {
+      setSubmissionUser({
+        name: mapping.executiveName,
+        email: mapping.executiveEmail,
+        isExecutiveAssistant: true,
+        submittedForYourself: false,
+        executiveDetails: {
+          name: mapping.executiveName,
+          email: mapping.executiveEmail,
+        },
+      });
+    }
+  };
+
   const form = useForm({
     initialValues: {
       date: selectedDate,
@@ -94,8 +154,6 @@ export const ProjectLogForm = () => {
       return;
     }
 
-    const userName = session.name;
-
     try {
       setIsSubmitted(true);
       setIsValidated(true);
@@ -106,7 +164,7 @@ export const ProjectLogForm = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: userName,
+          name: submissionUser.name,
           date: selectedDate,
           projectLogEntries: projectWorkEntries,
           comment: values.comment,
@@ -148,6 +206,15 @@ export const ProjectLogForm = () => {
           className="flex flex-col gap-4"
         >
           <h1 className="font-bold text-3xl">Weekly Project Log Form</h1>
+          {submissionUser.isExecutiveAssistant && (
+            <ExecutiveAssistantSelector
+              executiveAssistantMappings={executiveAssistantMappings}
+              userEmail={session?.email || ""}
+              onSelectExecutive={handleExecutiveSelection}
+              isValidated={isValidated}
+              submittedForYourself={submissionUser.submittedForYourself}
+            />
+          )}
           <div className="flex flex-col gap-1">
             <h1 className="font-medium text-lg">
               Enter the Monday of the week:
