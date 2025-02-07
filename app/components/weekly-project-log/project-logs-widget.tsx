@@ -253,8 +253,9 @@ export const ProjectLogsWidget = ({
               onChange={(e) => handleChange(index, "workHours", e.target.value)}
               placeholder="Enter work hours"
               error={
-                isValidated === false && !row.workHours
-                  ? "Work hour is required"
+                isValidated === false &&
+                (!row.workHours || Number(row.workHours) === 0)
+                  ? "Delete the log or enter a valid number"
                   : null
               }
             />
