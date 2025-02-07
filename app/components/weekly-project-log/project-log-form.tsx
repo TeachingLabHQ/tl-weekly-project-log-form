@@ -26,6 +26,23 @@ export type SubmissionUser = {
   };
 };
 
+const getClosestMonday = (date: Date, onChange: boolean): Date => {
+  const newDate = date;
+  const dayOfWeek = newDate.getDay();
+  // Adjust to closest Monday
+  newDate.setDate(newDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  // Calculate the next week's Monday
+  const lastMonday = new Date(newDate);
+  lastMonday.setDate(newDate.getDate() - 7);
+
+  // If today is between Thursday and Sunday, return current Monday
+  if (dayOfWeek >= 4 || dayOfWeek === 0 || (dayOfWeek === 1 && onChange)) {
+    return newDate;
+  }
+  // Otherwise, return the last Monday
+  return lastMonday;
+};
+
 export const ProjectLogForm = () => {
   const { session, setSession, isAuthenticated } = useSession();
   const [totalWorkHours, setTotalWorkHours] = useState<number>(0);
@@ -46,25 +63,16 @@ export const ProjectLogForm = () => {
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
     const today = new Date();
-    const dayOfWeek = today.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
-
-    // Calculate the current week's Monday
-    const currentMonday = new Date(today);
-    currentMonday.setDate(
-      today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
-    ); //Monday is start of a new week
-
-    // Calculate the next week's Monday
-    const lastMonday = new Date(currentMonday);
-    lastMonday.setDate(currentMonday.getDate() - 7);
-
-    // If today is between Thursday and Sunday, return current Monday
-    if (dayOfWeek >= 4 || dayOfWeek === 0) {
-      return currentMonday;
-    }
-    // Otherwise, return the last Monday
-    return lastMonday;
+    return getClosestMonday(today, false);
   });
+
+  const handleDateChange = (date: Date | null) => {
+    if (!date) {
+      setSelectedDate(null);
+      return;
+    }
+    setSelectedDate(getClosestMonday(date, true));
+  };
 
   const [submissionUser, setSubmissionUser] = useState<SubmissionUser>(() => ({
     name: session?.name || "",
@@ -146,7 +154,8 @@ export const ProjectLogForm = () => {
         entry.projectType &&
         entry.projectName &&
         entry.projectRole &&
-        entry.workHours
+        entry.workHours &&
+        Number(entry.workHours) !== 0
     );
 
     if (!areAllLogsComplete) {
@@ -223,13 +232,12 @@ export const ProjectLogForm = () => {
               value={selectedDate}
               placeholder="Date input"
               excludeDate={(date) => date.getDay() !== 1}
-              key={form.key("date")}
               error={
                 isValidated === false && !selectedDate
                   ? "Date is required"
                   : null
               }
-              {...form.getInputProps("date")}
+              onChange={handleDateChange}
             />
           </div>
           <div>

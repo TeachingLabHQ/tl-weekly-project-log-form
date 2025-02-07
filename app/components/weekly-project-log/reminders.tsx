@@ -2,7 +2,7 @@ import { Divider } from "@mantine/core";
 
 export const Reminders = () => {
   return (
-    <div className="w-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col gap-5 overflow-auto ">
+    <div className="w-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col gap-5 overflow-auto h-[50vh]">
       <div>
         <p
           style={{
@@ -10,7 +10,29 @@ export const Reminders = () => {
             fontWeight: "700",
           }}
         >
-          Reminder: NEW Staffing Utilization Dashboard
+          NEW Budgeted Hours Column:
+        </p>
+        <p
+          style={{
+            fontSize: "18px",
+            fontWeight: "500",
+          }}
+        >
+          - The "Budgeted Hours" column displays estimated hours for program
+          projects. You are free to log hours below or above the displayed
+          amount. If needed, please provide additional context or reasons in the
+          comment section.{" "}
+        </p>
+      </div>
+      <Divider />
+      <div>
+        <p
+          style={{
+            fontSize: "20px",
+            fontWeight: "700",
+          }}
+        >
+          Staffing Utilization Dashboard
         </p>
         <p
           style={{
