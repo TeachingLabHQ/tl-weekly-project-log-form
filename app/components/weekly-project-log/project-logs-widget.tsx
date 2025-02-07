@@ -82,6 +82,7 @@ export const ProjectLogsWidget = ({
     value: string | null
   ) => {
     if (field === "projectType") {
+      //reset the project name and budgeted hours when the project type is changed
       setProjectWorkEntries((prevEntries) => {
         const updatedRows = prevEntries.map((entry, i) => {
           if (i === index) {
@@ -104,6 +105,16 @@ export const ProjectLogsWidget = ({
               ...entry,
               [field]: value || "",
             };
+
+            // Auto-set project role for Internal Admin
+            if (
+              field === "projectName" &&
+              (value === "TL_Internal Admin" ||
+                value ===
+                  "ZZ_PTO, Holidays, Approved Break, or Other Paid Leave")
+            ) {
+              updatedEntry.projectRole = "Other";
+            }
 
             if (
               updatedEntry.projectType === "Program-related Project" &&
@@ -152,33 +163,43 @@ export const ProjectLogsWidget = ({
   return (
     <div className="grid grid-rows gap-4">
       <div
-        className={cn("grid gap-4 grid-cols-[1fr_2fr_1fr_1fr_1fr]", {
-          "grid-cols-[1fr_2fr_1fr_1fr_1fr_0.5fr]":
+        className={cn("grid gap-4 grid-cols-[1fr_2fr_1.3fr_1fr_1fr]", {
+          "grid-cols-[1fr_2fr_1.3fr_1fr_1fr_0.5fr]":
             projectWorkEntries.length > 1,
         })}
       >
         <div className="">
-          <Text fw={500}>Project Type</Text>
+          <Text fw={500} size="md">
+            Project Type
+          </Text>
         </div>
         <div className="">
-          <Text fw={500}>Project Name</Text>
+          <Text fw={500} size="md">
+            Project Name
+          </Text>
         </div>
         <div className="">
-          <Text fw={500}>Project Role</Text>
+          <Text fw={500} size="md">
+            Project Role
+          </Text>
         </div>
         <div className="">
-          <Text fw={500}>Work Hours</Text>
+          <Text fw={500} size="md">
+            Work Hours
+          </Text>
         </div>
         <div className="">
-          <Text fw={500}>Budgeted Hours</Text>
+          <Text fw={500} size="md">
+            Budgeted Hours
+          </Text>
         </div>
       </div>
       {/* Dynamic rows */}
       {projectWorkEntries.map((row, index) => (
         <div
           key={index}
-          className={cn("grid gap-4 grid-cols-[1fr_2fr_1fr_1fr_1fr]", {
-            "grid-cols-[1fr_2fr_1fr_1fr_1fr_0.5fr]":
+          className={cn("grid gap-4 grid-cols-[1fr_2fr_1.3fr_1fr_1fr]", {
+            "grid-cols-[1fr_2fr_1.3fr_1fr_1fr_0.5fr]":
               projectWorkEntries.length > 1,
           })}
         >
@@ -218,6 +239,7 @@ export const ProjectLogsWidget = ({
               placeholder="Select a role"
               data={projectRolesList}
               searchable
+              disabled={row.projectName === "Internal Admin"}
               error={
                 isValidated === false && !row.projectRole
                   ? "Project Role is required"
