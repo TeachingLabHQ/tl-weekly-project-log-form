@@ -151,13 +151,17 @@ export const ProjectLogsWidget = ({
     if (!allProjects) {
       return [];
     }
+
+    let projects: string[] = [];
+
     if (projectType === "Program-related Project") {
-      return allProjects[0]?.projects || [];
+      projects = allProjects[0]?.projects || [];
+    } else if (projectType === "Internal Project") {
+      projects = allProjects[1]?.projects || [];
     }
-    if (projectType === "Internal Project") {
-      return allProjects[1]?.projects || [];
-    }
-    return [];
+
+    // Remove duplicates by converting to Set and back to array
+    return [...new Set(projects)].sort((a, b) => a.localeCompare(b));
   };
 
   return (
