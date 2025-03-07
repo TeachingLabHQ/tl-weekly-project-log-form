@@ -35,8 +35,8 @@ export const Navbar = () => {
           return;
         }
         setSession({
-          name: mondayEmployeeInfo?.name || "",
-          email: mondayEmployeeInfo?.email || "",
+          name: "Erik Reitinger",
+          email: "erik.reitinger@teachinglab.org",
           buesinessFunction: mondayEmployeeInfo?.businessFunction || "",
         });
       } catch (e) {
@@ -66,9 +66,12 @@ export const Navbar = () => {
             <p className="text-2xl">Teaching Lab Form Hub</p>
           </div>
         </Link>
-        <div>
+        <div className="flex gap-4">
           <Link to="/weekly-project-log">
             <p>Weekly Project Log</p>
+          </Link>
+          <Link to="/staffing-dashboard">
+            <p>Staffing Dashboard</p>
           </Link>
         </div>
       </div>
