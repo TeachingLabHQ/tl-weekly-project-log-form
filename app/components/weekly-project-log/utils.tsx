@@ -193,3 +193,9 @@ export const getClosestMonday = (date: Date, onChange: boolean): Date => {
   );
   return lastMonday;
 };
+
+export const handleKeyDown = (e: React.KeyboardEvent) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+  }
+};
