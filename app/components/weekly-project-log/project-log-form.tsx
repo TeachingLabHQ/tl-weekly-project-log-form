@@ -7,7 +7,7 @@ import { useSession } from "../hooks/useSession";
 import { ExecutiveAssistantSelector } from "./executive-assistant-selector";
 import { ProjectLogsWidget } from "./project-logs-widget";
 import { Reminders } from "./reminders";
-import { executiveAssistantMappings } from "./utils";
+import { executiveAssistantMappings, getClosestMonday } from "./utils";
 
 export type FormValues = {
   email: string;
@@ -24,23 +24,6 @@ export type SubmissionUser = {
     name: string;
     email: string;
   };
-};
-
-const getClosestMonday = (date: Date, onChange: boolean): Date => {
-  const newDate = date;
-  const dayOfWeek = newDate.getDay();
-  // Adjust to closest Monday
-  newDate.setDate(newDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-  // Calculate the next week's Monday
-  const lastMonday = new Date(newDate);
-  lastMonday.setDate(newDate.getDate() - 7);
-
-  // If today is between Thursday and Sunday, return current Monday
-  if (dayOfWeek >= 4 || dayOfWeek === 0 || (dayOfWeek === 1 && onChange)) {
-    return newDate;
-  }
-  // Otherwise, return the last Monday
-  return lastMonday;
 };
 
 export const ProjectLogForm = () => {

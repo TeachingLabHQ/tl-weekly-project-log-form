@@ -160,3 +160,36 @@ export const executiveAssistantMappings: ExecutiveAssistantMapping[] = [
     executiveEmail: "sarah.johnson@teachinglab.org",
   },
 ];
+
+export const getClosestMonday = (date: Date, onChange: boolean): Date => {
+  const currentMonday = new Date(date);
+  const dayOfWeek = currentMonday.getDay();
+  // Adjust to closest Monday
+  currentMonday.setDate(
+    currentMonday.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
+  );
+  // Calculate the last week's Monday
+  const lastMonday = new Date(currentMonday);
+  lastMonday.setDate(currentMonday.getDate() - 7);
+
+  // If today is between Thursday and Sunday, return current Monday
+  if (dayOfWeek >= 4 || dayOfWeek === 0 || (dayOfWeek === 1 && onChange)) {
+    //ensure a Monday is returned
+    if (currentMonday.getDay() === 1) {
+      return currentMonday;
+    }
+    currentMonday.setDate(
+      currentMonday.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
+    );
+    return currentMonday;
+  }
+  //if today is between Monday and Wednesday, return last Monday
+  //ensure a Monday is returned
+  if (lastMonday.getDay() === 1) {
+    return lastMonday;
+  }
+  lastMonday.setDate(
+    lastMonday.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
+  );
+  return lastMonday;
+};
