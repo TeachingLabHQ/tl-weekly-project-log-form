@@ -8,7 +8,7 @@ import { ExecutiveAssistantSelector } from "./executive-assistant-selector";
 import { ProjectLogsWidget } from "./project-logs-widget";
 import { Reminders } from "./reminders";
 import { executiveAssistantMappings } from "./utils";
-
+import BackgroundImg from "~/assets/background.png";
 export type FormValues = {
   email: string;
   date: Date | null;
@@ -201,7 +201,12 @@ export const ProjectLogForm = () => {
   };
 
   return (
-    <div className="w-full h-full grid grid-cols-12 grid-rows-[auto_auto] gap-8 py-8">
+    <div
+      className="w-full h-full grid grid-cols-12 grid-rows-[auto_auto] gap-8 py-8"
+      style={{
+        backgroundImage: `url(${BackgroundImg})`,
+      }}
+    >
       <div className="row-start-1 col-start-2 col-span-10">
         <Reminders />
       </div>

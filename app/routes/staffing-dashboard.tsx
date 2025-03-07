@@ -1,11 +1,15 @@
 import { useSession } from "~/components/hooks/useSession";
-import { LandingPage } from "~/components/ui/landing-page";
-
+import BackgroundImg from "~/assets/background.png";
 export default function StaffingDashboard() {
   const { isAuthenticated, errorMessage } = useSession();
 
   return (
-    <div className="min-h-screen w-full overflow-auto">
+    <div
+      className="min-h-screen w-full overflow-auto"
+      style={{
+        backgroundImage: `url(${BackgroundImg})`,
+      }}
+    >
       {isAuthenticated ? (
         <div className="w-full h-screen p-4">
           <h1 className="text-2xl font-bold mb-4">
@@ -21,7 +25,7 @@ export default function StaffingDashboard() {
           </div>
         </div>
       ) : (
-        <LandingPage errorMessage={errorMessage} />
+        <> </>
       )}
     </div>
   );
