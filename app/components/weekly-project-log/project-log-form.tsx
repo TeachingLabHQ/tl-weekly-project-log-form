@@ -150,7 +150,7 @@ export const ProjectLogForm = () => {
       setIsSubmitted(true);
       setIsValidated(true);
       setIsSuccessful(null);
-      console.log("date", selectedDate);
+
       const response = await fetch("/api/weekly-project-log/submit", {
         method: "POST",
         headers: {
@@ -158,6 +158,7 @@ export const ProjectLogForm = () => {
         },
         body: JSON.stringify({
           name: submissionUser.name,
+          //send the date in iso format to avoid timezone issues in the server
           date: selectedDate
             ? new Date(
                 Date.UTC(
