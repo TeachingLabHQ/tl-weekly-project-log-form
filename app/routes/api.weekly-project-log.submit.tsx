@@ -16,7 +16,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   //process the submission
   try {
+    console.log("Original date received:", date);
     const formattedDate = formatDate(date);
+    console.log("Formatted date for Monday:", formattedDate);
     let totalHours = projectLogEntries.reduce((a, b) => {
       return a + parseFloat(b.workHours);
     }, 0);

@@ -5,10 +5,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const formatDate = (date: Date) => {
-  const dateValue = new Date(date);
-  dateValue.setHours(12, 0, 0, 0);
-  return `${dateValue.getFullYear()}-${String(
-    dateValue.getMonth() + 1
-  ).padStart(2, "0")}-${String(dateValue.getDate()).padStart(2, "0")}`;
+export const formatDate = (date: string) => {
+  console.log("date", date);
+  const datePart = date.split("T")[0] || "";
+  const parts = datePart.split("-");
+
+  // Check if parts exist before accessing them
+  if (parts.length >= 3) {
+    return `${parts[0]}-${parts[1]}-${parts[2]}`;
+  }
+  // Fallback if parts are missing
+  return date.substring(0, 10);
 };

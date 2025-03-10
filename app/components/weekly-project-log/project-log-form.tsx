@@ -158,7 +158,18 @@ export const ProjectLogForm = () => {
         },
         body: JSON.stringify({
           name: submissionUser.name,
-          date: selectedDate,
+          date: selectedDate
+            ? new Date(
+                Date.UTC(
+                  selectedDate.getFullYear(),
+                  selectedDate.getMonth(),
+                  selectedDate.getDate(),
+                  12,
+                  0,
+                  0
+                )
+              ).toISOString()
+            : null,
           projectLogEntries: projectWorkEntries,
           comment: values.comment,
         }),
