@@ -150,6 +150,7 @@ export const ProjectLogForm = () => {
       setIsSubmitted(true);
       setIsValidated(true);
       setIsSuccessful(null);
+      console.log("date", selectedDate);
       const response = await fetch("/api/weekly-project-log/submit", {
         method: "POST",
         headers: {
