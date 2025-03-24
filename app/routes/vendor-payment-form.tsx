@@ -8,6 +8,7 @@ import { coachFacilitatorRepository } from "~/domains/coachFacilitator/repositor
 import { LoginPage } from "~/components/ui/login-page";
 import { LoadingSpinner } from "~/utils/LoadingSpinner";
 import BackgroundImg from "~/assets/background.png";
+
 export const loader = async (args: LoaderFunctionArgs) => {
   // TODO: Add any necessary data fetching here
   return {};
@@ -18,18 +19,24 @@ export default function VendorPaymentFormRoute() {
   const [isCoachOrFacilitator, setIsCoachOrFacilitator] = useState<
     boolean | null
   >(null);
+  const [cfDetails, setCfDetails] = useState<{
+    email: string;
+    name: string;
+    tier: string;
+  } | null>(null);
 
   useEffect(() => {
     const checkCoachOrFacilitator = async () => {
       if (session?.email) {
-        const coachFacilitatorServiceInstance = coachFacilitatorService(
+        const newCoachFacilitatorService = coachFacilitatorService(
           coachFacilitatorRepository()
         );
         const { data, error } =
-          await coachFacilitatorServiceInstance.fetchCoachFacilitatorDetails(
-            session.email
+          await newCoachFacilitatorService.fetchCoachFacilitatorDetails(
+            "Liliana.Vazquez@teachinglab.org"
           );
         setIsCoachOrFacilitator(!!data);
+        setCfDetails(data || null);
       }
     };
 
@@ -62,13 +69,13 @@ export default function VendorPaymentFormRoute() {
 
   return (
     <div
-      className="min-h-screen w-full overflow-auto"
+      className="min-h-screen w-full overflow-auto flex items-center justify-center"
       style={{
         backgroundImage: `url(${BackgroundImg})`,
       }}
     >
       <Suspense fallback={<LoadingSpinner />}>
-        <VendorPaymentForm />
+        <VendorPaymentForm cfDetails={cfDetails} />
       </Suspense>
     </div>
   );

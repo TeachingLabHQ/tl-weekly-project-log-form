@@ -53,7 +53,7 @@ export function coachFacilitatorRepository(): CoachFacilitatorRepository {
         const name = matchingItem.name;
         const tier =
           matchingItem.column_values.find(
-            (col: any) => col.column.title === "Tier"
+            (col: any) => col.column.title === "FY 25' Compensation"
           )?.text || "";
 
         const coachFacilitatorInfo: CoachFacilitatorDetails = {
