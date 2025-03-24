@@ -67,7 +67,7 @@ export const Navbar = () => {
           </div>
         </Link>
         <div className="flex gap-4">
-          <Link to="/weekly-project-log">
+          <Link to="/weekly-project-log-form">
             <p>Weekly Project Log</p>
           </Link>
           <Link to="/staffing-dashboard">
