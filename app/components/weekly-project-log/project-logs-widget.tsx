@@ -10,6 +10,7 @@ import {
   projectRolesList,
   updateTotalWorkHours,
   getBudgetedHours,
+  handleKeyDown,
 } from "./utils";
 import { IconX } from "@tabler/icons-react";
 
@@ -213,6 +214,7 @@ export const ProjectLogsWidget = ({
               onChange={(value) => handleChange(index, "projectType", value)}
               placeholder="Select a type"
               data={handleProjectTypeByTeam(session?.buesinessFunction || "")}
+              onKeyDown={handleKeyDown}
               error={
                 isValidated === false && !row.projectType
                   ? "Project type is required"
@@ -229,6 +231,7 @@ export const ProjectLogsWidget = ({
               placeholder="Select a project"
               data={handleProjectOptions(row.projectType)}
               searchable
+              onKeyDown={handleKeyDown}
               error={
                 isValidated === false && !row.projectName
                   ? "Project name is required"
@@ -244,6 +247,7 @@ export const ProjectLogsWidget = ({
               data={projectRolesList}
               searchable
               disabled={row.projectName === "Internal Admin"}
+              onKeyDown={handleKeyDown}
               error={
                 isValidated === false && !row.projectRole
                   ? "Project Role is required"
@@ -256,10 +260,11 @@ export const ProjectLogsWidget = ({
               value={row.workHours}
               onChange={(e) => handleChange(index, "workHours", e.target.value)}
               placeholder="Enter work hours"
+              onKeyDown={handleKeyDown}
               error={
                 isValidated === false &&
                 (!row.workHours || Number(row.workHours) === 0)
-                  ? "Delete the log or enter a valid number"
+                  ? "Work Hours are required"
                   : null
               }
             />

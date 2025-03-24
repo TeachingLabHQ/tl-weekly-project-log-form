@@ -35,8 +35,8 @@ export const Navbar = () => {
           return;
         }
         setSession({
-          name: "Erik Reitinger",
-          email: "erik.reitinger@teachinglab.org",
+          name: mondayEmployeeInfo?.name || "",
+          email: mondayEmployeeInfo?.email || "",
           buesinessFunction: mondayEmployeeInfo?.businessFunction || "",
         });
       } catch (e) {
