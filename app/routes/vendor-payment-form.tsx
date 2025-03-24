@@ -2,33 +2,74 @@ import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useSession } from "~/components/hooks/useSession";
 import { VendorPaymentForm } from "~/components/vendor-payment-form/vendor-payment-form";
+import { Suspense, useEffect, useState } from "react";
+import { coachFacilitatorService } from "~/domains/coachFacilitator/service";
+import { coachFacilitatorRepository } from "~/domains/coachFacilitator/repository";
+import { LoginPage } from "~/components/ui/login-page";
 import { LoadingSpinner } from "~/utils/LoadingSpinner";
-import { Suspense } from "react";
-
+import BackgroundImg from "~/assets/background.png";
 export const loader = async (args: LoaderFunctionArgs) => {
   // TODO: Add any necessary data fetching here
   return {};
 };
 
-// Loading component for the form
-const VendorPaymentFormLoader = () => (
-  <div className="w-full h-screen flex items-center justify-center">
-    <LoadingSpinner className="bg-white/50" />
-  </div>
-);
-
 export default function VendorPaymentFormRoute() {
-  const { isAuthenticated, errorMessage } = useSession();
+  const { isAuthenticated, errorMessage, session } = useSession();
+  const [isCoachOrFacilitator, setIsCoachOrFacilitator] = useState<
+    boolean | null
+  >(null);
+
+  useEffect(() => {
+    const checkCoachOrFacilitator = async () => {
+      if (session?.email) {
+        const coachFacilitatorServiceInstance = coachFacilitatorService(
+          coachFacilitatorRepository()
+        );
+        const { data, error } =
+          await coachFacilitatorServiceInstance.fetchCoachFacilitatorDetails(
+            session.email
+          );
+        setIsCoachOrFacilitator(!!data);
+      }
+    };
+
+    checkCoachOrFacilitator();
+  }, [session?.email]);
+
+  if (!isAuthenticated) {
+    return <LoginPage errorMessage={errorMessage || ""} />;
+  }
+
+  if (isCoachOrFacilitator === null) {
+    return <LoadingSpinner />;
+  }
+
+  if (!isCoachOrFacilitator) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center">
+        <div className="bg-white/80 backdrop-blur-sm p-8 rounded-lg shadow-lg max-w-md w-full">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">
+            Access Denied
+          </h2>
+          <p className="text-gray-700">
+            This form is only accessible to coaches and facilitators. If you
+            believe this is an error, please contact your administrator.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen w-full overflow-auto">
-      {isAuthenticated ? (
-        <Suspense fallback={<VendorPaymentFormLoader />}>
-          <VendorPaymentForm />
-        </Suspense>
-      ) : (
-        <></>
-      )}
+    <div
+      className="min-h-screen w-full overflow-auto"
+      style={{
+        backgroundImage: `url(${BackgroundImg})`,
+      }}
+    >
+      <Suspense fallback={<LoadingSpinner />}>
+        <VendorPaymentForm />
+      </Suspense>
     </div>
   );
 }
