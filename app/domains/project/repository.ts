@@ -13,7 +13,13 @@ export interface ProjectRepository {
   fetchAllProjects(): Promise<Errorable<projectsByTypes[]>>;
   fetchProgramProjects(): Promise<Errorable<ProgramProject[]>>;
   fetchProgramProjectWithHours(): Promise<Errorable<String[][]>>;
+  fetchBudgetedHours(
+    employeeEmail: string,
+    projectName: string,
+    projectRole: string
+  ): Promise<Errorable<number>>;
 }
+
 export function projectRepository(): ProjectRepository {
   return {
     fetchAllProjects: async () => {
@@ -179,6 +185,87 @@ export function projectRepository(): ProjectRepository {
         return {
           data: null,
           error: new Error("fetchProgramProjectWithHours() went wrong"),
+        };
+      }
+    },
+    fetchBudgetedHours: async (
+      employeeEmail: string,
+      projectName: string,
+      projectRole: string
+    ) => {
+      try {
+        const query = `{
+          boards(ids: 8577820151) {
+            items_page(limit: 500) {
+              items {
+                column_values(ids: ["email_mknhbhe0", "dropdown_mknk8zwg", "color_mknhq0s3", "numeric_mknhqm6d"]) {
+                  column {
+                    title
+                  }
+                  text
+                  value
+                }
+              }
+            }
+          }
+        }`;
+
+        const rawMondayData = await fetchMondayData(query);
+        const items = rawMondayData.data.boards[0].items_page.items;
+
+        // Find the matching item
+        const matchingItem = items.find((item: any) => {
+          const emailValue = item.column_values.find(
+            (col: any) => col.column.title === "Email"
+          )?.text;
+          const projectValue = item.column_values.find(
+            (col: any) => col.column.title === "Project Name"
+          )?.text;
+          const roleValue = item.column_values.find(
+            (col: any) => col.column.title === "Project Role"
+          )?.text;
+
+          return (
+            emailValue === employeeEmail &&
+            projectValue === projectName &&
+            roleValue === projectRole
+          );
+        });
+
+        if (!matchingItem) {
+          return {
+            data: null,
+            error: new Error("No matching budgeted hours found"),
+          };
+        }
+
+        // Get the budgeted hours value
+        const budgetedHoursValue = matchingItem.column_values.find(
+          (col: any) => col.column.title === "Budgeted Hours/Week"
+        )?.value;
+
+        if (!budgetedHoursValue) {
+          return {
+            data: null,
+            error: new Error("Budgeted hours value not found"),
+          };
+        }
+
+        // Parse the value to a number
+        const budgetedHours = parseFloat(budgetedHoursValue);
+        if (isNaN(budgetedHours)) {
+          return {
+            data: null,
+            error: new Error("Invalid budgeted hours value"),
+          };
+        }
+
+        return { data: budgetedHours, error: null };
+      } catch (e) {
+        console.error(e);
+        return {
+          data: null,
+          error: new Error("fetchBudgetedHours() went wrong"),
         };
       }
     },
