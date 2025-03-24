@@ -7,13 +7,17 @@ export const useSession = () => {
   const isAuthenticated =
     session?.email != null &&
     session?.email != "" &&
-    session?.email.includes("@teachinglab.org");
+    session?.email.includes("@teachinglab.org") &&
+    session?.name != null &&
+    session?.name != "";
   if (!session?.email.includes("@teachinglab.org")) {
     errorMessage =
-      "Please ensure to log in with a teaching lab email. If the email is not set up yet, please contact the technology team.";
+      "Please ensure to log in with a teaching lab email. If the email is not set up yet, please contact the operations team.";
   }
-  if (!session?.email) {
-    errorMessage = "";
+  //If there is no name, the users are not registered on Monday
+  else if (!session?.name) {
+    errorMessage =
+      "You are not authorized to access this page. Please contact the operations team.";
   }
 
   return { session, setSession, isAuthenticated, errorMessage };

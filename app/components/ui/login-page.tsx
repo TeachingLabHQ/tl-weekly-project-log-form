@@ -28,7 +28,12 @@ export const LoginPage = ({ errorMessage }: { errorMessage: string }) => {
             className="w-full bg-blue-600/10 border border-blue-600/30"
           >
             <Flex direction="column" align="center" gap="md">
-              <Text size="lg" fw={500} ta="center" className="text-blue-800">
+              <Text
+                size="lg"
+                fw={500}
+                ta="center"
+                className={errorMessage ? "text-red-600" : "text-blue-800"}
+              >
                 {errorMessage
                   ? errorMessage
                   : "Please log in with your Teaching Lab email"}
