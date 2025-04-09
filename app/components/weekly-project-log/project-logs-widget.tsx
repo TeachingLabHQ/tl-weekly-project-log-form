@@ -3,7 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { loader } from "~/routes/weekly-project-log-form";
 import { cn } from "../../utils/utils";
-import { useSession } from "../hooks/useSession";
+import { useSession } from "../auth/hooks/useSession";
 import {
   getPreAssignedProgramProjects,
   handleProjectTypeByTeam,

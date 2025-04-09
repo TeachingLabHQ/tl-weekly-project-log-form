@@ -5,56 +5,70 @@ import TLLogo from "../../assets/tllogo.png";
 import { employeeRepository } from "../../domains/employee/repository";
 import { employeeService } from "../../domains/employee/service";
 import { Button } from "@mantine/core";
-import { Link } from "@remix-run/react";
-import { useSession } from "../hooks/useSession";
+import { Link, useNavigate } from "@remix-run/react";
+import { useSession } from "../auth/hooks/useSession";
+import { createClient } from "../../../supabase/client";
 
 export const Navbar = () => {
-  const newEmployeeService = employeeService(employeeRepository());
-  const { session, setSession, isAuthenticated } = useSession();
-  const responseMessage = async (response: any) => {
-    try {
-      // Decode the JWT credential
-      const decodedToken: any = jwtDecode(response.credential);
+  const { session, setSession, isAuthenticated, setIsAuthenticated } =
+    useSession();
+  console.log("isAuthenticated", isAuthenticated);
+  const navigate = useNavigate();
+  // const responseMessage = async (response: any) => {
+  //   try {
+  //     // Decode the JWT credential
+  //     const decodedToken: any = jwtDecode(response.credential);
 
-      // Extract user details from the decoded token
-      const { email } = decodedToken;
-      try {
-        const { data: mondayEmployeeInfo, error } =
-          await newEmployeeService.fetchMondayEmployee(email);
-        if (error || !mondayEmployeeInfo) {
-          console.error(
-            "Failed to get employee information from Monday",
-            error
-          );
-          //pass in email to verify if it's TL associated
-          setSession({
-            name: "",
-            email: email,
-            buesinessFunction: "",
-          });
-          return;
-        }
-        setSession({
-          name: mondayEmployeeInfo?.name || "",
-          email: mondayEmployeeInfo?.email || "",
-          buesinessFunction: mondayEmployeeInfo?.businessFunction || "",
-        });
-      } catch (e) {
-        console.error(e);
-      }
+  //     // Extract user details from the decoded token
+  //     const { email } = decodedToken;
+  //     try {
+  //       const { data: mondayEmployeeInfo, error } =
+  //         await newEmployeeService.fetchMondayEmployee(email);
+  //       if (error || !mondayEmployeeInfo) {
+  //         console.error(
+  //           "Failed to get employee information from Monday",
+  //           error
+  //         );
+  //         //pass in email to verify if it's TL associated
+  //         setSession({
+  //           name: "",
+  //           email: email,
+  //           buesinessFunction: "",
+  //         });
+  //         return;
+  //       }
+  //       setSession({
+  //         name: mondayEmployeeInfo?.name || "",
+  //         email: mondayEmployeeInfo?.email || "",
+  //         buesinessFunction: mondayEmployeeInfo?.businessFunction || "",
+  //       });
+  //     } catch (e) {
+  //       console.error(e);
+  //     }
 
-      // Set the user details in the state
-    } catch (error) {
-      console.error("Error decoding token:", error);
-    }
-  };
-  const errorMessage = () => {
-    console.log("Login failed");
-  };
+  //     // Set the user details in the state
+  //   } catch (error) {
+  //     console.error("Error decoding token:", error);
+  //   }
+  // };
+  // const errorMessage = () => {
+  //   console.log("Login failed");
+  // };
 
-  const logOut = () => {
-    console.log(session);
+  const logOut = async () => {
+    const supabase = createClient();
+
+    // Clear Supabase session
+    await supabase.auth.signOut();
+
+    // Clear any stored session data from localStorage
+    localStorage.removeItem(
+      "sb-" + import.meta.env.VITE_SUPABASE_URL + "-auth-token"
+    );
+
     setSession(null);
+    setIsAuthenticated(false);
+    navigate("/");
   };
 
   return (
@@ -66,26 +80,27 @@ export const Navbar = () => {
             <p className="text-2xl">Teaching Lab Form Hub</p>
           </div>
         </Link>
-        <div className="flex gap-4">
-          <Link to="/weekly-project-log-form">
-            <p>Weekly Project Log</p>
-          </Link>
-          <Link to="/staffing-dashboard">
-            <p>Staffing Dashboard</p>
-          </Link>
-        </div>
+        {isAuthenticated && (
+          <div className="flex gap-4">
+            <Link to="/weekly-project-log-form">
+              <p>Weekly Project Log</p>
+            </Link>
+            <Link to="/staffing-dashboard">
+              <p>Staffing Dashboard</p>
+            </Link>
+          </div>
+        )}
       </div>
-
       <div>
-        {isAuthenticated ? (
+        {isAuthenticated && (
           <div className="flex flex-row gap-4 items-center">
-            <p className="text-blue">Hi {session?.name}!</p>
+            <p className="text-blue">
+              Hi {session?.user?.user_metadata?.name}!
+            </p>
             <Button variant="outline" onClick={logOut}>
               Log Out
             </Button>
           </div>
-        ) : (
-          <GoogleLogin onSuccess={responseMessage} onError={errorMessage} />
         )}
       </div>
     </div>

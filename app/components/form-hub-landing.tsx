@@ -15,7 +15,7 @@ import {
   IconArrowRight,
   IconReceipt,
 } from "@tabler/icons-react";
-import TLLogo from "../../assets/tllogo.png";
+import TLLogo from "../assets/tllogo.png";
 
 interface FormHubLandingProps {
   userName: string;

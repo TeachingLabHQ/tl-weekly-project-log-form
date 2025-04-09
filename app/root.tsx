@@ -14,10 +14,10 @@ import { MetaFunction, LinksFunction } from "@remix-run/node"; // Depends on the
 import "@mantine/dates/styles.css";
 import { ServerStyleContext, ClientStyleContext } from "./context";
 import { Navbar } from "./components/navigation/navbar";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import "./tailwind.css";
-import { Session, SessionContext } from "./components/context/sessionContext";
+import { SessionProvider } from "./components/auth/context/sessionContext";
+
 export const meta: MetaFunction = () => {
   return [
     { charSet: "utf-8" },
@@ -54,34 +54,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </html>
   );
 }
+
 export default function App() {
-  const [session, setSessionState] = useState<Session | null>(null);
-  useEffect(() => {
-    const storedSession = sessionStorage.getItem("storedSession");
-    if (storedSession) {
-      setSessionState(JSON.parse(storedSession));
-    }
-  }, []);
-  const setSession = (newSession: Session | null) => {
-    if (newSession) {
-      sessionStorage.setItem("storedSession", JSON.stringify(newSession));
-    } else {
-      sessionStorage.removeItem("storedSession");
-      //to ensure error message is clear
-      setSessionState({
-        name: "",
-        email: "",
-        buesinessFunction: "",
-      });
-    }
-    setSessionState(newSession);
-  };
   return (
-    <GoogleOAuthProvider clientId="908203966684-tl3or1jsfs1vc2juqkn7m3jnf6nah4gr.apps.googleusercontent.com">
-      <SessionContext.Provider value={{ session, setSession }}>
-        <Navbar />
-        <Outlet />
-      </SessionContext.Provider>
-    </GoogleOAuthProvider>
+    <SessionProvider>
+      <Navbar />
+      <Outlet />
+    </SessionProvider>
   );
 }

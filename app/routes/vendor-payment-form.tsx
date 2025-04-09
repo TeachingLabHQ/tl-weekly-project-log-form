@@ -1,11 +1,11 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useSession } from "~/components/hooks/useSession";
+import { useSession } from "~/components/auth/hooks/useSession";
 import { VendorPaymentForm } from "~/components/vendor-payment-form/vendor-payment-form";
 import { Suspense, useEffect, useState } from "react";
 import { coachFacilitatorService } from "~/domains/coachFacilitator/service";
 import { coachFacilitatorRepository } from "~/domains/coachFacilitator/repository";
-import { LoginPage } from "~/components/ui/login-page";
+import { LoginPage } from "~/components/auth/login-page";
 import { LoadingSpinner } from "~/utils/LoadingSpinner";
 import BackgroundImg from "~/assets/background.png";
 
