@@ -1,4 +1,4 @@
-import { useSession } from "~/components/hooks/useSession";
+import { useSession } from "~/components/auth/hooks/useSession";
 import BackgroundImg from "~/assets/background.png";
 import { useState } from "react";
 import { LoadingSpinner } from "~/utils/LoadingSpinner";

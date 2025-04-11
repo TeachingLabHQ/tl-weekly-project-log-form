@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useSession } from "~/components/hooks/useSession";
+import { useSession } from "~/components/auth/hooks/useSession";
 import { ProjectLogForm } from "~/components/weekly-project-log/project-log-form";
 import { projectRepository } from "~/domains/project/repository";
 import { projectService } from "~/domains/project/service";

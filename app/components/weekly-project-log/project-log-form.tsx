@@ -3,7 +3,7 @@ import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
-import { useSession } from "../hooks/useSession";
+import { useSession } from "../auth/hooks/useSession";
 import { ExecutiveAssistantSelector } from "./executive-assistant-selector";
 import { ProjectLogsWidget } from "./project-logs-widget";
 import { Reminders } from "./reminders";

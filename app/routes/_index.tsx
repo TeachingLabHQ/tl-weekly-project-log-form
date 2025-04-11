@@ -1,8 +1,9 @@
-import { useSession } from "~/components/hooks/useSession";
-import { FormHubLanding } from "~/components/ui/form-hub-landing";
-import { LoginPage } from "~/components/ui/login-page";
+import { useSession } from "~/components/auth/hooks/useSession";
+import { FormHubLanding } from "~/components/form-hub-landing";
+import { LoginPage } from "~/components/auth/login-page";
 import BackgroundImg from "../assets/background.png";
-
+import { useEffect } from "react";
+import { useNavigate } from "@remix-run/react";
 export const headers = () => {
   return {
     "Cross-Origin-Opener-Policy": "unsafe-none",
@@ -12,28 +13,19 @@ export const headers = () => {
 
 export default function Index() {
   const { session, isAuthenticated, errorMessage } = useSession();
-
-  if (!isAuthenticated) {
-    return (
-      <div
-        className="min-h-screen bg-no-repeat bg-cover"
-        style={{
-          backgroundImage: `url(${BackgroundImg})`,
-        }}
-      >
-        <LoginPage errorMessage={errorMessage} />
-      </div>
-    );
+  const navigate = useNavigate();
+  if (isAuthenticated) {
+    navigate("/dashboard");
   }
 
   return (
     <div
-      className="min-h-screen bg-no-repeat bg-cover"
+      className="min-h-screen bg-no-repeat bg-cover w-full flex items-center justify-center"
       style={{
         backgroundImage: `url(${BackgroundImg})`,
       }}
     >
-      <FormHubLanding userName={session?.name || ""} />
+      <LoginPage errorMessage={errorMessage} />
     </div>
   );
 }

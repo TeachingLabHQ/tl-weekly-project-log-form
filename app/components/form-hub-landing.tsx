@@ -13,8 +13,9 @@ import {
   IconClipboardList,
   IconChartBar,
   IconArrowRight,
+  IconReceipt,
 } from "@tabler/icons-react";
-import TLLogo from "../../assets/tllogo.png";
+import TLLogo from "../assets/tllogo.png";
 
 interface FormHubLandingProps {
   userName: string;
@@ -112,6 +113,40 @@ export const FormHubLanding: React.FC<FormHubLandingProps> = ({ userName }) => {
                 color="#0053B3"
               >
                 View Dashboard
+              </Button>
+            </Flex>
+          </Card>
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Card
+            shadow="sm"
+            p="xl"
+            radius="md"
+            withBorder
+            className="h-full bg-white/80 backdrop-blur-sm"
+          >
+            <Flex direction="column" style={{ height: "100%" }}>
+              <IconReceipt
+                size={48}
+                color="#0053B3"
+                style={{ marginBottom: 16 }}
+              />
+              <Title order={3} mb="xs">
+                Vendor Payment Form
+              </Title>
+              <Text mb="md" style={{ flex: 1 }}>
+                Submit vendor payment requests and track payment status. This
+                form helps streamline the vendor payment process and ensures
+                proper documentation.
+              </Text>
+              <Button
+                component={Link}
+                to="/vendor-payment-form"
+                rightSection={<IconArrowRight size={16} />}
+                color="#0053B3"
+              >
+                Submit Payment Request
               </Button>
             </Flex>
           </Card>
