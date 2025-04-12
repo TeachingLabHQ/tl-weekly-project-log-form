@@ -28,7 +28,7 @@ export type SubmissionUser = {
 };
 
 export const ProjectLogForm = () => {
-  const { session, setSession, isAuthenticated } = useSession();
+  const { mondayProfile } = useSession();
   const [totalWorkHours, setTotalWorkHours] = useState<number>(0);
   const [isValidated, setIsValidated] = useState<boolean | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -59,31 +59,31 @@ export const ProjectLogForm = () => {
   };
 
   const [submissionUser, setSubmissionUser] = useState<SubmissionUser>(() => ({
-    name: session?.name || "",
-    email: session?.email || "",
+    name: mondayProfile?.name || "",
+    email: mondayProfile?.email || "",
     isExecutiveAssistant: false,
     submittedForYourself: null,
   }));
 
   useEffect(() => {
-    if (session?.email) {
+    if (mondayProfile?.email) {
       const isEA = executiveAssistantMappings.some(
-        (mapping) => mapping.executiveAssistantEmail === session.email
+        (mapping) => mapping.executiveAssistantEmail === mondayProfile.email
       );
       setSubmissionUser({
-        name: session.name,
-        email: session.email,
+        name: mondayProfile.name,
+        email: mondayProfile.email,
         isExecutiveAssistant: isEA,
         submittedForYourself: true,
       });
     }
-  }, [session?.email]);
+  }, [mondayProfile?.email]);
 
   const handleExecutiveSelection = (executiveName: string | null) => {
     if (!executiveName) {
       setSubmissionUser({
-        name: session?.name || "",
-        email: session?.email || "",
+        name: mondayProfile?.name || "",
+        email: mondayProfile?.email || "",
         isExecutiveAssistant: true,
         submittedForYourself: true,
       });
@@ -121,7 +121,7 @@ export const ProjectLogForm = () => {
     values: typeof form.values,
     event: React.FormEvent<HTMLFormElement> | undefined
   ) => {
-    if (!session?.name) {
+    if (!mondayProfile?.name) {
       console.error("Please log in first");
       return;
     }
@@ -220,7 +220,7 @@ export const ProjectLogForm = () => {
           {submissionUser.isExecutiveAssistant && (
             <ExecutiveAssistantSelector
               executiveAssistantMappings={executiveAssistantMappings}
-              userEmail={session?.email || ""}
+              userEmail={mondayProfile?.email || ""}
               onSelectExecutive={handleExecutiveSelection}
               isValidated={isValidated}
               submittedForYourself={submissionUser.submittedForYourself}

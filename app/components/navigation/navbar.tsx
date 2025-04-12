@@ -10,8 +10,12 @@ import { useSession } from "../auth/hooks/useSession";
 import { createClient } from "../../../supabase/client";
 
 export const Navbar = () => {
-  const { session, setSession, isAuthenticated, setIsAuthenticated } =
-    useSession();
+  const {
+    mondayProfile,
+    isAuthenticated,
+    setIsAuthenticated,
+    setMondayProfile,
+  } = useSession();
   console.log("isAuthenticated", isAuthenticated);
   const navigate = useNavigate();
   // const responseMessage = async (response: any) => {
@@ -65,8 +69,9 @@ export const Navbar = () => {
     localStorage.removeItem(
       "sb-" + import.meta.env.VITE_SUPABASE_URL + "-auth-token"
     );
-
-    setSession(null);
+    // Clear Monday profile from localStorage
+    localStorage.removeItem("mondayProfile");
+    setMondayProfile(null);
     setIsAuthenticated(false);
     navigate("/");
   };
@@ -94,9 +99,7 @@ export const Navbar = () => {
       <div>
         {isAuthenticated && (
           <div className="flex flex-row gap-4 items-center">
-            <p className="text-blue">
-              Hi {session?.user?.user_metadata?.name}!
-            </p>
+            <p className="text-blue">Hi {mondayProfile?.name}!</p>
             <Button variant="outline" onClick={logOut}>
               Log Out
             </Button>
