@@ -3,13 +3,27 @@ import { SessionContext } from "../context/sessionContext";
 import { employeeRepository } from "~/domains/employee/repository";
 import { employeeService } from "~/domains/employee/service";
 import { useNavigate } from "@remix-run/react";
-
+import { EmployeeProfile } from "~/domains/employee/model";
+import { createClient } from "../../../../supabase/client";
 export const useSession = () => {
-  const { session, setSession } = useContext(SessionContext);
+  const { session, setSession, isAuthenticated, setIsAuthenticated } =
+    useContext(SessionContext);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [mondayProfile, setMondayProfile] = useState<EmployeeProfile | null>(
+    null
+  );
   const navigate = useNavigate();
+  const supabase = createClient();
+  // Initialize Monday profile from localStorage on client-side
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedProfile = localStorage.getItem("mondayProfile");
+      if (storedProfile) {
+        setMondayProfile(JSON.parse(storedProfile));
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const checkAuthorization = async () => {
@@ -44,18 +58,31 @@ export const useSession = () => {
           setErrorMessage(
             "You are not authorized to access this page. Please contact the operations team."
           );
+          supabase.auth.signOut();
           setIsAuthenticated(false);
           return;
         }
 
+        const newProfile = {
+          name: employee.data.name,
+          email: employee.data.email,
+          businessFunction: employee.data.businessFunction,
+        };
+
+        setMondayProfile(newProfile);
+        // Store the profile in localStorage only on client-side
+        if (typeof window !== "undefined") {
+          localStorage.setItem("mondayProfile", JSON.stringify(newProfile));
+        }
+
         setIsAuthenticated(true);
-        navigate("/dashboard");
       } catch (error) {
         console.error("Error fetching employee data:", error);
         setErrorMessage(
           "An error occurred while checking authorization. Please try again later."
         );
         setIsAuthenticated(false);
+        supabase.auth.signOut();
       } finally {
         setIsLoading(false);
       }
@@ -71,5 +98,7 @@ export const useSession = () => {
     setIsAuthenticated,
     errorMessage,
     isLoading,
+    mondayProfile,
+    setMondayProfile,
   };
 };

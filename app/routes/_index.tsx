@@ -14,9 +14,6 @@ export const headers = () => {
 export default function Index() {
   const { session, isAuthenticated, errorMessage } = useSession();
   const navigate = useNavigate();
-  if (isAuthenticated) {
-    navigate("/dashboard");
-  }
 
   return (
     <div
