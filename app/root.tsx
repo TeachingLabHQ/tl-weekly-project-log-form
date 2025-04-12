@@ -17,6 +17,7 @@ import { Navbar } from "./components/navigation/navbar";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import "./tailwind.css";
 import { SessionProvider } from "./components/auth/context/sessionContext";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 export const meta: MetaFunction = () => {
   return [
@@ -59,7 +60,9 @@ export default function App() {
   return (
     <SessionProvider>
       <Navbar />
-      <Outlet />
+      <ProtectedRoute>
+        <Outlet />
+      </ProtectedRoute>
     </SessionProvider>
   );
 }
