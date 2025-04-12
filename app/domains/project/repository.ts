@@ -18,6 +18,7 @@ export interface ProjectRepository {
     projectName: string,
     projectRole: string
   ): Promise<Errorable<number>>;
+  fetchAllBudgetedHours(): Promise<Errorable<any>>;
 }
 
 export function projectRepository(): ProjectRepository {
@@ -269,5 +270,46 @@ export function projectRepository(): ProjectRepository {
         };
       }
     },
+    fetchAllBudgetedHours: async (): Promise<Errorable<number>> => {
+      try {
+        const query = `{
+          boards(ids: 8577820151) {
+            items_page(limit: 500) {
+              items {
+                id
+                name
+                column_values(ids: [
+                  "email_mknhbhe0", 
+                  "numeric_mknhqm6d", 
+                  "dropdown_mknk8zwg", 
+                  "color_mknhq0s3"
+                ]) {
+                  id
+                  text
+                  ... on StatusValue {
+                    label
+                  }
+                  column {
+                    title
+                  }
+                }
+              }
+            }
+          }
+        }`;
+
+        const rawMondayData = await fetchMondayData(query);
+        const items = rawMondayData.data.boards[0].items_page.items;
+        
+
+        return { data: items, error: null };
+      } catch (e) {
+        console.error(e);
+        return {
+          data: null,
+          error: new Error("fetchAllBudgetedHours() went wrong"),
+        };
+      }
+    }
   };
 }

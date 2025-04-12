@@ -1,6 +1,6 @@
 import { ProjectLogRows, ProjectMember } from "~/domains/project/model";
 import { ExecutiveAssistantMapping } from "./executive-assistant-selector";
-
+import { EmployeeProfile } from "~/domains/employee/model";
 export const projectRolesList = [
   "Analyst",
   "Client/Partnership Manager",
@@ -31,7 +31,6 @@ export const isProjectLogComplete = (log: {
 
 export const getPreAssignedProgramProjects = (
   programProjectsStaffing: any,
-  programProjectsWithBudgetedHours: any,
   rows: {
     projectType: string;
     projectName: string;
@@ -50,14 +49,15 @@ export const getPreAssignedProgramProjects = (
       }[]
     >
   >,
-  userName: string
+  mondayProfile: EmployeeProfile | null,
+  allBudgetedHours: any
 ) => {
   let projectMembersInfo: ProjectLogRows[] = [];
   if (programProjectsStaffing) {
     for (const project of programProjectsStaffing) {
       const { projectName, projectMembers } = project;
       const member = projectMembers.find(
-        (member: any) => member.name === userName
+        (member: any) => member.name === mondayProfile?.name
       );
       if (member) {
         projectMembersInfo.push({
@@ -72,12 +72,12 @@ export const getPreAssignedProgramProjects = (
   }
   //get budgeted hours
   for (const member of projectMembersInfo) {
-    const projectRoleIdx = programProjectsWithBudgetedHours[1].findIndex(
-      (v: string) => v === member.projectRole
+    const budgetedHours = getBudgetedHoursFromMonday(
+      member.projectName,
+      member.projectRole,
+      mondayProfile?.email || "",
+      allBudgetedHours
     );
-    const budgetedHours = programProjectsWithBudgetedHours.find(
-      (p: (string | undefined)[]) => p[0] === member.projectName
-    )[projectRoleIdx];
     member.budgetedHours = budgetedHours;
   }
   if (projectMembersInfo.length > 0) {
@@ -86,6 +86,7 @@ export const getPreAssignedProgramProjects = (
   return projectMembersInfo;
 };
 
+//deprecated
 export const getBudgetedHours = (
   projectName: string,
   projectRole: string,
@@ -102,6 +103,42 @@ export const getBudgetedHours = (
   }
   return "N/A";
 };
+export const getBudgetedHoursFromMonday = (
+  projectName: string,
+  projectRole: string,
+  email: string,
+  allBudgetedHours: any
+) => {
+  for (let item of allBudgetedHours) {
+    let itemEmail = item.column_values.find(
+      (col: any) => col.column.title === "Email"
+    )?.text;
+    let itemProjectName = item.column_values.find(
+      (col: any) => col.column.title === "Project Name"
+    )?.text;
+    let itemBudgetedHours = item.column_values.find(
+      (col: any) => col.column.title === "Budgeted Hours/Week"
+    )?.text;
+    let itemProjectRole = item.column_values.find(
+      (col: any) => col.column.title === "Project Role"
+    )?.text;
+    if (
+      compareTwoStrings(itemEmail, email) &&
+      compareTwoStrings(itemProjectName, projectName) &&
+      compareTwoStrings(projectRole, itemProjectRole)
+    ) {
+      return parseFloat(itemBudgetedHours).toString() || "N/A";
+    }
+  }
+
+  return "N/A"; // Return "N/A" if no match is found
+};
+
+function compareTwoStrings(strA: string, strB: string) {
+  const cleanA = strA.toLowerCase().replace(/\s+/g, "");
+  const cleanB = strB.toLowerCase().replace(/\s+/g, "");
+  return cleanA === cleanB;
+}
 
 export const handleProjectTypeByTeam = (businessFunction: string) => {
   const projectTypes = ["Internal Project", "Program-related Project"];

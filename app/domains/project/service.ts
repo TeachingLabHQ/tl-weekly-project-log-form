@@ -16,5 +16,6 @@ export function projectService(projectRepository: ProjectRepository) {
     fetchProgramProjectsStaffing: projectRepository.fetchProgramProjects,
     fetchProgramProjectsWithHours:
       projectRepository.fetchProgramProjectWithHours,
+    fetchAllBudgetedHours: projectRepository.fetchAllBudgetedHours,
   };
 }

@@ -9,7 +9,7 @@ import {
   handleProjectTypeByTeam,
   projectRolesList,
   updateTotalWorkHours,
-  getBudgetedHours,
+  getBudgetedHoursFromMonday,
   handleKeyDown,
 } from "./utils";
 import { IconX } from "@tabler/icons-react";
@@ -48,19 +48,16 @@ export const ProjectLogsWidget = ({
   >;
   setTotalWorkHours: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  const {
-    programProjectsWithBudgetedHours,
-    programProjectsStaffing,
-    allProjects,
-  } = useLoaderData<typeof loader>();
-  const { session, setSession, isAuthenticated } = useSession();
+  const { programProjectsStaffing, allProjects, allBudgetedHours } =
+    useLoaderData<typeof loader>();
+  const { mondayProfile } = useSession();
   useEffect(() => {
     getPreAssignedProgramProjects(
       programProjectsStaffing,
-      programProjectsWithBudgetedHours,
       projectWorkEntries,
       setProjectWorkEntries,
-      session?.name || ""
+      mondayProfile,
+      allBudgetedHours
     );
   }, []);
 
@@ -122,10 +119,11 @@ export const ProjectLogsWidget = ({
               ((field === "projectName" && updatedEntry.projectRole) ||
                 (field === "projectRole" && updatedEntry.projectName))
             ) {
-              const budgetedHours = getBudgetedHours(
+              const budgetedHours = getBudgetedHoursFromMonday(
                 updatedEntry.projectName,
                 updatedEntry.projectRole,
-                programProjectsWithBudgetedHours
+                mondayProfile?.email || "",
+                allBudgetedHours
               );
               updatedEntry.budgetedHours = budgetedHours || "N/A";
             }
@@ -213,7 +211,9 @@ export const ProjectLogsWidget = ({
               value={row.projectType}
               onChange={(value) => handleChange(index, "projectType", value)}
               placeholder="Select a type"
-              data={handleProjectTypeByTeam(session?.buesinessFunction || "")}
+              data={handleProjectTypeByTeam(
+                mondayProfile?.businessFunction || ""
+              )}
               onKeyDown={handleKeyDown}
               error={
                 isValidated === false && !row.projectType

@@ -3,7 +3,7 @@ import { useSession } from "../components/auth/hooks/useSession";
 import { useNavigate } from "@remix-run/react";
 import BackgroundImg from "../assets/background.png";
 export default function Dashboard() {
-  const { session, isAuthenticated } = useSession();
+  const { mondayProfile, isAuthenticated } = useSession();
   const navigate = useNavigate();
 
   return (
@@ -13,7 +13,7 @@ export default function Dashboard() {
         backgroundImage: `url(${BackgroundImg})`,
       }}
     >
-      <FormHubLanding userName={session?.user?.user_metadata?.name || ""} />
+      <FormHubLanding userName={mondayProfile?.name || ""} />
     </div>
   );
 }

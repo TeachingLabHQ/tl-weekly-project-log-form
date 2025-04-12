@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Navigate } from "@remix-run/react";
 import { useSession } from "~/components/auth/hooks/useSession";
 import { ProjectLogForm } from "~/components/weekly-project-log/project-log-form";
 import { projectRepository } from "~/domains/project/repository";
@@ -15,16 +15,19 @@ export const loader = async (args: LoaderFunctionArgs) => {
     programProjectsWithBudgetedHours,
     programProjectsStaffing,
     allProjects,
+    allBudgetedHours,
   ] = await Promise.all([
     newProjectService.fetchProgramProjectsWithHours(),
     newProjectService.fetchProgramProjectsStaffing(),
     newProjectService.fetchAllProjects(),
+    newProjectService.fetchAllBudgetedHours(),
   ]);
 
   return {
     programProjectsWithBudgetedHours: programProjectsWithBudgetedHours.data,
     programProjectsStaffing: programProjectsStaffing.data,
     allProjects: allProjects.data,
+    allBudgetedHours: allBudgetedHours.data,
   };
 };
 
@@ -36,17 +39,11 @@ const ProjectLogFormLoader = () => (
 );
 
 export default function WeeklyProjectLogForm() {
-  const { isAuthenticated, errorMessage } = useSession();
-
   return (
     <div className="min-h-screen w-full overflow-auto">
-      {isAuthenticated ? (
-        <Suspense fallback={<ProjectLogFormLoader />}>
-          <ProjectLogForm />
-        </Suspense>
-      ) : (
-        <></>
-      )}
+      <Suspense fallback={<ProjectLogFormLoader />}>
+        <ProjectLogForm />
+      </Suspense>
     </div>
   );
 }
