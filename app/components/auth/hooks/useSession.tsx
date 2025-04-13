@@ -4,7 +4,7 @@ import { employeeRepository } from "~/domains/employee/repository";
 import { employeeService } from "~/domains/employee/service";
 import { useNavigate } from "@remix-run/react";
 import { EmployeeProfile } from "~/domains/employee/model";
-import { createClient } from "../../../../supabase/client";
+import { supabase } from "../../../../supabase/supabase.client";
 export const useSession = () => {
   const { session, setSession, isAuthenticated, setIsAuthenticated } =
     useContext(SessionContext);
@@ -14,7 +14,6 @@ export const useSession = () => {
     null
   );
   const navigate = useNavigate();
-  const supabase = createClient();
   // Initialize Monday profile from localStorage on client-side
   useEffect(() => {
     if (typeof window !== "undefined") {

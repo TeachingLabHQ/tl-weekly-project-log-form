@@ -7,7 +7,7 @@ import { employeeService } from "../../domains/employee/service";
 import { Button } from "@mantine/core";
 import { Link, useNavigate } from "@remix-run/react";
 import { useSession } from "../auth/hooks/useSession";
-import { createClient } from "../../../supabase/client";
+import { supabase } from "../../../supabase/supabase.client";
 
 export const Navbar = () => {
   const {
@@ -60,8 +60,6 @@ export const Navbar = () => {
   // };
 
   const logOut = async () => {
-    const supabase = createClient();
-
     // Clear Supabase session
     await supabase.auth.signOut();
 

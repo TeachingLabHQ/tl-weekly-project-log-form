@@ -1,9 +1,12 @@
-import { useState } from "react";
-import { Button, Text, Title } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { Button, Text, Title, Notification, Tabs } from "@mantine/core";
 import React from "react";
 import BackgroundImg from "~/assets/background.png";
 import { VendorPaymentWidget } from "./vendor-payment-widget";
 import { taskOptions, Tier } from "./utils";
+import { useNavigate, useFetcher } from "@remix-run/react";
+import { IconCheck, IconX } from "@tabler/icons-react";
+import { PaymentHistory } from "./payment-history/payment-history";
 
 type CfDetails = {
   email: string;
@@ -11,9 +14,19 @@ type CfDetails = {
   tier: string;
 } | null;
 
+type FetcherData =
+  | {
+      error?: string;
+      data?: any;
+    }
+  | undefined;
+
 export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
-  console.log(cfDetails);
+  const navigate = useNavigate();
+  const fetcher = useFetcher<FetcherData>();
   const [isValidated, setIsValidated] = useState<boolean | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [vendorPaymentEntries, setVendorPaymentEntries] = useState([
     {
       task: "",
@@ -22,6 +35,28 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
     },
   ]);
   const [totalWorkHours, setTotalWorkHours] = useState(0);
+
+  // Handle form submission response
+  React.useEffect(() => {
+    if (fetcher.data) {
+      if (fetcher.data.error) {
+        setError(fetcher.data.error);
+        setShowSuccess(false);
+      } else {
+        setError(null);
+        setShowSuccess(true);
+        // Reset form after successful submission
+        setVendorPaymentEntries([
+          {
+            task: "",
+            project: "",
+            workHours: "",
+          },
+        ]);
+        setTotalWorkHours(0);
+      }
+    }
+  }, [fetcher.data]);
 
   const calculateTotalPay = (entries: typeof vendorPaymentEntries): number => {
     return entries.reduce((total, entry) => {
@@ -56,6 +91,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsValidated(true);
+    setError(null);
 
     // Check if all required fields are filled
     const hasEmptyFields = vendorPaymentEntries.some(
@@ -66,12 +102,23 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
       return;
     }
 
-    // TODO: Handle form submission
-    console.log("Form submitted:", {
-      entries: vendorPaymentEntries,
-      totalWorkHours,
-      totalPay: calculateTotalPay(vendorPaymentEntries),
-      cfDetails,
+    if (!cfDetails) {
+      setError("Missing coach/facilitator details");
+      return;
+    }
+
+    const totalPay = calculateTotalPay(vendorPaymentEntries);
+
+    // Create form data
+    const formData = new FormData();
+    formData.append("entries", JSON.stringify(vendorPaymentEntries));
+    formData.append("cfDetails", JSON.stringify(cfDetails));
+    formData.append("totalPay", totalPay.toString());
+
+    // Submit the form using fetcher
+    fetcher.submit(formData, {
+      method: "post",
+      action: "/api/vendor-payment-form/submit",
     });
   };
 
@@ -83,29 +130,78 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
       }}
     >
       <div className="row-start-1 col-start-2 col-span-8 h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <h1 className="font-bold text-3xl">Vendor Payment Form</h1>
+        <Tabs defaultValue="new">
+          <Tabs.List>
+            <Tabs.Tab value="new">New Payment</Tabs.Tab>
+            <Tabs.Tab value="history">Payment History</Tabs.Tab>
+          </Tabs.List>
 
-          <VendorPaymentWidget
-            isValidated={isValidated}
-            vendorPaymentEntries={vendorPaymentEntries}
-            setVendorPaymentEntries={setVendorPaymentEntries}
-            setTotalWorkHours={setTotalWorkHours}
-            cfTier={cfDetails?.tier || ""}
-          />
+          <Tabs.Panel value="new">
+            <fetcher.Form
+              onSubmit={handleSubmit}
+              className="flex flex-col gap-4"
+            >
+              <h1 className="font-bold text-3xl">Vendor Payment Form</h1>
 
-          <div className="flex justify-between items-center mt-4">
-            <Button type="submit" size="md" color="#0053B3">
-              Submit
-            </Button>
-          </div>
-        </form>
+              <VendorPaymentWidget
+                isValidated={isValidated}
+                vendorPaymentEntries={vendorPaymentEntries}
+                setVendorPaymentEntries={setVendorPaymentEntries}
+                setTotalWorkHours={setTotalWorkHours}
+                cfTier={cfDetails?.tier || ""}
+              />
+
+              <div className="flex flex-col gap-4">
+                <div className="flex justify-between items-center">
+                  <Button
+                    type="submit"
+                    size="md"
+                    color="#0053B3"
+                    loading={fetcher.state === "submitting"}
+                    disabled={fetcher.state === "submitting"}
+                  >
+                    Submit
+                  </Button>
+                </div>
+
+                {error && (
+                  <Notification
+                    icon={<IconX size={20} />}
+                    color="red"
+                    title="Error"
+                    onClose={() => setError(null)}
+                  >
+                    {error}
+                  </Notification>
+                )}
+
+                {showSuccess && (
+                  <Notification
+                    icon={<IconCheck size={20} />}
+                    color="green"
+                    title="Success"
+                    onClose={() => setShowSuccess(false)}
+                  >
+                    Form submitted successfully!
+                  </Notification>
+                )}
+              </div>
+            </fetcher.Form>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="history">
+            <PaymentHistory cfDetails={cfDetails} />
+          </Tabs.Panel>
+        </Tabs>
       </div>
       <div className="row-start-1 col-start-10 col-span-2 flex flex-col items-center">
         <div className="w-fit py-5 px-10 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col items-center gap-3">
           <h3 className="text-xl font-bold">Total Pay</h3>
           <h1 className="text-xl font-bold">
-            ${calculateTotalPay(vendorPaymentEntries).toFixed(2)}
+            $
+            {vendorPaymentEntries.length > 0
+              ? calculateTotalPay(vendorPaymentEntries).toFixed(2)
+              : "0.00"}
           </h1>
         </div>
       </div>

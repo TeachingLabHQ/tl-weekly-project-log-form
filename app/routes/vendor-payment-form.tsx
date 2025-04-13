@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { json, useLoaderData } from "@remix-run/react";
 import { useSession } from "~/components/auth/hooks/useSession";
 import { VendorPaymentForm } from "~/components/vendor-payment-form/vendor-payment-form";
 import { Suspense, useEffect, useState } from "react";
@@ -8,14 +8,48 @@ import { coachFacilitatorRepository } from "~/domains/coachFacilitator/repositor
 import { LoginPage } from "~/components/auth/login-page";
 import { LoadingSpinner } from "~/utils/LoadingSpinner";
 import BackgroundImg from "~/assets/background.png";
+import { vendorPaymentService } from "~/domains/vendor-payment/service";
+import { vendorPaymentRepository } from "~/domains/vendor-payment/repository";
+import { createSupabaseServerClient } from "../../supabase/supabase.server";
+// Loader function
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { supabaseClient } = createSupabaseServerClient(request);
 
-export const loader = async (args: LoaderFunctionArgs) => {
-  // TODO: Add any necessary data fetching here
-  return {};
+  // Get cfDetails from session or wherever it's stored
+  const {
+    data: { session },
+  } = await supabaseClient.auth.getSession();
+  const cfDetails = session?.user?.email
+    ? {
+        email: session.user.email,
+        name: session.user.user_metadata?.full_name || "",
+        tier: session.user.user_metadata?.tier || "",
+      }
+    : null;
+
+  if (!cfDetails?.email) {
+    return json({ submissions: [] });
+  }
+
+  // Initialize service with repository
+  const repository = vendorPaymentRepository(supabaseClient);
+  const service = vendorPaymentService(repository);
+
+  // Use existing service method
+  const { data: submissions, error } = await service.getSubmissionsByEmail(
+    "Liliana.Vazquez@teachinglab.org"
+  );
+
+  if (error) {
+    throw new Error("Failed to fetch payment history");
+  }
+
+  return json({ submissions });
 };
 
 export default function VendorPaymentFormRoute() {
-  const { isAuthenticated, errorMessage, session } = useSession();
+  const { isAuthenticated, errorMessage, session, mondayProfile } =
+    useSession();
   const [isCoachOrFacilitator, setIsCoachOrFacilitator] = useState<
     boolean | null
   >(null);
@@ -27,7 +61,7 @@ export default function VendorPaymentFormRoute() {
 
   useEffect(() => {
     const checkCoachOrFacilitator = async () => {
-      if (session?.email) {
+      if (mondayProfile?.email) {
         const newCoachFacilitatorService = coachFacilitatorService(
           coachFacilitatorRepository()
         );
@@ -41,11 +75,7 @@ export default function VendorPaymentFormRoute() {
     };
 
     checkCoachOrFacilitator();
-  }, [session?.email]);
-
-  if (!isAuthenticated) {
-    return <LoginPage errorMessage={errorMessage || ""} />;
-  }
+  }, [mondayProfile?.email]);
 
   if (isCoachOrFacilitator === null) {
     return <LoadingSpinner />;
