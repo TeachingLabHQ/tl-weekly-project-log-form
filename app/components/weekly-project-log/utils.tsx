@@ -1,6 +1,8 @@
 import { ProjectLogRows, ProjectMember } from "~/domains/project/model";
 import { ExecutiveAssistantMapping } from "./executive-assistant-selector";
 import { EmployeeProfile } from "~/domains/employee/model";
+import { Link } from "@remix-run/react";
+import { ReminderItem } from "./reminders";
 export const projectRolesList = [
   "Analyst",
   "Client/Partnership Manager",
@@ -236,3 +238,57 @@ export const handleKeyDown = (e: React.KeyboardEvent) => {
     e.preventDefault();
   }
 };
+
+export const REMINDER_ITEMS: ReminderItem[] = [
+  {
+    title: "NEW Budgeted Hours Column:",
+    content:
+      '- The "Budgeted Hours" column displays estimated hours for program projects. You are free to log hours below or above the displayed amount. If needed, please provide additional context or reasons in the comment section.',
+  },
+  {
+    title: "Staffing Utilization Dashboard",
+    content: (
+      <>
+        - To find information on your program project assignments and budgeted
+        hours for each project role, please visit the{" "}
+        <Link to="/staffing-dashboard" style={{ textDecoration: "underline" }}>
+          Staffing Utilization Dashboard
+        </Link>{" "}
+        in the navigation bar.
+      </>
+    ),
+  },
+  {
+    title: "Q: Need to adjust your hours post submission?",
+    content: (
+      <>
+        - To adjust submitted hours, please send an email to the{" "}
+        <a
+          href="mailto:project.log@teachinglab.org"
+          style={{ textDecoration: "underline" }}
+        >
+          project log service
+        </a>
+        , addressed to Savanna Worthington.
+      </>
+    ),
+  },
+  {
+    title: "Q: Don't see your project?",
+    content: (
+      <>
+        - New projects are created when partner contracts have been signed, or
+        internal project budgets have been created. If you do not see your
+        client project listed in the drop down, please contact finance team,
+        attention{" "}
+        <a
+          href="mailto:eric.vandonge@teachinglab.org"
+          style={{ textDecoration: "underline" }}
+        >
+          Eric Van Donge
+        </a>
+        .
+      </>
+    ),
+  },
+];

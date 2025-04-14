@@ -6,9 +6,14 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "../auth/hooks/useSession";
 import { ExecutiveAssistantSelector } from "./executive-assistant-selector";
 import { ProjectLogsWidget } from "./project-logs-widget";
-import { Reminders } from "./reminders";
-import { executiveAssistantMappings, getClosestMonday } from "./utils";
+import { Reminders, ReminderItem } from "./reminders";
+import {
+  executiveAssistantMappings,
+  getClosestMonday,
+  REMINDER_ITEMS,
+} from "./utils";
 import BackgroundImg from "~/assets/background.png";
+import { Link } from "react-router-dom";
 
 export type FormValues = {
   email: string;
@@ -205,7 +210,7 @@ export const ProjectLogForm = () => {
       }}
     >
       <div className="row-start-1 col-start-2 col-span-10">
-        <Reminders />
+        <Reminders items={REMINDER_ITEMS} />
       </div>
 
       <div className="row-start-2 col-start-2 col-span-8 h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white">

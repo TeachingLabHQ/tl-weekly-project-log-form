@@ -3,10 +3,11 @@ import { Button, Text, Title, Notification, Tabs } from "@mantine/core";
 import React from "react";
 import BackgroundImg from "~/assets/background.png";
 import { VendorPaymentWidget } from "./vendor-payment-widget";
-import { taskOptions, Tier } from "./utils";
+import { taskOptions, Tier, REMINDER_ITEMS } from "./utils";
 import { useNavigate, useFetcher } from "@remix-run/react";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { PaymentHistory } from "./payment-history/payment-history";
+import { Reminders } from "../weekly-project-log/reminders";
 
 type CfDetails = {
   email: string;
@@ -37,7 +38,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
   const [totalWorkHours, setTotalWorkHours] = useState(0);
 
   // Handle form submission response
-  React.useEffect(() => {
+  useEffect(() => {
     if (fetcher.data) {
       if (fetcher.data.error) {
         setError(fetcher.data.error);
@@ -124,22 +125,29 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
 
   return (
     <div
-      className="w-screen h-screen grid grid-cols-12 grid-rows-[auto_auto] gap-8 py-14 px-2"
+      className="w-screen h-screen grid grid-cols-12 py-14 px-2"
       style={{
         backgroundImage: `url(${BackgroundImg})`,
       }}
     >
-      <div className="row-start-1 col-start-2 col-span-8 h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white">
+      <div className="row-start-1 col-start-2 col-span-10">
+        <Reminders items={REMINDER_ITEMS} />
+      </div>
+      <div className="row-start-2 col-start-2 col-span-8 h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white">
         <Tabs defaultValue="new">
           <Tabs.List>
-            <Tabs.Tab value="new">New Payment</Tabs.Tab>
-            <Tabs.Tab value="history">Payment History</Tabs.Tab>
+            <Tabs.Tab value="new" className="hover:bg-white/10">
+              New Submission
+            </Tabs.Tab>
+            <Tabs.Tab value="history" className="hover:bg-white/10">
+              Submission History
+            </Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value="new">
             <fetcher.Form
               onSubmit={handleSubmit}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-4 mt-4"
             >
               <h1 className="font-bold text-3xl">Vendor Payment Form</h1>
 
@@ -194,7 +202,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
           </Tabs.Panel>
         </Tabs>
       </div>
-      <div className="row-start-1 col-start-10 col-span-2 flex flex-col items-center">
+      <div className="row-start-2 col-start-10 col-span-2 flex flex-col items-center">
         <div className="w-fit py-5 px-10 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col items-center gap-3">
           <h3 className="text-xl font-bold">Total Pay</h3>
           <h1 className="text-xl font-bold">
