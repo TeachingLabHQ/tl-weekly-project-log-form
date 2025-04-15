@@ -35,6 +35,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 const ProjectLogFormLoader = () => (
   <div className="w-full h-screen flex items-center justify-center">
     <LoadingSpinner className="bg-white/50" />
+    <>Weekly Project Log Form Loading...</>
   </div>
 );
 
