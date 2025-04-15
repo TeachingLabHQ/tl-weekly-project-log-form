@@ -26,9 +26,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // Check if the current route is public
   const isPublicRoute = publicRoutes.includes(location.pathname);
 
+  // Use replace to prevent back-button issues
   if (!session && !isPublicRoute) {
-    console.log("Redirecting to login page");
-    // Redirect to login page but save the attempted URL
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 

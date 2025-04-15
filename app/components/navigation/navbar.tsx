@@ -62,11 +62,6 @@ export const Navbar = () => {
   const logOut = async () => {
     // Clear Supabase session
     await supabase.auth.signOut();
-
-    // Clear any stored session data from localStorage
-    localStorage.removeItem(
-      "sb-" + import.meta.env.VITE_SUPABASE_URL + "-auth-token"
-    );
     // Clear Monday profile from localStorage
     localStorage.removeItem("mondayProfile");
     setMondayProfile(null);
