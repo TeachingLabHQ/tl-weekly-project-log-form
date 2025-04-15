@@ -26,7 +26,7 @@
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.14.0",
     "@mantine/core": "^7.17.4",
-    "@mantine/dates": "^7.15.2",
+    "@mantine/dates": "^7.17.4",
     "@mantine/form": "^7.15.2",
     "@mantine/hooks": "^7.17.4",
     "@mantine/notifications": "^7.17.4",
