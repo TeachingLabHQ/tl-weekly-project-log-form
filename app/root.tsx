@@ -20,6 +20,7 @@ import { Notifications } from "@mantine/notifications";
 import "./tailwind.css";
 import { SessionProvider } from "./components/auth/context/sessionContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import BackgroundImg from "./assets/background.png";
 
 export const meta: MetaFunction = () => {
   return [
@@ -49,7 +50,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
         <ColorSchemeScript />
       </head>
-      <body>
+      <body
+        style={{
+          backgroundImage: `url(${BackgroundImg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          minHeight: "100vh",
+        }}
+      >
         <MantineProvider withGlobalClasses={false}>
           <Notifications />
           {children}
