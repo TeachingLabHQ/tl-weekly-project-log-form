@@ -52,14 +52,16 @@ export const ProjectLogsWidget = ({
     useLoaderData<typeof loader>();
   const { mondayProfile } = useSession();
   useEffect(() => {
-    getPreAssignedProgramProjects(
-      programProjectsStaffing,
-      projectWorkEntries,
-      setProjectWorkEntries,
-      mondayProfile,
-      allBudgetedHours
-    );
-  }, []);
+    if (mondayProfile) {
+      getPreAssignedProgramProjects(
+        programProjectsStaffing,
+        projectWorkEntries,
+        setProjectWorkEntries,
+        mondayProfile,
+        allBudgetedHours
+      );
+    }
+  }, [mondayProfile]);
 
   const handleAddRow = () => {
     setProjectWorkEntries([
