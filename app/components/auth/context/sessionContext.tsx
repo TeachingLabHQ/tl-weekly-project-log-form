@@ -24,29 +24,20 @@ export const SessionProvider = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   useEffect(() => {
-    // Get initial session
-    supabase.auth
-      .getSession()
-      .then(({ data: { session } }: { data: { session: Session | null } }) => {
-        setSession(session);
-        setIsAuthenticated(!!session);
-        setIsLoading(false);
-      });
-
-    // Listen for auth changes
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setIsAuthenticated(!!session);
+      setIsLoading(false);
+    });
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (_event: string, session: Session | null) => {
-        setSession(session);
-        setIsAuthenticated(!!session);
-        setIsLoading(false);
-      }
-    );
-
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setIsAuthenticated(!!session);
+      setIsLoading(false);
+    });
     return () => subscription.unsubscribe();
   }, []);
-
   return (
     <SessionContext.Provider
       value={{
