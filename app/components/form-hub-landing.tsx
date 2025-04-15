@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "@remix-run/react";
+import { Link, useNavigate } from "@remix-run/react";
 import {
   Button,
   Card,
@@ -22,6 +22,8 @@ interface FormHubLandingProps {
 }
 
 export const FormHubLanding: React.FC<FormHubLandingProps> = ({ userName }) => {
+  const navigate = useNavigate();
+
   return (
     <Container size="lg" py="xl">
       <Card
@@ -77,6 +79,13 @@ export const FormHubLanding: React.FC<FormHubLandingProps> = ({ userName }) => {
                 to="/weekly-project-log-form"
                 rightSection={<IconArrowRight size={16} />}
                 color="#0053B3"
+                prefetch="intent"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setTimeout(() => {
+                    navigate("/weekly-project-log-form");
+                  }, 50);
+                }}
               >
                 Submit Weekly Hours
               </Button>
