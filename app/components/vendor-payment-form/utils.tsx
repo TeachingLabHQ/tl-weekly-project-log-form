@@ -1,3 +1,5 @@
+import { ReminderItem } from "../weekly-project-log/reminders";
+
 export enum Tier {
   TIER_1 = "Tier 1",
   TIER_2 = "Tier 2",
@@ -63,5 +65,12 @@ export const taskOptions: TaskOption[] = [
     "Tier 2": null,
     "Tier 3": null,
     maxHours: null,
+  },
+];
+export const REMINDER_ITEMS: ReminderItem[] = [
+  {
+    title: "Submission Deadline:",
+    content:
+      "Ensure to submit your payment as soon as possible before the end of the month. If you need to submit a payment after the end of the month, please contact the finance team.",
   },
 ];

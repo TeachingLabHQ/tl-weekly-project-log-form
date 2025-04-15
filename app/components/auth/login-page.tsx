@@ -15,12 +15,11 @@ import { useSession } from "./hooks/useSession";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import GoogleLogo from "../../assets/google.svg";
-import { createClient } from "../../../supabase/client";
+import { supabase } from "../../../supabase/supabase.client";
 import { IconAlertCircle } from "@tabler/icons-react";
 
 export const LoginPage = ({ errorMessage }: { errorMessage: string }) => {
   const { setSession } = useSession();
-  const supabase = createClient();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -36,7 +35,7 @@ export const LoginPage = ({ errorMessage }: { errorMessage: string }) => {
           access_type: "offline",
           prompt: "consent",
         },
-        redirectTo: `${window.location.origin}`,
+        redirectTo: `${window.location.origin}/dashboard`,
       },
     });
     if (error) {

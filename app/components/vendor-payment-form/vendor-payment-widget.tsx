@@ -223,9 +223,10 @@ export const VendorPaymentWidget = ({
           </div>
           <div>
             <TextInput
-              value={`$${calculateTotalPay(row.task, row.workHours).toFixed(
-                2
-              )}`}
+              value={`$${calculateTotalPay(
+                row.task || "",
+                row.workHours || ""
+              ).toFixed(2)}`}
               readOnly
               placeholder="Total pay"
             />

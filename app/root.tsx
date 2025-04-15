@@ -2,6 +2,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { withEmotionCache } from "@emotion/react";
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 import {
   Links,
   LiveReload,
@@ -15,6 +16,7 @@ import "@mantine/dates/styles.css";
 import { ServerStyleContext, ClientStyleContext } from "./context";
 import { Navbar } from "./components/navigation/navbar";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
 import "./tailwind.css";
 import { SessionProvider } from "./components/auth/context/sessionContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
@@ -48,7 +50,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ColorSchemeScript />
       </head>
       <body>
-        <MantineProvider withGlobalClasses={false}>{children}</MantineProvider>
+        <MantineProvider withGlobalClasses={false}>
+          <Notifications />
+          {children}
+        </MantineProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
