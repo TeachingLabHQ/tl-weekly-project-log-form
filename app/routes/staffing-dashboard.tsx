@@ -8,12 +8,7 @@ export default function StaffingDashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <div
-      className="min-h-screen w-full overflow-auto"
-      style={{
-        backgroundImage: `url(${BackgroundImg})`,
-      }}
-    >
+    <div className="min-h-screen w-full overflow-auto">
       {isAuthenticated ? (
         <div className="w-full h-screen p-4">
           <h1 className="text-2xl font-bold mb-4">

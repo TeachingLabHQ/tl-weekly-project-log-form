@@ -47,14 +47,7 @@ export const LoginPage = ({ errorMessage }: { errorMessage: string }) => {
   };
 
   return (
-    <div
-      className="min-h-screen w-full bg-cover bg-center flex items-center justify-center p-4"
-      style={{
-        backgroundImage: `url(${BackgroundImg})`,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        backgroundBlendMode: "overlay",
-      }}
-    >
+    <div className="min-h-screen w-full flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8 shadow-xl" radius="lg">
         <div className="flex flex-col items-center space-y-6">
           {/* Logo */}

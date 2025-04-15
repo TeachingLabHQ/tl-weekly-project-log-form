@@ -98,12 +98,7 @@ export default function VendorPaymentFormRoute() {
   }
 
   return (
-    <div
-      className="min-h-screen w-full overflow-auto flex items-center justify-center"
-      style={{
-        backgroundImage: `url(${BackgroundImg})`,
-      }}
-    >
+    <div className="min-h-screen w-full overflow-auto flex items-center justify-center">
       <Suspense fallback={<LoadingSpinner />}>
         <VendorPaymentForm cfDetails={cfDetails} />
       </Suspense>
