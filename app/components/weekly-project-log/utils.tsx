@@ -58,8 +58,8 @@ export const getPreAssignedProgramProjects = (
   if (programProjectsStaffing) {
     for (const project of programProjectsStaffing) {
       const { projectName, projectMembers } = project;
-      const member = projectMembers.find(
-        (member: any) => member.name === mondayProfile?.name
+      const member = projectMembers.find((member: any) =>
+        compareTwoStrings(member.name, mondayProfile?.name || "")
       );
       if (member) {
         projectMembersInfo.push({
@@ -136,7 +136,7 @@ export const getBudgetedHoursFromMonday = (
   return "N/A"; // Return "N/A" if no match is found
 };
 
-function compareTwoStrings(strA: string, strB: string) {
+export function compareTwoStrings(strA: string, strB: string) {
   const cleanA = strA.toLowerCase().replace(/\s+/g, "");
   const cleanB = strB.toLowerCase().replace(/\s+/g, "");
   return cleanA === cleanB;

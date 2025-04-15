@@ -10,6 +10,7 @@ import { Reminders, ReminderItem } from "./reminders";
 import {
   executiveAssistantMappings,
   getClosestMonday,
+  compareTwoStrings,
   REMINDER_ITEMS,
 } from "./utils";
 import BackgroundImg from "~/assets/background.png";
@@ -72,8 +73,8 @@ export const ProjectLogForm = () => {
 
   useEffect(() => {
     if (mondayProfile?.email) {
-      const isEA = executiveAssistantMappings.some(
-        (mapping) => mapping.executiveAssistantEmail === mondayProfile.email
+      const isEA = executiveAssistantMappings.some((mapping) =>
+        compareTwoStrings(mapping.executiveAssistantEmail, mondayProfile.email)
       );
       setSubmissionUser({
         name: mondayProfile.name,
@@ -183,7 +184,7 @@ export const ProjectLogForm = () => {
       });
 
       if (!response.ok) {
-        console.log("Form submission went wrong");
+        console.error("Form submission went wrong");
         setIsSuccessful(false);
         setIsSubmitted(false);
         setIsValidated(null);
@@ -203,12 +204,7 @@ export const ProjectLogForm = () => {
   };
 
   return (
-    <div
-      className="w-full h-full grid grid-cols-12 grid-rows-[auto_auto] gap-8 py-8"
-      style={{
-        backgroundImage: `url(${BackgroundImg})`,
-      }}
-    >
+    <div className="w-full h-full grid grid-cols-12 grid-rows-[auto_auto] gap-8 py-8">
       <div className="row-start-1 col-start-2 col-span-10">
         <Reminders items={REMINDER_ITEMS} />
       </div>

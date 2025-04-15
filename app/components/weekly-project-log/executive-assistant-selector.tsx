@@ -1,4 +1,5 @@
 import { Select } from "@mantine/core";
+import { compareTwoStrings } from "./utils";
 
 export type ExecutiveAssistantMapping = {
   executiveAssistantEmail: string;
@@ -21,8 +22,8 @@ export const ExecutiveAssistantSelector = ({
   isValidated,
   submittedForYourself,
 }: Props) => {
-  const mapping = executiveAssistantMappings.find(
-    (m) => m.executiveAssistantEmail === userEmail
+  const mapping = executiveAssistantMappings.find((m) =>
+    compareTwoStrings(m.executiveAssistantEmail, userEmail)
   );
 
   if (!mapping) return null;
