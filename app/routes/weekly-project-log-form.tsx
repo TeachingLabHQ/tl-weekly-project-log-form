@@ -12,19 +12,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   // Fetch data in parallel using Promise.all
   const [
-    programProjectsWithBudgetedHours,
     programProjectsStaffing,
     allProjects,
     allBudgetedHours,
   ] = await Promise.all([
-    newProjectService.fetchProgramProjectsWithHours(),
     newProjectService.fetchProgramProjectsStaffing(),
     newProjectService.fetchAllProjects(),
     newProjectService.fetchAllBudgetedHours(),
   ]);
 
   return {
-    programProjectsWithBudgetedHours: programProjectsWithBudgetedHours.data,
     programProjectsStaffing: programProjectsStaffing.data,
     allProjects: allProjects.data,
     allBudgetedHours: allBudgetedHours.data,
