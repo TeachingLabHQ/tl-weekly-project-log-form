@@ -88,23 +88,6 @@ export const getPreAssignedProgramProjects = (
   return projectMembersInfo;
 };
 
-//deprecated
-export const getBudgetedHours = (
-  projectName: string,
-  projectRole: string,
-  programProjectsWithBudgetedHours: any
-) => {
-  const projectRoleIdx = programProjectsWithBudgetedHours[1].findIndex(
-    (v: string) => v === projectRole
-  );
-  const projectRow = programProjectsWithBudgetedHours.find(
-    (p: (string | undefined)[]) => p[0] === projectName
-  );
-  if (projectRow) {
-    return projectRow[projectRoleIdx];
-  }
-  return "N/A";
-};
 export const getBudgetedHoursFromMonday = (
   projectName: string,
   projectRole: string,
