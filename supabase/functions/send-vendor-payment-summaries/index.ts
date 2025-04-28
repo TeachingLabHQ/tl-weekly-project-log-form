@@ -12,26 +12,34 @@ import { generateProjectPDF, sendProjectEmail } from "./utils.ts";
 // --- Helper function for delay ---
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Define interfaces for project-based grouping
+// --- Define interfaces ---
+
+// Represents a single detailed work entry
 interface DetailedEntry {
-  cf_name: string;
-  cf_email: string;
-  cf_tier: string;
   task_name: string;
   work_hours: number;
   rate: number;
   entry_pay: number;
 }
 
-interface ProjectSummaryData {
+// Represents one person's summary for a specific project
+interface PersonProjectSummary {
+  cf_name: string;
+  cf_email: string;
+  cf_tier: string;
+  totalPayForProject: number; // This person's total pay for this project
+  detailedEntries: DetailedEntry[]; // This person's entries for this project
+}
+
+// Represents all data for a single project, grouped by person
+interface ProjectGroupedData {
   projectName: string;
-  totalPay: number;
-  detailedEntries: DetailedEntry[];
+  peopleSummaries: PersonProjectSummary[]; // Array of summaries, one per person
 }
 
 // Initialize Supabase client
 const supabaseUrl = "http://host.docker.internal:54321"; // Using 127.0.0.1 instead of localhost
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
 
 console.log("Initializing Supabase client...");
 console.log(`Supabase URL: ${supabaseUrl}`);
@@ -89,174 +97,216 @@ try {
       console.log(`Found ${submissions?.length || 0} submissions`);
       if (!submissions || submissions.length === 0) {
         return new Response(
-          JSON.stringify({ message: "No submissions found for the current month." }),
+          JSON.stringify({ message: "No submissions found for the current month."+`${submissionsError}` }),
           { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
 
-      // Group entries by project
-      console.log("Grouping entries by project...");
-      const projectsMap = new Map<string, ProjectSummaryData>();
+      // Group entries by project and then by person
+      console.log("Grouping entries by project and person...");
+      // Use: Map<string, ProjectGroupedData>
+      const projectsMap = new Map<string, ProjectGroupedData>();
 
       for (const submission of submissions) {
-        for (const entry of submission.entries) {
-          const projectName = entry.project_name || "Unassigned"; // Handle null/empty project names
-          let projectData = projectsMap.get(projectName);
+        // Ensure submission.entries is an array before iterating
+        const entries = Array.isArray(submission.entries) ? submission.entries : [];
 
+        for (const entry of entries) {
+          const projectName = entry.project_name || "Unassigned";
+          const personEmail = submission.cf_email; // Key for the person
+
+          // Ensure entry_pay is a valid number, default to 0 if not
+          const entryPay = typeof entry.entry_pay === 'number' && !isNaN(entry.entry_pay) ? entry.entry_pay : 0;
+
+          // Get or create project data
+          let projectData = projectsMap.get(projectName);
           if (!projectData) {
             projectData = {
               projectName: projectName,
-              totalPay: 0,
-              detailedEntries: [],
+              peopleSummaries: [], // Initialize as empty array
             };
             projectsMap.set(projectName, projectData);
           }
 
-          projectData.detailedEntries.push({
-            cf_name: submission.cf_name,
-            cf_email: submission.cf_email,
-            cf_tier: submission.cf_tier,
+          // Find or create person's summary within the project
+          let personSummary = projectData.peopleSummaries.find(p => p.cf_email === personEmail);
+          if (!personSummary) {
+            personSummary = {
+              cf_name: submission.cf_name,
+              cf_email: submission.cf_email,
+              cf_tier: submission.cf_tier,
+              totalPayForProject: 0,
+              detailedEntries: [],
+            };
+            projectData.peopleSummaries.push(personSummary);
+          }
+
+          // Add the detailed entry to the person's summary
+          personSummary.detailedEntries.push({
             task_name: entry.task_name,
-            work_hours: entry.work_hours,
+            work_hours: entry.work_hours, // Assuming these are valid numbers
             rate: entry.rate,
-            entry_pay: entry.entry_pay,
+            entry_pay: entryPay,
           });
-          projectData.totalPay += entry.entry_pay;
+
+          // Update totals
+          personSummary.totalPayForProject += entryPay;
         }
       }
       console.log(`Grouped entries into ${projectsMap.size} projects.`);
 
-      // Fetch projects already processed this month
-      console.log("Fetching existing project email logs...");
+
+      // Fetch projects/emails already processed this month
+      // Assumes vendor_payment_email_logs has cf_email column
+      console.log("Fetching existing email logs...");
       const { data: sentLogs, error: logCheckError } = await supabase
         .from("vendor_payment_email_logs")
-        .select("project_name") // Select only the project name
+        .select("project_name, cf_email") // Select both fields
         .eq("month", currentMonthISO)
         .eq("status", "sent");
 
+
       if (logCheckError) {
-        console.error(`Error checking existing project logs: ${JSON.stringify(logCheckError)}`);
-        // Decide if this is fatal, maybe continue but log the error
-        throw logCheckError; // For now, treat as fatal
+        console.error(`Error checking existing email logs: ${JSON.stringify(logCheckError)}`);
+        throw logCheckError;
       }
 
-      const sentProjects = new Set(sentLogs?.map(log => log.project_name) || []);
-      console.log(`Found ${sentProjects.size} projects already processed this month.`);
+      // Create a set of unique keys for sent emails: "projectName|cf_email"
+      const sentEmails = new Set(sentLogs?.map(log => `${log.project_name}|${log.cf_email}`) || []);
+      console.log(`Found ${sentEmails.size} individual emails already sent this month.`);
 
 
-      // Process each project
-      let processedProjectCount = 0;
-      let failedProjectCount = 0;
-      const projectNames = Array.from(projectsMap.keys());
+      // Process each person within each project
+      let processedEmailCount = 0;
+      let failedEmailCount = 0;
+      let totalEmailsAttempted = 0;
 
-      for (const projectName of projectNames) {
-        const projectData = projectsMap.get(projectName)!;
+      for (const [projectName, projectData] of projectsMap.entries()) {
         console.log(`Processing project: ${projectName}`);
+        for (const personSummary of projectData.peopleSummaries) {
+          totalEmailsAttempted++;
+          const personEmail = personSummary.cf_email;
+          const uniqueEmailKey = `${projectName}|${personEmail}`;
+          console.log(`-- Processing person: ${personEmail} for project: ${projectName}`);
 
-        // Check if email has already been sent for this project this month
-        if (sentProjects.has(projectName)) {
-          console.log(`Email already sent for project ${projectName} this month. Skipping.`);
-          continue;
-        }
-
-        let logId: number | null = null; // To store the ID of the log entry for potential updates
-
-        try {
-          // Create initial 'pending' email log for the project
-          console.log("Creating 'pending' email log entry for project:", projectName);
-          const { data: newLogData, error: logInsertError } = await supabase
-            .from("vendor_payment_email_logs")
-            .insert({
-              project_name: projectName,
-              month: currentMonthISO,
-              status: "pending",
-            })
-            .select('id') // Select the ID of the newly created log
-            .single(); // Expecting a single row back
-
-
-          if (logInsertError) {
-            console.error(`Error creating 'pending' email log for project ${projectName}: ${JSON.stringify(logInsertError)}`);
-            // If we can't even log pending, skip this project and count as failed
-            failedProjectCount++;
-            continue; // Move to the next project
+          // Check if email has already been sent
+          if (sentEmails.has(uniqueEmailKey)) {
+            console.log(`-- Email already sent for ${personEmail} on project ${projectName} this month. Skipping.`);
+            continue;
           }
-          logId = newLogData?.id; // Store the log ID
-          console.log(`Pending log created with ID: ${logId} for project: ${projectName}`);
+
+          let logId: number | null = null;
+
+          try {
+            // Create 'pending' email log entry for the person/project
+            console.log(`-- Creating 'pending' email log for ${personEmail} on project ${projectName}`);
+            const { data: newLogData, error: logInsertError } = await supabase
+              .from("vendor_payment_email_logs")
+              .insert({
+                project_name: projectName,
+                cf_email: personEmail, // Add cf_email
+                month: currentMonthISO,
+                status: "pending",
+              })
+              .select('id')
+              .single();
+
+            if (logInsertError) {
+               console.error(`-- Error creating 'pending' log for ${personEmail}/${projectName}: ${JSON.stringify(logInsertError)}`);
+               failedEmailCount++;
+               continue; // Skip this person/project combination
+            }
+            logId = newLogData?.id;
+            console.log(`-- Pending log created with ID: ${logId} for ${personEmail}/${projectName}`);
 
 
-          console.log(`Generating PDF for project ${projectName}`);
-          // Generate PDF for the entire project
-          // Note: generateProjectPDF needs to be implemented in utils.ts
-          const pdf = await generateProjectPDF(projectData);
-          console.log(`PDF generated successfully for project ${projectName}`);
+            // Generate PDF for this person's entries in this project
+            // Note: generateProjectPDF needs to accept PersonProjectSummary
+            console.log(`-- Generating PDF for ${personEmail} on project ${projectName}`);
+            const pdf = await generateProjectPDF(projectName, personSummary); // Pass person-specific summary
+            console.log(`-- PDF generated successfully for ${personEmail}/${projectName}`);
 
-          console.log(`Sending email for project ${projectName}`);
-          // Send email for the project
-          // Note: sendProjectEmail needs to be implemented in utils.ts
-          // Determine recipient: For now, using SUPPORT_EMAIL or a placeholder
-          const recipientEmail = "yancheng.pan@teachinglab.org";
-          await sendProjectEmail(projectName, projectData.totalPay, pdf, recipientEmail);
-          console.log(`Email sent successfully for project ${projectName}`);
+            // Send email to this person for this project
+            // Note: sendProjectEmail needs adaptation (e.g., accept PersonProjectSummary)
+            console.log(`-- Sending email to ${personEmail} for project ${projectName}`);
+            await sendProjectEmail(
+                projectName,
+                personSummary, // Pass the necessary summary details
+                pdf,
+                personEmail // Send to the person directly
+            );
+            console.log(`-- Email sent successfully to ${personEmail} for project ${projectName}`);
 
-          // Update email log to 'sent' status
-          console.log(`Updating email log status to 'sent' for project: ${projectName} (Log ID: ${logId})`);
-          const { error: updateSentError } = await supabase
-            .from("vendor_payment_email_logs")
-            .update({
-              status: "sent",
-              sent_at: new Date().toISOString(),
-            })
-            .eq("id", logId); // Update using the specific log ID
+            // Update email log to 'sent' status
+            console.log(`-- Updating log to 'sent' for ${personEmail}/${projectName} (Log ID: ${logId})`);
+            const { error: updateSentError } = await supabase
+              .from("vendor_payment_email_logs")
+              .update({
+                status: "sent",
+                sent_at: new Date().toISOString(),
+              })
+              .eq("id", logId); // Update using the specific log ID
 
-          if (updateSentError) {
-            console.error(`Error updating email log to 'sent' for project ${projectName}: ${JSON.stringify(updateSentError)}`);
-            // Log the error, but consider the email sent for counting purposes
-            // We might want a different status like 'sent_log_failed'
-          } else {
-             console.log(`Log status updated to 'sent' for project: ${projectName}`);
+            if (updateSentError) {
+              console.error(`-- Error updating log to 'sent' for ${personEmail}/${projectName}: ${JSON.stringify(updateSentError)}`);
+              // Log the error, but count as processed as email was sent
+            } else {
+               console.log(`-- Log status updated to 'sent' for ${personEmail}/${projectName}`);
+            }
+            processedEmailCount++;
+
+          } catch (error) {
+            failedEmailCount++;
+            console.error(`-- Error processing email for ${personEmail} on project ${projectName}: ${JSON.stringify(error)}`);
+            // If an error occurred (PDF gen or email send), update log to 'failed' if logId exists
+            if (logId) {
+                console.log(`-- Updating log status to 'failed' for ${personEmail}/${projectName} (Log ID: ${logId})`);
+                const { error: updateFailedError } = await supabase
+                  .from("vendor_payment_email_logs")
+                  .update({
+                    status: "failed",
+                    error_message: error.message, // Store error message
+                  })
+                  .eq("id", logId); // Update using the specific log ID
+
+                if (updateFailedError) {
+                  console.error(`-- CRITICAL: Error updating email log to 'failed' for ${personEmail}/${projectName} after processing failure: ${JSON.stringify(updateFailedError)}`);
+                } else {
+                   console.log(`-- Log status updated to 'failed' for ${personEmail}/${projectName}`);
+                }
+            } else {
+                console.error(`-- Could not update log status to 'failed' for ${personEmail}/${projectName} because log ID was not obtained.`);
+                // Consider inserting a 'failed' log here if possible/desired, including cf_email
+                try {
+                    await supabase.from("vendor_payment_email_logs").insert({
+                        project_name: projectName,
+                        cf_email: personEmail,
+                        month: currentMonthISO,
+                        status: "failed",
+                        error_message: `Processing failed before log ID obtained: ${error.message}`,
+                    });
+                    console.log(`-- Inserted substitute 'failed' log for ${personEmail}/${projectName}`);
+                } catch (insertFailError) {
+                     console.error(`-- CRITICAL: Failed to insert substitute 'failed' log for ${personEmail}/${projectName}: ${JSON.stringify(insertFailError)}`);
+                }
+            }
           }
-          processedProjectCount++;
-
-        } catch (error) {
-          failedProjectCount++;
-          console.error(`Error processing project ${projectName}: ${JSON.stringify(error)}`);
-          // If an error occurred (PDF gen or email send), update log to 'failed' if logId exists
-          if (logId) {
-              console.log(`Updating email log status to 'failed' for project: ${projectName} (Log ID: ${logId})`);
-              const { error: updateFailedError } = await supabase
-                .from("vendor_payment_email_logs")
-                .update({
-                  status: "failed",
-                  error_message: error.message, // Store error message
-                })
-                .eq("id", logId); // Update using the specific log ID
-
-              if (updateFailedError) {
-                console.error(`CRITICAL: Error updating email log to 'failed' for project ${projectName} after processing failure: ${JSON.stringify(updateFailedError)}`);
-              } else {
-                 console.log(`Log status updated to 'failed' for project: ${projectName}`);
-              }
-          } else {
-              console.error(`Could not update log status to 'failed' for project ${projectName} because log ID was not obtained.`);
-              // Consider inserting a 'failed' log here if possible/desired
-          }
-        }
         
-        // --- Add delay before processing the next project to avoid rate limiting ---
-        console.log(`Adding delay before next project...`);
-        await sleep(800); // Wait 600ms (slightly more than 1/2 second)
-      }
+          // --- Add delay between sending emails to avoid rate limiting ---
+          console.log(`-- Adding delay before next email...`);
+          await sleep(800); // Wait before processing the next person/project email
+        } // End loop through people
+      } // End loop through projects
 
       // Final Response
-      const responseMessage = `Project processing completed. Attempted: ${projectNames.length}, Successful: ${processedProjectCount}, Failed: ${failedProjectCount}.`;
+      const responseMessage = `Email processing completed. Attempted: ${totalEmailsAttempted}, Successful: ${processedEmailCount}, Failed: ${failedEmailCount}.`;
       console.log(responseMessage);
       return new Response(
         JSON.stringify({
           message: responseMessage,
-          processedCount: processedProjectCount,
-          failedCount: failedProjectCount,
-          totalProjects: projectNames.length
+          processedEmailCount: processedEmailCount,
+          failedEmailCount: failedEmailCount,
+          totalEmailsAttempted: totalEmailsAttempted
         }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       );

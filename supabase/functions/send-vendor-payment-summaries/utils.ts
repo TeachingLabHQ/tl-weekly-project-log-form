@@ -4,20 +4,20 @@ import { Resend } from "https://esm.sh/resend@2.0.0";
 // Initialize Resend client
 const resend = new Resend(Deno.env.get("RESEND_API_KEY") || "re_2uMtEHKA_NnTp6E81HtzZMbfDzkZacCbD"); // Use env var
 
-// --- New Interfaces for Project-Based Reporting ---
-export interface DetailedEntry {
-  cf_name: string;
-  cf_email: string;
-  cf_tier: string;
+// --- Interfaces for Per-Person, Per-Project Reporting ---
+// (These should match or be compatible with those in index.ts)
+interface DetailedEntry {
   task_name: string;
   work_hours: number;
   rate: number;
   entry_pay: number;
 }
 
-export interface ProjectSummaryData {
-  projectName: string;
-  totalPay: number;
+interface PersonProjectSummary {
+  cf_name: string;
+  cf_email: string;
+  cf_tier: string;
+  totalPayForProject: number;
   detailedEntries: DetailedEntry[];
 }
 
@@ -96,23 +96,24 @@ function calculateRowHeight(linesPerColumn: string[][], baseHeight: number): num
   return Math.max(baseHeight, maxLines * 14 + 15); // Adjusted line height and padding
 }
 
-// --- Refactored PDF Generation Function ---
-export async function generateProjectPDF(projectData: ProjectSummaryData): Promise<Uint8Array> {
-  console.log(`Starting PDF generation for project: ${projectData.projectName}`);
+// --- Updated PDF Generation Function for Per-Person Summary ---
+export async function generateProjectPDF(projectName: string, personSummary: PersonProjectSummary): Promise<Uint8Array> {
+  console.log(`${personSummary}`);
+  console.log(`Starting PDF generation for ${personSummary.cf_email} on project: ${projectName}`);
   try {
     const pdfDoc = await PDFDocument.create();
-    let page = pdfDoc.addPage([595, 842]); // A4 size - use 'let' as page can change
+    let page = pdfDoc.addPage([595, 842]); // A4 size
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
     const margin = 50;
-    const contentBottomMargin = margin + 60; // Leave space for total/footer
+    const contentBottomMargin = margin + 60; // Space for total/footer
     const pageWidth = page.getWidth() - 2 * margin;
-    const baseLineHeight = 18; // Slightly more spacing
+    const baseLineHeight = 18;
     let y = page.getHeight() - margin;
 
-    // Add title
-    page.drawText("Teaching Lab", {
+    // Title
+    page.drawText("TL Coaching/Facilitation Invoice", {
       x: margin,
       y,
       size: 24,
@@ -121,8 +122,8 @@ export async function generateProjectPDF(projectData: ProjectSummaryData): Promi
     });
     y -= baseLineHeight * 1.5;
 
-    // Add subtitle
-    page.drawText(`Project Payment Summary: ${projectData.projectName}`, {
+    // Subtitle - Personal Summary for Project
+    page.drawText(`Project: ${projectName}`, {
       x: margin,
       y,
       size: 18,
@@ -131,26 +132,38 @@ export async function generateProjectPDF(projectData: ProjectSummaryData): Promi
     });
     y -= baseLineHeight * 1.5;
 
-    // Add report details (Month/Year)
+    // Report Month
     const reportMonth = new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
     page.drawText(`Report Month: ${reportMonth}`, {
         x: margin,
         y,
         size: 12,
         font: helveticaFont,
-        color: rgb(0, 0, 0),
     });
-    y -= baseLineHeight * 2;
+    y -= baseLineHeight * 1.2;
 
-    // Define table columns with new structure and adjusted widths
+    // Person Details
+    page.drawText(`Coach/Facilitator: ${personSummary.cf_name} (${personSummary.cf_email})`, {
+        x: margin,
+        y,
+        size: 12,
+        font: helveticaFont,
+    });
+    y -= baseLineHeight * 1.0;
+    page.drawText(`Tier: ${personSummary.cf_tier}`, {
+        x: margin,
+        y,
+        size: 12,
+        font: helveticaFont,
+    });
+    y -= baseLineHeight * 2; // More space before table
+
+    // Define table columns (Task, Hours, Rate, Subtotal)
     const columns = [
-      { header: "Name", width: pageWidth * 0.18, align: 'left' },
-      { header: "Email", width: pageWidth * 0.18, align: 'left' },
-      { header: "Tier", width: pageWidth * 0.08, align: 'left' },
-      { header: "Task", width: pageWidth * 0.22, align: 'left' },
-      { header: "Hours", width: pageWidth * 0.08, align: 'right' },
-      { header: "Rate", width: pageWidth * 0.12, align: 'right' },
-      { header: "Subtotal", width: pageWidth * 0.14, align: 'right' }
+      { header: "Task", width: pageWidth * 0.45, align: 'left' },
+      { header: "Hours", width: pageWidth * 0.15, align: 'right' },
+      { header: "Rate", width: pageWidth * 0.20, align: 'right' },
+      { header: "Subtotal", width: pageWidth * 0.20, align: 'right' }
     ];
 
     // Calculate starting positions for each column
@@ -161,7 +174,7 @@ export async function generateProjectPDF(projectData: ProjectSummaryData): Promi
       currentX += column.width;
     });
 
-    // Function to draw table header
+    // Function to draw table header (remains largely the same)
     const drawTableHeader = (currentPage: any, startY: number): number => {
         const headerHeight = baseLineHeight * 1.5;
         currentPage.drawRectangle({
@@ -190,51 +203,44 @@ export async function generateProjectPDF(projectData: ProjectSummaryData): Promi
     // Draw initial table header
     y = drawTableHeader(page, y);
 
-    // Draw table rows for each detailed entry
-    projectData.detailedEntries.forEach((entry, index) => {
-      // Calculate dynamic row height first
+    // Draw table rows for each entry of the person
+    personSummary.detailedEntries.forEach((entry) => {
+      // Calculate dynamic row height based on Task column wrapping
       const wrapWidthMargin = 15;
-      const nameLines = wrapText(entry.cf_name, columns[0].width - wrapWidthMargin, helveticaFont, 10);
-      const emailLines = wrapText(entry.cf_email, columns[1].width - wrapWidthMargin, helveticaFont, 10);
-      const taskLines = wrapText(entry.task_name, columns[3].width - wrapWidthMargin, helveticaFont, 10);
-      const rowHeight = calculateRowHeight([nameLines, emailLines, [entry.cf_tier], taskLines], baseLineHeight * 1.2);
+      const taskLines = wrapText(entry.task_name, columns[0].width - wrapWidthMargin, helveticaFont, 10);
+      // Only task column needs wrapping consideration for height
+      const rowHeight = calculateRowHeight([taskLines], baseLineHeight * 1.2);
 
       // Check for page break before drawing the row
       if (y - rowHeight < contentBottomMargin) {
-        page = pdfDoc.addPage([595, 842]); // Add a new page
-        y = page.getHeight() - margin;    // Reset y to top margin
-        y = drawTableHeader(page, y);    // Redraw header on new page and update y
+        page = pdfDoc.addPage([595, 842]);
+        y = page.getHeight() - margin;
+        y = drawTableHeader(page, y);
       }
 
-      // Draw row background (optional alternate color)
-      // page.drawRectangle({ ... }); 
-
       const rowStartY = y;
-      const textOffsetY = 14; // Vertical offset for text within the row
+      const textOffsetY = 14;
 
-      // Draw wrapped text columns
-      [[nameLines, 0], [emailLines, 1], [taskLines, 3]].forEach(([lines, colIdx]) => {
-        (lines as string[]).forEach((line, i) => {
-          page.drawText(line, {
-            x: columnPositions[colIdx as number] + 10,
-            y: rowStartY - textOffsetY - (i * 12), // Adjust spacing for wrapped lines
-            size: 10,
-            font: helveticaFont,
-            color: rgb(0, 0, 0),
-          });
+      // Draw Task column (wrapped)
+      taskLines.forEach((line, i) => {
+        page.drawText(line, {
+          x: columnPositions[0] + 10, // Left align with padding
+          y: rowStartY - textOffsetY - (i * 12),
+          size: 10,
+          font: helveticaFont,
+          color: rgb(0, 0, 0),
         });
       });
 
-      // Draw non-wrapped and numeric columns
-      const otherValues = [
-        { value: entry.cf_tier, columnIndex: 2, align: 'left' },
-        { value: entry.work_hours.toString(), columnIndex: 4, align: 'right' },
-        { value: `$${entry.rate.toFixed(2)}`, columnIndex: 5, align: 'right' },
-        { value: `$${entry.entry_pay.toFixed(2)}`, columnIndex: 6, align: 'right' }
+      // Draw Hours, Rate, Subtotal columns (numeric, right-aligned)
+      const numericValues = [
+        { value: entry.work_hours.toString(), columnIndex: 1 },
+        { value: `$${entry.rate.toFixed(2)}`, columnIndex: 2 },
+        { value: `$${entry.entry_pay.toFixed(2)}`, columnIndex: 3 }
       ];
 
-      otherValues.forEach(({ value, columnIndex, align }) => {
-        const textX = positionText(columnPositions[columnIndex], columns[columnIndex].width, value, helveticaFont, 10, align);
+      numericValues.forEach(({ value, columnIndex }) => {
+        const textX = positionText(columnPositions[columnIndex], columns[columnIndex].width, value, helveticaFont, 10, 'right');
         page.drawText(value, {
           x: textX,
           y: rowStartY - textOffsetY,
@@ -245,31 +251,28 @@ export async function generateProjectPDF(projectData: ProjectSummaryData): Promi
       });
 
       // Draw cell borders (vertical lines)
-      // Draw leftmost border explicitly
-      drawLine(page, margin, rowStartY, margin, rowStartY - rowHeight);
-      // Draw internal vertical borders
+      drawLine(page, margin, rowStartY, margin, rowStartY - rowHeight); // Leftmost
       columns.forEach((column, i) => {
-          if (i > 0) { // Skip explicit drawing for the first column's left border (handled above)
+          if (i > 0) {
             drawLine(page, columnPositions[i], rowStartY, columnPositions[i], rowStartY - rowHeight);
           }
       });
-      // Draw rightmost border
-      drawLine(page, margin + pageWidth, rowStartY, margin + pageWidth, rowStartY - rowHeight);
+      drawLine(page, margin + pageWidth, rowStartY, margin + pageWidth, rowStartY - rowHeight); // Rightmost
       // Draw bottom border for the row
       drawLine(page, margin, rowStartY - rowHeight, margin + pageWidth, rowStartY - rowHeight);
 
       y -= rowHeight;
     });
 
-    // Add total
+    // Add total for this person on this project
     const totalLineHeight = baseLineHeight * 1.5;
     if (y - totalLineHeight < contentBottomMargin) {
-        page = pdfDoc.addPage([595, 842]); // Add a new page if needed just for total/footer
-        y = page.getHeight() - margin;    // Reset y to top margin (no header needed here)
-    } 
+        page = pdfDoc.addPage([595, 842]);
+        y = page.getHeight() - margin;
+    }
     y -= totalLineHeight;
 
-    const totalText = `Total Project Payment: $${projectData.totalPay.toFixed(2)}`;
+    const totalText = `Total Payment for You on This Project: $${personSummary.totalPayForProject.toFixed(2)}`;
     const totalX = positionText(margin, pageWidth, totalText, helveticaBold, 14, 'right');
     page.drawText(totalText, {
       x: totalX,
@@ -279,82 +282,84 @@ export async function generateProjectPDF(projectData: ProjectSummaryData): Promi
       color: rgb(0, 0, 0),
     });
 
-    // Add footer
+    // Add footer (remains the same)
     const footerY = margin / 2;
     const footerText1 = "This is an automated payment summary from Teaching Lab.";
     const supportEmail = Deno.env.get("SUPPORT_EMAIL") || "support@example.com";
     const footerText2 = `Please contact ${supportEmail} for any questions.`;
-    page.drawText(footerText1, { x: margin, y: footerY + 12, size: 9, font: helveticaFont, color: rgb(0.5, 0.5, 0.5) });
-    page.drawText(footerText2, { x: margin, y: footerY, size: 9, font: helveticaFont, color: rgb(0.5, 0.5, 0.5) });
+    // Need to ensure footer is drawn on the *last* page used
+    const lastPage = pdfDoc.getPages()[pdfDoc.getPageCount() - 1];
+    lastPage.drawText(footerText1, { x: margin, y: footerY + 12, size: 9, font: helveticaFont, color: rgb(0.5, 0.5, 0.5) });
+    lastPage.drawText(footerText2, { x: margin, y: footerY, size: 9, font: helveticaFont, color: rgb(0.5, 0.5, 0.5) });
 
     // Save the PDF
-    console.log("Saving project PDF...");
+    console.log(`Saving PDF for ${personSummary.cf_email} / ${projectName}...`);
     const pdfBytes = await pdfDoc.save();
-    console.log("Project PDF generated successfully, size:", pdfBytes.length, "bytes");
+    console.log(`PDF generated successfully for ${personSummary.cf_email} / ${projectName}, size: ${pdfBytes.length} bytes`);
     return pdfBytes;
 
   } catch (error) {
-    console.error(`Error generating PDF for project ${projectData.projectName}:`, error);
+    console.error(`Error generating PDF for ${personSummary.cf_email} on project ${projectName}:`, error);
     throw error;
   }
 }
 
-// --- Refactored Email Sending Function ---
+// --- Updated Email Sending Function ---
 export async function sendProjectEmail(
   projectName: string,
-  totalPay: number,
+  personSummary: PersonProjectSummary, // Pass the person's summary object
   pdf: Uint8Array,
-  recipientEmail: string // Receive recipient email as argument
+  recipientEmail: string // Keep recipientEmail for clarity, though it's in personSummary
 ): Promise<void> {
-  console.log(`Starting email sending for project: ${projectName} to ${recipientEmail}`);
+  console.log(`Starting email sending for ${personSummary.cf_name} (${recipientEmail}) on project: ${projectName}`);
   try {
-    // Use environment variables
-    const fromEmail = Deno.env.get("FROM_EMAIL") || "noreply@teachinglab.org"; // Use a suitable default or env var
+    const fromEmail = Deno.env.get("FROM_EMAIL") || "noreply@teachinglab.org";
     const supportEmail = Deno.env.get("SUPPORT_EMAIL") || "support@example.com";
-    console.log("FROM_EMAIL:", fromEmail);
-    console.log("SUPPORT_EMAIL:", supportEmail);
 
-    // Convert Uint8Array to base64 string
     const pdfBase64 = btoa(String.fromCharCode(...pdf));
+    console.log(`PDF Base64 length: ${pdfBase64}`);
     const reportMonthYear = new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-    const filename = `TeachingLab-PaymentSummary-${projectName.replace(/\s+/g, '_')}-${reportMonthYear}.pdf`;
+    // Make filename person-specific
+    const filename = `TeachingLab-PaymentSummary-${personSummary.cf_name.replace(/\s+/g, '')}-${projectName.replace(/\s+/g, '_')}-${reportMonthYear}.pdf`;
 
     const emailData = {
-      from:"onboarding@resend.dev", // Nicer sender name
+      from: "Teaching Lab Payments <onboarding@resend.dev>", // Use sender name
       to: recipientEmail,
-      subject: `Teaching Lab Project Payment Summary - ${projectName} - ${reportMonthYear}`,
+      subject: `Your Teaching Lab Payment Summary - ${projectName} - ${reportMonthYear}`, // Person-specific subject
       html: `
-        <h1>Teaching Lab - Project Payment Summary</h1>
-        <p>Hello,</p>
-        <p>Please find attached the payment summary report for project <strong>${projectName}</strong> for the period ending ${reportMonthYear}.</p>
-        <p>Total Payment for this project in this period: <strong>$${totalPay.toFixed(2)}</strong></p>
+        <h1>Teaching Lab - Payment Summary</h1>
+        <p>Hello ${personSummary.cf_name},</p>
+        <p>Please find attached your payment summary for project <strong>${projectName}</strong> for the period ending ${reportMonthYear}.</p>
+        <p>Your total payment for this project in this period: <strong>$${personSummary.totalPayForProject.toFixed(2)}</strong></p>
         <p>If you have any questions, please contact ${supportEmail}.</p>
         <p>Best regards,<br>Teaching Lab Team</p>
       `,
       attachments: [{
         filename: filename,
         content: pdfBase64,
-        // contentType: 'application/pdf' // Resend usually infers this correctly
+        contentType: 'application/pdf'
       }]
     };
 
-    console.log(`Sending project summary email for ${projectName}...`);
+    console.log(`Sending email to ${recipientEmail} for ${projectName}...`);
     const { data, error } = await resend.emails.send(emailData);
 
     if (error) {
-      console.error(`Error sending email for project ${projectName}:`, JSON.stringify(error));
-      throw new Error(`Failed to send email: ${JSON.stringify(error)}`); // Throw a more informative error
+      console.error(`Error sending email to ${recipientEmail} for project ${projectName}:`, JSON.stringify(error));
+      throw new Error(`Failed to send email: ${JSON.stringify(error)}`);
     }
 
-    console.log(`Email sent successfully for project ${projectName}:`, data?.id);
+    console.log(`Email sent successfully to ${recipientEmail} for project ${projectName}:`, data?.id);
   } catch (error) {
-    console.error(`Error in sendProjectEmail function for project ${projectName}:`, error);
-    throw error; // Re-throw the error to be caught by the main handler
+    console.error(`Error in sendProjectEmail function for ${recipientEmail}, project ${projectName}:`, error);
+    throw error;
   }
 }
 
-// --- Remove Old Functions --- 
+// --- Remove Old Interfaces/Functions if they exist ---
 /*
-export async function generatePDF(submission: VendorPaymentSubmission): Promise<Uint8Array> { ... }
-export async function sendEmail(submission: VendorPaymentSubmission, pdf: Uint8Array): Promise<void> { ... }
+export interface ProjectSummaryData { ... }
+export interface DetailedEntry { ... } // Old version if it was different
+export async function generateProjectPDF(...) // Old version signature
+export async function sendProjectEmail(...) // Old version signature
 */
