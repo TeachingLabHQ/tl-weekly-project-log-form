@@ -37,7 +37,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   // Use existing service method
   const { data: submissions, error } = await service.getSubmissionsByEmail(
-    "Liliana.Vazquez@teachinglab.org"
+    cfDetails.email
   );
 
   if (error) {
