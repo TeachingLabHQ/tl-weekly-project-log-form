@@ -67,15 +67,28 @@ export default function VendorPaymentFormRoute() {
         );
         const { data, error } =
           await newCoachFacilitatorService.fetchCoachFacilitatorDetails(
-            "Liliana.Vazquez@teachinglab.org"
+            mondayProfile?.email
           );
         setIsCoachOrFacilitator(!!data);
         setCfDetails(data || null);
+        // For testing purposes, allow YC to access the form
+        if(mondayProfile?.email === "yancheng.pan@teachinglab.org"){
+          setIsCoachOrFacilitator(true);
+          setCfDetails({
+            email: "yancheng.pan@teachinglab.org",
+            name: "Yancheng Pan",
+            tier: "Tier 1",
+          });
+        }
+       
       }
     };
 
     checkCoachOrFacilitator();
   }, [mondayProfile?.email]);
+  if (isCoachOrFacilitator === null) {
+    return <LoadingSpinner />;
+  }
 
   if (isCoachOrFacilitator === false) {
     return (
@@ -95,9 +108,9 @@ export default function VendorPaymentFormRoute() {
 
   return (
     <div className="min-h-screen w-full overflow-auto flex items-center justify-center">
-      <Suspense fallback={<LoadingSpinner />}>
+
         <VendorPaymentForm cfDetails={cfDetails} />
-      </Suspense>
+
     </div>
   );
 }
