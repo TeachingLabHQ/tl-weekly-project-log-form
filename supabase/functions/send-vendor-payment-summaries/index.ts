@@ -141,15 +141,26 @@ try {
             projectData.peopleSummaries.push(personSummary);
           }
 
-          // Add the detailed entry to the person's summary
-          personSummary.detailedEntries.push({
-            task_name: entry.task_name,
-            work_hours: entry.work_hours, // Assuming these are valid numbers
-            rate: entry.rate,
-            entry_pay: entryPay,
-          });
+          // Add or aggregate the detailed entry to the person's summary
+          const taskName = entry.task_name;
+          const existingEntryIndex = personSummary.detailedEntries.findIndex(de => de.task_name === taskName);
 
-          // Update totals
+          if (existingEntryIndex > -1) {
+            // Aggregate hours and pay if task already exists
+            personSummary.detailedEntries[existingEntryIndex].work_hours += entry.work_hours; 
+            personSummary.detailedEntries[existingEntryIndex].entry_pay += entryPay;
+            // Assuming rate is consistent for the same task by the same person
+          } else {
+            // Push new entry if task doesn't exist
+            personSummary.detailedEntries.push({
+              task_name: taskName,
+              work_hours: entry.work_hours, // Assuming these are valid numbers
+              rate: entry.rate, // Assuming rate is valid
+              entry_pay: entryPay,
+            });
+          }
+
+          // Update total pay for the person for this project
           personSummary.totalPayForProject += entryPay;
         }
       }
