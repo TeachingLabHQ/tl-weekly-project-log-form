@@ -77,11 +77,7 @@ export default function VendorPaymentFormRoute() {
     checkCoachOrFacilitator();
   }, [mondayProfile?.email]);
 
-  if (isCoachOrFacilitator === null) {
-    return <LoadingSpinner />;
-  }
-
-  if (!isCoachOrFacilitator) {
+  if (isCoachOrFacilitator === false) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center">
         <div className="bg-white/80 backdrop-blur-sm p-8 rounded-lg shadow-lg max-w-md w-full">
