@@ -1,21 +1,23 @@
 -- Create vendor_payment_email_logs table
 create table if not exists public.vendor_payment_email_logs (
   id bigint primary key generated always as identity,
-  submission_id bigint references public.vendor_payment_submissions(id) on delete cascade,
+  project_name text null,
   month date not null,
   sent_at timestamp with time zone,
   status text not null,
   error_message text,
   created_at timestamp with time zone default now(),
-  updated_at timestamp with time zone default now()
+  updated_at timestamp with time zone default now(),
+  constraint unique_project_month unique (project_name, month)
 );
 
 -- Create index for faster lookups
-create index if not exists idx_vendor_payment_email_logs_submission_id 
-  on public.vendor_payment_email_logs(submission_id);
-
 create index if not exists idx_vendor_payment_email_logs_month 
   on public.vendor_payment_email_logs(month);
+
+-- Add index for project lookups
+create index if not exists idx_vendor_payment_email_logs_project_month 
+  on public.vendor_payment_email_logs(project_name, month);
 
 -- Add RLS policies
 alter table public.vendor_payment_email_logs enable row level security;
@@ -27,19 +29,6 @@ create policy "Service role can access all email logs"
   to service_role
   using (true)
   with check (true);
-
--- Allow authenticated users to read their own email logs
-create policy "Users can read their own email logs"
-  on public.vendor_payment_email_logs
-  for select
-  to authenticated
-  using (
-    exists (
-      select 1 from public.vendor_payment_submissions
-      where id = submission_id
-      and cf_email = auth.jwt() ->> 'email'
-    )
-  );
 
 -- Create function to update updated_at timestamp
 create or replace function public.handle_updated_at()
