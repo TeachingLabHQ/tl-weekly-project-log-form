@@ -174,7 +174,7 @@ export const VendorPaymentWidget = ({
         >
           <div>
             <Select
-              value={row.task}
+              value={row.task || null}
               onChange={(value) => handleChange(index, "task", value)}
               placeholder="Select a task"
               data={availableTasks.map((option) => ({
@@ -189,7 +189,7 @@ export const VendorPaymentWidget = ({
           </div>
           <div>
             <Select
-              value={row.project}
+              value={row.project || null}
               onChange={(value) => handleChange(index, "project", value)}
               placeholder="Select a project"
               data={projectOptions}
