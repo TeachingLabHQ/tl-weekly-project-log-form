@@ -71,6 +71,6 @@ export const REMINDER_ITEMS: ReminderItem[] = [
   {
     title: "Submission Deadline:",
     content:
-      "Ensure to submit your payment as soon as possible before the end of the month. If you need to submit a payment after the end of the month, please contact the finance team.",
+      "Ensure to submit your payment as soon as possible on the day of your work. If you need to submit a payment for a previous month, please contact the finance team.",
   },
 ];
