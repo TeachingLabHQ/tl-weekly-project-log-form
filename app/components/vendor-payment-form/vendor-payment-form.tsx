@@ -93,13 +93,13 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
     e.preventDefault();
     setIsValidated(true);
     setError(null);
-
     // Check if all required fields are filled
     const hasEmptyFields = vendorPaymentEntries.some(
       (entry) => !entry.task || !entry.project || !entry.workHours
     );
 
     if (hasEmptyFields) {
+      setError("Please fill in all fields");
       return;
     }
 
@@ -126,9 +126,6 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
   return (
     <div
       className="w-screen h-screen grid grid-cols-12 py-14 px-2"
-      style={{
-        backgroundImage: `url(${BackgroundImg})`,
-      }}
     >
       <div className="row-start-1 col-start-2 col-span-10">
         <Reminders items={REMINDER_ITEMS} />
