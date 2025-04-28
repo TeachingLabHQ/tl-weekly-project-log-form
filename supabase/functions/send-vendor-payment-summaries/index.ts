@@ -245,7 +245,7 @@ try {
         
         // --- Add delay before processing the next project to avoid rate limiting ---
         console.log(`Adding delay before next project...`);
-        await sleep(600); // Wait 600ms (slightly more than 1/2 second)
+        await sleep(800); // Wait 600ms (slightly more than 1/2 second)
       }
 
       // Final Response
