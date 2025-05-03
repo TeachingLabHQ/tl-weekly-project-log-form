@@ -80,6 +80,38 @@ export default function VendorPaymentFormRoute() {
             tier: "Tier 1",
           });
         }
+        else if(mondayProfile?.email === "daissan.colbert@teachinglab.org"){
+          setIsCoachOrFacilitator(true);
+          setCfDetails({
+            email: "daissan.colbert@teachinglab.org",
+            name: "Daisann Colbert",
+            tier: "Tier 1",
+          });
+        }
+        else if(mondayProfile?.email === "samantha.wilner@teachinglab.org"){
+          setIsCoachOrFacilitator(true);
+          setCfDetails({
+            email: "samantha.wilner@teachinglab.org",
+            name: "Samantha Wilner",
+            tier: "Tier 1",
+          });
+        }
+       else if(mondayProfile?.email === "tonia.lonie@teachinglab.org"){
+          setIsCoachOrFacilitator(true);
+          setCfDetails({
+            email: "tonia.lonie@teachinglab.org",
+            name: "Tonia Lonie",
+            tier: "Tier 1",
+          });
+        }
+        else if(mondayProfile?.email === "ellen.greig@teachinglab.org"){
+          setIsCoachOrFacilitator(true);
+          setCfDetails({
+            email: "ellen.greig@teachinglab.org",
+            name: "Ellen Greig",
+            tier: "Tier 1",
+          });
+        }
        
       }
     };
