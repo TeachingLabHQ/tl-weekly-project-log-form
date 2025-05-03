@@ -4,6 +4,7 @@ export interface VendorPaymentSubmission {
   cf_name: string;
   cf_tier: string;
   total_pay: number;
+  submission_date: Date|string|null;
   created_at: Date|string|null;
   updated_at: Date|string|null;
 }
@@ -29,5 +30,6 @@ export interface CreateVendorPaymentSubmission {
   cf_name: string;
   cf_tier: string;
   total_pay: number;
+  submission_date: Date|string|null;
   entries: Omit<VendorPaymentEntry, 'id' | 'submission_id' | 'created_at' | 'updated_at'>[];
 } 

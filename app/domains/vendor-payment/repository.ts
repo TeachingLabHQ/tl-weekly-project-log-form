@@ -28,6 +28,7 @@ export function vendorPaymentRepository(supabase: SupabaseClient<Database>): Ven
             cf_name: submission.cf_name,
             cf_tier: submission.cf_tier,
             total_pay: submission.total_pay,
+            submission_date: submission.submission_date,
           })
           .select()
           .single();

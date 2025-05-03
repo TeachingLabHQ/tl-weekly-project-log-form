@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, Text, Title, Notification, Tabs } from "@mantine/core";
+import { DateInput } from "@mantine/dates";
 import React from "react";
 import BackgroundImg from "~/assets/background.png";
 import { VendorPaymentWidget } from "./vendor-payment-widget";
@@ -28,6 +29,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
   const [isValidated, setIsValidated] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [workDate, setWorkDate] = useState<Date | null>(new Date());
   const [vendorPaymentEntries, setVendorPaymentEntries] = useState([
     {
       task: "",
@@ -103,6 +105,11 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
       return;
     }
 
+    if (!workDate) {
+      setError("Please select a date");
+      return;
+    }
+
     if (!cfDetails) {
       setError("Missing coach/facilitator details");
       return;
@@ -115,6 +122,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
     formData.append("entries", JSON.stringify(vendorPaymentEntries));
     formData.append("cfDetails", JSON.stringify(cfDetails));
     formData.append("totalPay", totalPay.toString());
+    formData.append("workDate", workDate.toISOString());
 
     // Submit the form using fetcher
     fetcher.submit(formData, {
@@ -147,6 +155,18 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
               className="flex flex-col gap-4 mt-4"
             >
               <h1 className="font-bold text-3xl">Vendor Payment Form</h1>
+
+              <div className="mb-4">
+                <label className="block text-white mb-2">Enter the date of the work</label>
+                <DateInput
+                  value={workDate}
+                  onChange={setWorkDate}
+                  placeholder="Select date"
+                  required
+                  className="w-full "
+                  error={isValidated === true && !workDate ? "Date is required" : null}
+                />
+              </div>
 
               <VendorPaymentWidget
                 isValidated={isValidated}
