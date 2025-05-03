@@ -11,6 +11,7 @@ interface DetailedEntry {
   work_hours: number;
   rate: number;
   entry_pay: number;
+  submission_date?: string;
 }
 
 interface PersonProjectSummary {
@@ -19,6 +20,7 @@ interface PersonProjectSummary {
   cf_tier: string;
   totalPayForProject: number;
   detailedEntries: DetailedEntry[];
+  submission_date: string;
 }
 
 // --- Remove Old Interfaces (kept in index.ts if needed there) ---
@@ -142,6 +144,15 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
     });
     y -= baseLineHeight * 1.2;
 
+    // Add Bill to information
+    page.drawText("Bill to: Teaching Lab", {
+        x: margin,
+        y,
+        size: 12,
+        font: helveticaFont,
+    });
+    y -= baseLineHeight * 1.2;
+
     // Person Details
     page.drawText(`Coach/Facilitator: ${personSummary.cf_name} (${personSummary.cf_email})`, {
         x: margin,
@@ -158,11 +169,20 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
     });
     y -= baseLineHeight * 2; // More space before table
 
-    // Define table columns (Task, Hours, Rate, Subtotal)
+    // Sort entries by date (oldest first)
+    const sortedEntries = [...personSummary.detailedEntries].sort((a, b) => {
+      // Convert dates to comparable values, defaulting to empty string if undefined
+      const dateA = a.submission_date ? new Date(a.submission_date).getTime() : 0;
+      const dateB = b.submission_date ? new Date(b.submission_date).getTime() : 0;
+      return dateA - dateB; // For oldest to newest
+    });
+
+    // Define table columns (Date, Task, Hours, Rate, Subtotal)
     const columns = [
-      { header: "Task", width: pageWidth * 0.45, align: 'left' },
+      { header: "Date", width: pageWidth * 0.15, align: 'left' },
+      { header: "Task", width: pageWidth * 0.35, align: 'left' },
       { header: "Hours", width: pageWidth * 0.15, align: 'right' },
-      { header: "Rate", width: pageWidth * 0.20, align: 'right' },
+      { header: "Rate", width: pageWidth * 0.15, align: 'right' },
       { header: "Subtotal", width: pageWidth * 0.20, align: 'right' }
     ];
 
@@ -204,10 +224,10 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
     y = drawTableHeader(page, y);
 
     // Draw table rows for each entry of the person
-    personSummary.detailedEntries.forEach((entry) => {
+    sortedEntries.forEach((entry) => {
       // Calculate dynamic row height based on Task column wrapping
       const wrapWidthMargin = 15;
-      const taskLines = wrapText(entry.task_name, columns[0].width - wrapWidthMargin, helveticaFont, 10);
+      const taskLines = wrapText(entry.task_name, columns[1].width - wrapWidthMargin, helveticaFont, 10);
       // Only task column needs wrapping consideration for height
       const rowHeight = calculateRowHeight([taskLines], baseLineHeight * 1.2);
 
@@ -221,10 +241,39 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
       const rowStartY = y;
       const textOffsetY = 14;
 
+      // Format the date (if available)
+      let dateDisplay = '';
+      if (entry.submission_date) {
+        try {
+          const dateObj = new Date(entry.submission_date);
+          dateDisplay = dateObj.toLocaleDateString();
+        } catch (e) {
+          // If date parsing fails, use the raw string
+          dateDisplay = entry.submission_date;
+        }
+      } else if (personSummary.submission_date) {
+        // Fall back to the person's submission date if entry doesn't have one
+        try {
+          const dateObj = new Date(personSummary.submission_date);
+          dateDisplay = dateObj.toLocaleDateString();
+        } catch (e) {
+          dateDisplay = personSummary.submission_date;
+        }
+      }
+
+      // Draw Date column
+      page.drawText(dateDisplay, {
+        x: columnPositions[0] + 10, // Left align with padding
+        y: rowStartY - textOffsetY,
+        size: 10,
+        font: helveticaFont,
+        color: rgb(0, 0, 0),
+      });
+
       // Draw Task column (wrapped)
       taskLines.forEach((line, i) => {
         page.drawText(line, {
-          x: columnPositions[0] + 10, // Left align with padding
+          x: columnPositions[1] + 10, // Left align with padding
           y: rowStartY - textOffsetY - (i * 12),
           size: 10,
           font: helveticaFont,
@@ -234,9 +283,9 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
 
       // Draw Hours, Rate, Subtotal columns (numeric, right-aligned)
       const numericValues = [
-        { value: entry.work_hours.toString(), columnIndex: 1 },
-        { value: `$${entry.rate.toFixed(2)}`, columnIndex: 2 },
-        { value: `$${entry.entry_pay.toFixed(2)}`, columnIndex: 3 }
+        { value: entry.work_hours.toString(), columnIndex: 2 },
+        { value: `$${entry.rate.toFixed(2)}`, columnIndex: 3 },
+        { value: `$${entry.entry_pay.toFixed(2)}`, columnIndex: 4 }
       ];
 
       numericValues.forEach(({ value, columnIndex }) => {
@@ -264,6 +313,9 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
       y -= rowHeight;
     });
 
+    // Calculate total for the PDF (we'll use this for verification)
+    const pdfTotalPay = sortedEntries.reduce((sum, entry) => sum + entry.entry_pay, 0);
+    
     // Add total for this person on this project
     const totalLineHeight = baseLineHeight * 1.5;
     if (y - totalLineHeight < contentBottomMargin) {
@@ -272,7 +324,8 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
     }
     y -= totalLineHeight;
 
-    const totalText = `Total Payment for You on This Project: $${personSummary.totalPayForProject.toFixed(2)}`;
+    // Use personSummary.totalPayForProject for the displayed total as it's pre-calculated
+    const totalText = `Total Payment: $${personSummary.totalPayForProject.toFixed(2)}`;
     const totalX = positionText(margin, pageWidth, totalText, helveticaBold, 14, 'right');
     page.drawText(totalText, {
       x: totalX,
@@ -309,9 +362,8 @@ export async function sendProjectEmail(
   projectName: string,
   personSummary: PersonProjectSummary, // Pass the person's summary object
   pdf: Uint8Array,
-  recipientEmail: string // Keep recipientEmail for clarity, though it's in personSummary
 ): Promise<void> {
-  console.log(`Starting email sending for ${personSummary.cf_name} (${recipientEmail}) on project: ${projectName}`);
+  console.log(`Starting email sending for ${personSummary.cf_name} (${personSummary.cf_email}) on project: ${projectName}`);
   try {
     const fromEmail = Deno.env.get("FROM_EMAIL") || "noreply@teachinglab.org";
     const supportEmail = Deno.env.get("SUPPORT_EMAIL") || "support@example.com";
@@ -321,7 +373,7 @@ export async function sendProjectEmail(
     const reportMonthYear = new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
     // Make filename person-specific
     const filename = `TeachingLab-PaymentSummary-${personSummary.cf_name.replace(/\s+/g, '')}-${projectName.replace(/\s+/g, '_')}-${reportMonthYear}.pdf`;
-
+    const recipientEmail = "yancheng.pan@teachinglab.org";
     const emailData = {
       from: "Teaching Lab Payments <onboarding@resend.dev>", // Use sender name
       to: recipientEmail,

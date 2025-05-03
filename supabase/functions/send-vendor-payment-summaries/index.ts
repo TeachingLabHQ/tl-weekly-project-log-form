@@ -14,12 +14,18 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // --- Define interfaces ---
 
+//note to self: The function first fetch all submission entries available for the current month. By going through each submission and each entry, we are able to group the entries by project and then by person in the projectsMap.
+//Then, we loop through each project and each person within the project. We check if we have already sent an email to this person for this project this month. If we have, we skip to the next person.
+//If we have not sent an email to this person for this project this month, we generate a PDF and send an email to the person.
+//We then update the email log to 'sent' status.
+
 // Represents a single detailed work entry
 interface DetailedEntry {
   task_name: string;
   work_hours: number;
   rate: number;
   entry_pay: number;
+  submission_date?: string; // Include submission_date field
 }
 
 // Represents one person's summary for a specific project
@@ -78,6 +84,7 @@ try {
           cf_tier,
           total_pay,
           created_at,
+          submission_date,
           entries:vendor_payment_entries(
             task_name,
             project_name,
@@ -143,10 +150,11 @@ try {
 
           // Add or aggregate the detailed entry to the person's summary
           const taskName = entry.task_name;
-          const existingEntryIndex = personSummary.detailedEntries.findIndex(de => de.task_name === taskName);
+          //only aggregate entries if they have the same submission_date and task_name
+          const existingEntryIndex = personSummary.detailedEntries.findIndex(de => de.task_name === taskName && de.submission_date === submission.submission_date);
 
           if (existingEntryIndex > -1) {
-            // Aggregate hours and pay if task already exists
+            // Aggregate hours and pay if task already exists on the same day
             personSummary.detailedEntries[existingEntryIndex].work_hours += entry.work_hours; 
             personSummary.detailedEntries[existingEntryIndex].entry_pay += entryPay;
             // Assuming rate is consistent for the same task by the same person
@@ -157,6 +165,7 @@ try {
               work_hours: entry.work_hours, // Assuming these are valid numbers
               rate: entry.rate, // Assuming rate is valid
               entry_pay: entryPay,
+              submission_date: submission.submission_date,
             });
           }
 
@@ -168,7 +177,6 @@ try {
 
 
       // Fetch projects/emails already processed this month
-      // Assumes vendor_payment_email_logs has cf_email column
       console.log("Fetching existing email logs...");
       const { data: sentLogs, error: logCheckError } = await supabase
         .from("vendor_payment_email_logs")
@@ -232,19 +240,16 @@ try {
 
 
             // Generate PDF for this person's entries in this project
-            // Note: generateProjectPDF needs to accept PersonProjectSummary
             console.log(`-- Generating PDF for ${personEmail} on project ${projectName}`);
             const pdf = await generateProjectPDF(projectName, personSummary); // Pass person-specific summary
             console.log(`-- PDF generated successfully for ${personEmail}/${projectName}`);
 
             // Send email to this person for this project
-            // Note: sendProjectEmail needs adaptation (e.g., accept PersonProjectSummary)
             console.log(`-- Sending email to ${personEmail} for project ${projectName}`);
             await sendProjectEmail(
                 projectName,
                 personSummary, // Pass the necessary summary details
                 pdf,
-                personEmail // Send to the person directly
             );
             console.log(`-- Email sent successfully to ${personEmail} for project ${projectName}`);
 
