@@ -55,6 +55,7 @@ export async function action({ request }: ActionFunctionArgs) {
         work_hours: hours,
         rate: rate,
         entry_pay: rate * hours,
+        submission_date: workDate,
       };
     });
 

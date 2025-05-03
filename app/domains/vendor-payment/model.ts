@@ -17,6 +17,7 @@ export interface VendorPaymentEntry {
   work_hours: number;
   rate: number;
   entry_pay: number;
+  submission_date: Date|string|null;
   created_at: Date|string|null;
   updated_at: Date|string|null;
 }

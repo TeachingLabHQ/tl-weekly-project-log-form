@@ -20,7 +20,7 @@ export function vendorPaymentRepository(supabase: SupabaseClient<Database>): Ven
   return {
     createSubmission: async (submission) => {
       try {
-        // Start a transaction
+        // Insert the submission
         const { data: submissionData, error: submissionError } = await supabase
           .from('vendor_payment_submissions')
           .insert({
@@ -39,6 +39,7 @@ export function vendorPaymentRepository(supabase: SupabaseClient<Database>): Ven
         const entries = submission.entries.map(entry => ({
           ...entry,
           submission_id: submissionData.id,
+          submission_date: submission.submission_date,
         }));
 
         const { error: entriesError } = await supabase
