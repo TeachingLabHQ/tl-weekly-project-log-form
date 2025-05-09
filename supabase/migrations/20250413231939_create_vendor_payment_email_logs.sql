@@ -8,8 +8,8 @@ create table if not exists public.vendor_payment_email_logs (
   status text not null,
   error_message text,
   created_at timestamp with time zone default now(),
-  updated_at timestamp with time zone default now(),
-  constraint unique_project_person_month unique (project_name, cf_email, month)
+  updated_at timestamp with time zone default now()
+  -- constraint unique_project_person_month unique (project_name, cf_email, month)
 );
 
 -- Drop old unique constraint if it exists (handle migration scenario)
