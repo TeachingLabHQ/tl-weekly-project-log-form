@@ -62,6 +62,9 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
   }, [fetcher.data]);
 
   const calculateTotalPay = (entries: typeof vendorPaymentEntries): number => {
+    if (entries.some((entry) => !entry.task || !entry.workHours)) {
+      return 0;
+    }
     return entries.reduce((total, entry) => {
       try {
         const taskData = JSON.parse(entry.task);
@@ -137,7 +140,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
   };
 
   return (
-    <div className="w-full h-full grid grid-cols-1 md:grid-cols-12 grid-rows-[auto_auto] gap-8 py-8 px-4 md:px-0">
+    <div className="w-full h-full grid grid-cols-1 md:grid-cols-12  gap-8 py-8 px-4 md:px-0">
        <div className="row-start-1 col-span-1 md:col-start-2 md:col-span-10">
         <Reminders items={REMINDER_ITEMS} />
       </div>
@@ -163,7 +166,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
               New Submission
             </Tabs.Tab>
             <Tabs.Tab value="history" className="hover:bg-white/10">
-              Submission History
+              Submission History (Current Month)
             </Tabs.Tab>
           </Tabs.List>
 

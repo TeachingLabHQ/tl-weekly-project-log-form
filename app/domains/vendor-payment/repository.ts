@@ -94,6 +94,10 @@ export function vendorPaymentRepository(supabase: SupabaseClient<Database>): Ven
 
     getSubmissionsByEmail: async (email) => {
       try {
+        const now = new Date();
+        const firstDayCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        const firstDayNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
+
         const { data, error } = await supabase
           .from('vendor_payment_submissions')
           .select(`
@@ -101,6 +105,8 @@ export function vendorPaymentRepository(supabase: SupabaseClient<Database>): Ven
             entries:vendor_payment_entries(*)
           `)
           .eq('cf_email', email)
+          .gte('created_at', firstDayCurrentMonth)
+          .lt('created_at', firstDayNextMonth)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -116,13 +122,15 @@ export function vendorPaymentRepository(supabase: SupabaseClient<Database>): Ven
 
     deleteSubmission: async (id) => {
       try {
-        const { error } = await supabase
+        console.log("id", id);
+        const { data, error } = await supabase
           .from('vendor_payment_submissions')
           .delete()
           .eq('id', id);
-
+        console.log("data", data);
+        console.log("error", error);
         if (error) throw error;
-        return { data: undefined, error: null };
+        return { data: data, error: null };
       } catch (e) {
         console.error(e);
         return {
