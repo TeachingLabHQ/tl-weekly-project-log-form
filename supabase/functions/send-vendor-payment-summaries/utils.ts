@@ -380,9 +380,9 @@ export async function sendProjectEmail(
       subject: `Your Teaching Lab Payment Summary - ${projectName} - ${reportMonthYear}`, // Person-specific subject
       html: `
         <h1>Teaching Lab - Payment Summary</h1>
-        <p>Hello ${personSummary.cf_name},</p>
+        <p>Hello,</p>
         <p>Please find attached your payment summary for project <strong>${projectName}</strong> for the period ending ${reportMonthYear}.</p>
-        <p>Your total payment for this project in this period: <strong>$${personSummary.totalPayForProject.toFixed(2)}</strong></p>
+        <p>Total payment for the project member in this period: <strong>$${personSummary.totalPayForProject.toFixed(2)}</strong></p>
         <p>If you have any questions, please contact ${supportEmail}.</p>
         <p>Best regards,<br>Teaching Lab Team</p>
       `,
@@ -408,10 +408,3 @@ export async function sendProjectEmail(
   }
 }
 
-// --- Remove Old Interfaces/Functions if they exist ---
-/*
-export interface ProjectSummaryData { ... }
-export interface DetailedEntry { ... } // Old version if it was different
-export async function generateProjectPDF(...) // Old version signature
-export async function sendProjectEmail(...) // Old version signature
-*/

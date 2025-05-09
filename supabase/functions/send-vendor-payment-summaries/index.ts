@@ -208,12 +208,6 @@ try {
           const uniqueEmailKey = `${projectName}|${personEmail}`;
           console.log(`-- Processing person: ${personEmail} for project: ${projectName}`);
 
-          // Check if email has already been sent
-          if (sentEmails.has(uniqueEmailKey)) {
-            console.log(`-- Email already sent for ${personEmail} on project ${projectName} this month. Skipping.`);
-            continue;
-          }
-
           let logId: number | null = null;
 
           try {
