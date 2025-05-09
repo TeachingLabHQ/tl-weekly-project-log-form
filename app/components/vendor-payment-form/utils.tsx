@@ -66,6 +66,34 @@ export const taskOptions: TaskOption[] = [
     "Tier 3": null,
     maxHours: null,
   },
+  {
+    taskName: "Content Training",
+    "Tier 1": 50,
+    "Tier 2": 50,
+    "Tier 3": 50,
+    maxHours: null,
+  },
+  {
+    taskName: "Learning Opportunities: Quarterly Paid Office Hours, Book Clubs, Observations, Kick Offs, etc.",
+    "Tier 1": 50,
+    "Tier 2": 50,
+    "Tier 3": 50,
+    maxHours: null,
+  },
+  {
+    taskName: "Local Travel",
+    "Tier 1": 20,
+    "Tier 2": 20,
+    "Tier 3": 20,
+    maxHours: 3,
+  },
+  {
+    taskName: "Non-Local Travel",
+    "Tier 1": 20,
+    "Tier 2": 20,
+    "Tier 3": 20,
+    maxHours: 16,
+  },
 ];
 export const REMINDER_ITEMS: ReminderItem[] = [
   {
