@@ -5,16 +5,16 @@ import { useFetcher } from "@remix-run/react";
 import { VendorPaymentSubmissionWithEntries } from "~/domains/vendor-payment/model";
 
 export const PaymentHistoryItem = ({
-  submission,
+  paymentRequest,
 }: {
-  submission: VendorPaymentSubmissionWithEntries;
+  paymentRequest: VendorPaymentSubmissionWithEntries;
 }) => {
   const fetcher = useFetcher();
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this submission?")) {
       fetcher.submit(
-        { submissionId: submission.id },
+        { paymentRequestId: paymentRequest.id },
         {
           method: "DELETE",
           action: "/api/vendor-payment/delete",
@@ -25,12 +25,12 @@ export const PaymentHistoryItem = ({
   };
 
   return (
-    <Accordion.Item value={submission.id.toString()}>
+    <Accordion.Item value={paymentRequest.id.toString()}>
       <Accordion.Control className="hover:bg-white/10">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <span className="text-white">
-              {dayjs(submission.created_at).format("MMM D, YYYY")}
+              {dayjs(paymentRequest.created_at).format("MMM D, YYYY")}
             </span>
             <ActionIcon
               variant="subtle"
@@ -46,7 +46,7 @@ export const PaymentHistoryItem = ({
             </ActionIcon>
           </div>
           <span className="text-white font-bold">
-            ${submission.total_pay.toFixed(2)}
+            ${paymentRequest.total_pay.toFixed(2)}
           </span>
         </div>
       </Accordion.Control>
@@ -63,7 +63,7 @@ export const PaymentHistoryItem = ({
               </tr>
             </thead>
             <tbody>
-              {submission.entries.map((entry, index) => (
+              {paymentRequest.entries.map((entry, index) => (
                 <tr
                   key={index}
                   className="border-b border-white/10 last:border-0"
@@ -84,7 +84,7 @@ export const PaymentHistoryItem = ({
                   Total:
                 </td>
                 <td className="py-2 px-4 text-right font-bold">
-                  ${submission.total_pay.toFixed(2)}
+                  ${paymentRequest.total_pay.toFixed(2)}
                 </td>
               </tr>
             </tfoot>

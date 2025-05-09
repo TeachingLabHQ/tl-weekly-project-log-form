@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { cn } from "../../utils/utils";
 import { IconX } from "@tabler/icons-react";
 import { taskOptions, Tier } from "./utils";
+import { useLoaderData } from "@remix-run/react";
+import { loader } from "~/routes/vendor-payment-form";
 
 type VendorPaymentRowKeys = keyof {
   task: string;
@@ -35,8 +37,15 @@ export const VendorPaymentWidget = ({
   setTotalWorkHours: React.Dispatch<React.SetStateAction<number>>;
   cfTier: string;
 }) => {
-  // TODO: Add project options from loader data
-  const projectOptions = ["Project 1", "Project 2", "Project 3"];
+  const { projects } = useLoaderData<typeof loader>();
+  const internalProjects = new Set(projects.filter((project) => project.projectType === "Internal Project")[0].projects);
+  const programProjects = new Set(projects.filter((project) => project.projectType === "Program-related Project")[0].projects);
+  const allProjects = new Set([...internalProjects, ...programProjects]);
+  const projectOptions = Array.from(allProjects).map((project) => ({
+    value: project,
+    label: project,
+  }));
+
 
   // Filter tasks based on tier and rate availability
   const getAvailableTasks = () => {

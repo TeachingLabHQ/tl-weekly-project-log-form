@@ -11,7 +11,8 @@ import BackgroundImg from "~/assets/background.png";
 import { vendorPaymentService } from "~/domains/vendor-payment/service";
 import { vendorPaymentRepository } from "~/domains/vendor-payment/repository";
 import { createSupabaseServerClient } from "../../supabase/supabase.server";
-// Loader function
+import { projectRepository } from "~/domains/project/repository";
+import { projectService } from "~/domains/project/service";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { supabaseClient } = createSupabaseServerClient(request);
 
@@ -31,20 +32,22 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return json({ submissions: [] });
   }
 
-  // Initialize service with repository
-  const repository = vendorPaymentRepository(supabaseClient);
-  const service = vendorPaymentService(repository);
-
-  // Use existing service method
-  const { data: submissions, error } = await service.getSubmissionsByEmail(
+  const newVendorPaymentService = vendorPaymentService(vendorPaymentRepository(supabaseClient));
+  const { data: paymentRequestHistory, error: paymentRequestHistoryError } = await newVendorPaymentService.getSubmissionsByEmail(
     cfDetails.email
   );
-
-  if (error) {
+  if (paymentRequestHistoryError) {
     throw new Error("Failed to fetch payment history");
   }
 
-  return json({ submissions });
+  const newProjectService = projectService(projectRepository());
+
+  const { data: projects, error: projectsError } = await newProjectService.fetchAllProjects();
+  if (projectsError) {
+    throw new Error("Failed to fetch projects");
+  }
+
+  return json({ paymentRequestHistory, projects });
 };
 
 export default function VendorPaymentFormRoute() {
