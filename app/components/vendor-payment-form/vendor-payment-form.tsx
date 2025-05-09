@@ -110,6 +110,11 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
       return;
     }
 
+    if (totalWorkHours > 50) {
+      setError("Total work hours cannot exceed 50 hours.");
+      return;
+    }
+
     if (!cfDetails) {
       setError("Missing coach/facilitator details");
       return;
