@@ -137,13 +137,26 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
   };
 
   return (
-    <div
-      className="w-screen h-screen grid grid-cols-12 py-14 px-2"
-    >
-      <div className="row-start-1 col-start-2 col-span-10">
+    <div className="w-full h-full grid grid-cols-1 md:grid-cols-12 grid-rows-[auto_auto] gap-8 py-8 px-4 md:px-0">
+       <div className="row-start-1 col-span-1 md:col-start-2 md:col-span-10">
         <Reminders items={REMINDER_ITEMS} />
       </div>
-      <div className="row-start-2 col-start-2 col-span-8 h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white">
+
+      {/* Total Pay Section */}
+      <div className="row-start-2 md:row-start-2 col-span-1 md:col-start-10 md:col-span-2 flex flex-col items-center">
+        <div className="w-full sm:max-w-xs lg:w-fit py-5 px-8 sm:px-10 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col items-center gap-3">
+          <h3 className="text-xl font-bold">Total Pay</h3>
+          <h1 className="text-2xl font-bold">
+            $
+            {vendorPaymentEntries.length > 0
+              ? calculateTotalPay(vendorPaymentEntries).toFixed(2)
+              : "0.00"}
+          </h1>
+        </div>
+      </div>
+
+      {/* Tabs Section (New Submission / History) */}
+      <div className="row-start-3 md:row-start-2 col-span-1 md:col-start-2 md:col-span-8 h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white">
         <Tabs defaultValue="new">
           <Tabs.List>
             <Tabs.Tab value="new" className="hover:bg-white/10">
@@ -223,17 +236,6 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
             <PaymentHistory cfDetails={cfDetails} />
           </Tabs.Panel>
         </Tabs>
-      </div>
-      <div className="row-start-2 col-start-10 col-span-2 flex flex-col items-center">
-        <div className="w-fit py-5 px-10 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col items-center gap-3">
-          <h3 className="text-xl font-bold">Total Pay</h3>
-          <h1 className="text-xl font-bold">
-            $
-            {vendorPaymentEntries.length > 0
-              ? calculateTotalPay(vendorPaymentEntries).toFixed(2)
-              : "0.00"}
-          </h1>
-        </div>
       </div>
     </div>
   );
