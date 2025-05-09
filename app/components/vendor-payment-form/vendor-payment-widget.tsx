@@ -63,7 +63,10 @@ export const VendorPaymentWidget = ({
     });
   };
 
-  const calculateTotalPay = (task: string, workHours: string): number => {
+  const calculateTaskTotalPay = (task: string, workHours: string): number => {
+    if (!task || !workHours) {
+      return 0;
+    }
     try {
       const taskData = JSON.parse(task);
       const hours = parseFloat(workHours) || 0;
@@ -231,7 +234,7 @@ export const VendorPaymentWidget = ({
           </div>
           <div>
             <TextInput
-              value={`$${calculateTotalPay(
+              value={`$${calculateTaskTotalPay(
                 row.task || "",
                 row.workHours || ""
               ).toFixed(2)}`}
