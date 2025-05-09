@@ -29,6 +29,12 @@ ON vendor_payment_submissions
 FOR INSERT
 WITH CHECK (auth.email() = cf_email);
 
+-- Policy to allow users to delete their own submissions
+CREATE POLICY "Users can delete their own submissions"
+ON public.vendor_payment_submissions
+FOR DELETE
+USING (auth.email() = cf_email);
+
 -- Create updated_at trigger
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$

@@ -1,15 +1,20 @@
-import { Accordion, ActionIcon } from "@mantine/core";
+import { Accordion, ActionIcon, Group, Text } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useRevalidator } from "@remix-run/react";
 import { VendorPaymentSubmissionWithEntries } from "~/domains/vendor-payment/model";
+import { notifications } from "@mantine/notifications";
+import { useEffect } from 'react';
+
+type PaymentHistoryItemProps = {
+  paymentRequest: VendorPaymentSubmissionWithEntries;
+};
 
 export const PaymentHistoryItem = ({
   paymentRequest,
-}: {
-  paymentRequest: VendorPaymentSubmissionWithEntries;
-}) => {
-  const fetcher = useFetcher();
+}: PaymentHistoryItemProps) => {
+  const fetcher = useFetcher<{ success?: boolean; error?: string; message?: string }>();
+  const { revalidate } = useRevalidator();
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this submission?")) {
@@ -23,6 +28,27 @@ export const PaymentHistoryItem = ({
       );
     }
   };
+
+  useEffect(() => {
+    if ( fetcher.data) {
+      if (fetcher.data.success) {
+        notifications.show({
+          title: 'Submission Deleted',
+          message: 'The payment submission has been successfully deleted.',
+          color: 'green',
+        });
+        console.log("Submission successful, revalidating...");
+        revalidate();
+      } else if (fetcher.data.error) {
+        notifications.show({
+          title: 'Deletion Failed',
+          message: fetcher.data.error || 'Could not delete the submission. Please try again.',
+          color: 'red',
+        });
+        console.log("Deletion failed, server error:", fetcher.data.error);
+      }
+    }
+  }, [fetcher.state, fetcher.data, revalidate, notifications]);
 
   return (
     <Accordion.Item value={paymentRequest.id.toString()}>
