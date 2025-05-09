@@ -209,8 +209,7 @@ export const VendorPaymentWidget = ({
               }
               placeholder="Enter work hours"
               max={
-                taskOptions.find((option) => option.taskName === row.task)
-                  ?.maxHours || undefined
+                JSON.parse(row.task || "{}").maxHours || undefined
               }
               min={0}
               error={

@@ -71,13 +71,13 @@ export default function VendorPaymentFormRoute() {
           );
         setIsCoachOrFacilitator(!!data);
         setCfDetails(data || null);
-        // For testing purposes, allow YC to access the form
+        // For testing purposes, allow YC and Finance to access the form
         if(mondayProfile?.email === "yancheng.pan@teachinglab.org"){
           setIsCoachOrFacilitator(true);
           setCfDetails({
             email: "yancheng.pan@teachinglab.org",
             name: "Yancheng Pan",
-            tier: "Tier 1",
+            tier: "Tier 2",
           });
         }
         else if(mondayProfile?.email === "daissan.colbert@teachinglab.org"){
