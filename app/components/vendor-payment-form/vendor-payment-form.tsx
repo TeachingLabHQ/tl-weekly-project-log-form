@@ -154,7 +154,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
               onSubmit={handleSubmit}
               className="flex flex-col gap-4 mt-4"
             >
-              <h1 className="font-bold text-3xl">Vendor Payment Form</h1>
+              <h1 className="font-bold text-3xl">Coach/Facilitator Form</h1>
 
               <div className="mb-4">
                 <label className="block text-white mb-2">Enter the date of the work</label>
