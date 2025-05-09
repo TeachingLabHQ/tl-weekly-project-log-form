@@ -142,7 +142,7 @@ export default function VendorPaymentFormRoute() {
   }
 
   return (
-    <div className="min-h-screen w-full overflow-auto flex items-center justify-center">
+    <div className="h-full w-full overflow-auto flex items-center justify-center">
 
         <VendorPaymentForm cfDetails={cfDetails} />
 
