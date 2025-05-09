@@ -75,17 +75,12 @@ export const Navbar = () => {
         <Link to="/">
           <div className="flex gap-2 items-center">
             <img src={TLLogo} className="h-[40px]" />
-            <p className="text-2xl">Teaching Lab Form Hub</p>
+            <p className="text-2xl">TL Form Hub</p>
           </div>
         </Link>
         {isAuthenticated && (
           <div className="flex gap-4">
-            <Link to="/weekly-project-log-form">
-              <p>Weekly Project Log</p>
-            </Link>
-            <Link to="/staffing-dashboard">
-              <p>Staffing Dashboard</p>
-            </Link>
+          
           </div>
         )}
       </div>
