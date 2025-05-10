@@ -26,7 +26,7 @@ USING (
     EXISTS (
         SELECT 1 FROM vendor_payment_submissions
         WHERE vendor_payment_submissions.id = vendor_payment_entries.submission_id
-        AND vendor_payment_submissions.cf_email = auth.uid()::text
+        AND vendor_payment_submissions.cf_email = auth.email()::text
     )
 );
 
@@ -38,7 +38,7 @@ WITH CHECK (
     EXISTS (
         SELECT 1 FROM vendor_payment_submissions
         WHERE vendor_payment_submissions.id = vendor_payment_entries.submission_id
-        AND vendor_payment_submissions.cf_email = auth.uid()::text
+        AND vendor_payment_submissions.cf_email = auth.email()::text
     )
 );
 

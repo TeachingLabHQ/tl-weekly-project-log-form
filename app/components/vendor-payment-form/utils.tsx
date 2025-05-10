@@ -66,11 +66,39 @@ export const taskOptions: TaskOption[] = [
     "Tier 3": null,
     maxHours: null,
   },
+  {
+    taskName: "Content Training",
+    "Tier 1": 50,
+    "Tier 2": 50,
+    "Tier 3": 50,
+    maxHours: null,
+  },
+  {
+    taskName: "Learning Opportunities: Quarterly Paid Office Hours, Book Clubs, Observations, Kick Offs, etc.",
+    "Tier 1": 50,
+    "Tier 2": 50,
+    "Tier 3": 50,
+    maxHours: null,
+  },
+  {
+    taskName: "Local Travel",
+    "Tier 1": 20,
+    "Tier 2": 20,
+    "Tier 3": 20,
+    maxHours: 3,
+  },
+  {
+    taskName: "Non-Local Travel",
+    "Tier 1": 20,
+    "Tier 2": 20,
+    "Tier 3": 20,
+    maxHours: 16,
+  },
 ];
 export const REMINDER_ITEMS: ReminderItem[] = [
   {
     title: "Submission Deadline:",
     content:
-      "Ensure to submit your payment as soon as possible before the end of the month. If you need to submit a payment after the end of the month, please contact the finance team.",
+      "Ensure to submit your payment as soon as possible on the day of your work. If you need to submit a payment for a previous month, please contact the finance team.",
   },
 ];
