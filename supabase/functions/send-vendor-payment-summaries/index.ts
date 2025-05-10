@@ -108,7 +108,7 @@ try {
       console.log(`Found ${submissions?.length || 0} submissions`);
       if (!submissions || submissions.length === 0) {
         return new Response(
-          JSON.stringify({ message: "No submissions found for the current month."+`${currentMonthISO}` }),
+          JSON.stringify({ message: `No submissions found for the current month. ${currentMonthISO} to ${nextMonthISO} + ${submissions}`  }),
           { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
