@@ -45,7 +45,7 @@ interface ProjectGroupedData {
 
 // Initialize Supabase client
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
 if (!supabaseUrl || !supabaseKey) {
   throw new Error('Missing required environment variables: SUPABASE_URL and SUPABASE_ANON_KEY');
