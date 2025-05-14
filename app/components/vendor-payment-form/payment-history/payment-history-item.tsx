@@ -56,7 +56,7 @@ export const PaymentHistoryItem = ({
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <span className="text-white">
-              {dayjs(paymentRequest.created_at).format("MMM D, YYYY")}
+              {dayjs(paymentRequest.submission_date).format("MMM D, YYYY")}
             </span>
             <ActionIcon
               variant="subtle"
