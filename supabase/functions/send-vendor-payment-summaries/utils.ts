@@ -338,7 +338,7 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
     // Add footer (remains the same)
     const footerY = margin / 2;
     const footerText1 = "This is an automated payment summary from Teaching Lab.";
-    const supportEmail = Deno.env.get("SUPPORT_EMAIL") || "support@example.com";
+    const supportEmail = "accountspayable@teachinglab.org";
     const footerText2 = `Please contact ${supportEmail} for any questions.`;
     // Need to ensure footer is drawn on the *last* page used
     const lastPage = pdfDoc.getPages()[pdfDoc.getPageCount() - 1];
@@ -373,7 +373,7 @@ export async function sendProjectEmail(
     const reportMonthYear = new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
     // Make filename person-specific
     const filename = `TeachingLab-PaymentSummary-${personSummary.cf_name.replace(/\s+/g, '')}-${projectName.replace(/\s+/g, '_')}-${reportMonthYear}.pdf`;
-    const recipientEmail = "yancheng.pan@teachinglab.org";
+    const recipientEmail = "accountspayable@teachinglab.org";
     const emailData = {
       from: "Teaching Lab Payments <onboarding@resend.dev>", // Use sender name
       to: recipientEmail,
@@ -384,7 +384,7 @@ export async function sendProjectEmail(
         <p>Please find attached your payment summary for project <strong>${projectName}</strong> for the period ending ${reportMonthYear}.</p>
         <p>Total payment for the project member in this period: <strong>$${personSummary.totalPayForProject.toFixed(2)}</strong></p>
         <p>If you have any questions, please contact ${supportEmail}.</p>
-        <p>Best regards,<br>Teaching Lab Team</p>
+        <p>Best regards,<br>Teaching Lab FinanceTeam</p>
       `,
       attachments: [{
         filename: filename,
