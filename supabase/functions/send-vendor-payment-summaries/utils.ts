@@ -375,7 +375,7 @@ export async function sendProjectEmail(
     const filename = `TeachingLab-PaymentSummary-${personSummary.cf_name.replace(/\s+/g, '')}-${projectName.replace(/\s+/g, '_')}-${reportMonthYear}.pdf`;
     const recipientEmail = "accountspayable@teachinglab.org";
     const emailData = {
-      from: "Teaching Lab Payments <onboarding@resend.dev>", // Use sender name
+      from: "Teaching Lab Payments <yancheng.pan@teachinglab.org>", // Use sender name
       to: recipientEmail,
       subject: `Your Teaching Lab Payment Summary - ${projectName} - ${reportMonthYear}`, // Person-specific subject
       html: `
