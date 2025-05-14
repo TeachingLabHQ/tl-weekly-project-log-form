@@ -142,7 +142,7 @@ export const FormHubLanding: React.FC<FormHubLandingProps> = ({ userName }) => {
                 style={{ marginBottom: 16 }}
               />
               <Title order={3} mb="xs">
-                Coach/Facilitator Form
+                Project Consultant Payment Form
               </Title>
               <Text mb="md" style={{ flex: 1 }}>
                 Submit coach/facilitator payment requests and track payment status. This

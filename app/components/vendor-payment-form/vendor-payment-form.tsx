@@ -175,7 +175,10 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
               onSubmit={handleSubmit}
               className="flex flex-col gap-4 mt-4"
             >
-              <h1 className="font-bold text-3xl">Coach/Facilitator Form</h1>
+              <div className="flex flex-col gap-2">
+                <h1 className="font-bold text-3xl">Project Consultant Payment Form</h1>
+                <p className="text-white">This form is intended for contractors serving as coaches, facilitators, content developers and designers, and data evaluation consultants. Once submitted, it will be sent to the invoicing system at month-end for CPM approval and payment processing.</p>
+              </div>
 
               <div className="mb-4">
                 <label className="block text-white mb-2">Enter the date of the work</label>
