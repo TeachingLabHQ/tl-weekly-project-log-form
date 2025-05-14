@@ -373,7 +373,7 @@ export async function sendProjectEmail(
     const reportMonthYear = new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
     // Make filename person-specific
     const filename = `TeachingLab-PaymentSummary-${personSummary.cf_name.replace(/\s+/g, '')}-${projectName.replace(/\s+/g, '_')}-${reportMonthYear}.pdf`;
-    const recipientEmail = "accountspayable@teachinglab.org";
+    const recipientEmail = ["accountspayable@teachinglab.org", "yancheng.pan@teachinglab.org"];
     const emailData = {
       from: "Teaching Lab Payments <yancheng.pan@teachinglab.org>", // Use sender name
       to: recipientEmail,
