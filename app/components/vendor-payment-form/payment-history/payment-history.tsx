@@ -19,10 +19,10 @@ type PaymentHistoryProps = {
 };
 
 export const PaymentHistory = ({ cfDetails }: PaymentHistoryProps) => {
-  const { submissions } = useLoaderData<typeof loader>();
+  const { paymentRequestHistory } = useLoaderData<typeof loader>();
   const { revalidate } = useRevalidator();
 
-  if (!submissions?.length) {
+  if (!paymentRequestHistory?.length) {
     return (
       <div className="text-white text-center py-8">
         No payment history found
@@ -32,8 +32,8 @@ export const PaymentHistory = ({ cfDetails }: PaymentHistoryProps) => {
 
   return (
     <Accordion>
-      {submissions.map((submission) => (
-        <PaymentHistoryItem key={submission.id} submission={submission} />
+      {paymentRequestHistory.map((paymentRequest) => (
+        <PaymentHistoryItem key={paymentRequest.id} paymentRequest={paymentRequest} />
       ))}
     </Accordion>
   );
