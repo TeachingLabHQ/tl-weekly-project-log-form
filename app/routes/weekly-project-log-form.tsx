@@ -5,8 +5,7 @@ import { ProjectLogForm } from "~/components/weekly-project-log/project-log-form
 import { projectRepository } from "~/domains/project/repository";
 import { projectService } from "~/domains/project/service";
 import { LoadingSpinner } from "~/utils/LoadingSpinner";
-import { Suspense } from "react";
-
+import { AccessDeniedState } from "~/components/vendor-payment-form/access-denied-state";
 export const loader = async (args: LoaderFunctionArgs) => {
   const newProjectService = projectService(projectRepository());
 
@@ -28,20 +27,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 };
 
-// Loading component for the form
-const ProjectLogFormLoader = () => (
-  <div className="w-full h-screen flex items-center justify-center">
-    <LoadingSpinner className="bg-white/50" />
-    <>Weekly Project Log Form Loading...</>
-  </div>
-);
-
 export default function WeeklyProjectLogForm() {
+  const { mondayProfile } = useSession();
+  if (mondayProfile === null) {
+    return <LoadingSpinner />;
+  }
+  if (mondayProfile?.businessFunction === "coach/facilitator") {
+    return <AccessDeniedState errorMessage="This form is only accessible to FTE/PTE employees. If you believe this is an error, please contact your administrator." />;
+  }
   return (
     <div className="min-h-screen w-full overflow-auto">
-      <Suspense fallback={<ProjectLogFormLoader />}>
-        <ProjectLogForm />
-      </Suspense>
+      <ProjectLogForm />
     </div>
   );
 }
