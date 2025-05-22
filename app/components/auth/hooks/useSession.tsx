@@ -74,12 +74,6 @@ export const useSession = () => {
             await newCoachFacilitatorService.fetchCoachFacilitatorDetails(
               session.user.email
             );
-            const coachFacilitatorProfile = {
-              name: coachFacilitatorData?.name,
-              email: coachFacilitatorData?.email,
-              businessFunction: "coach/facilitator",
-            };
-          setMondayProfile(coachFacilitatorProfile);
           if (coachFacilitatorError || !coachFacilitatorData) {
             setErrorMessage(
               "You are not authorized to access this page. Please contact the operations team."
@@ -88,6 +82,12 @@ export const useSession = () => {
             setIsAuthenticated(false);
             return;
           }
+          const coachFacilitatorProfile = {
+            name: coachFacilitatorData?.name,
+            email: coachFacilitatorData?.email,
+            businessFunction: "coach/facilitator",
+          };
+        setMondayProfile(coachFacilitatorProfile);
           localStorage.setItem(MONDAY_PROFILE_KEY, JSON.stringify(coachFacilitatorProfile));
           setIsAuthenticated(true);
           return;
