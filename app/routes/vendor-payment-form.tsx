@@ -13,7 +13,7 @@ import { vendorPaymentRepository } from "~/domains/vendor-payment/repository";
 import { createSupabaseServerClient } from "../../supabase/supabase.server";
 import { projectRepository } from "~/domains/project/repository";
 import { projectService } from "~/domains/project/service";
-import { DenyState } from "~/components/vendor-payment-form/deny-state";
+import { AccessDeniedState } from "~/components/vendor-payment-form/access-denied-state";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { supabaseClient } = createSupabaseServerClient(request);
 
@@ -76,15 +76,15 @@ export default function VendorPaymentFormRoute() {
         setIsCoachOrFacilitator(!!data);
         setCfDetails(data || null);
         // For testing purposes, allow YC and Finance to access the form
-        // if(mondayProfile?.email === "yancheng.pan@teachinglab.org"){
-        //   setIsCoachOrFacilitator(true);
-        //   setCfDetails({
-        //     email: "yancheng.pan@teachinglab.org",
-        //     name: "Yancheng Pan",
-        //     tier: "Tier 2",
-        //   });
-        // }
-         if(mondayProfile?.email === "daissan.colbert@teachinglab.org"){
+        if(mondayProfile?.email === "yancheng.pan@teachinglab.org"){
+          setIsCoachOrFacilitator(true);
+          setCfDetails({
+            email: "yancheng.pan@teachinglab.org",
+            name: "Yancheng Pan",
+            tier: "Tier 2",
+          });
+        }
+         else if(mondayProfile?.email === "daissan.colbert@teachinglab.org"){
           setIsCoachOrFacilitator(true);
           setCfDetails({
             email: "daissan.colbert@teachinglab.org",
@@ -127,14 +127,12 @@ export default function VendorPaymentFormRoute() {
   }
 
   if (isCoachOrFacilitator === false) {
-    return <DenyState />;
+    return <AccessDeniedState errorMessage="This form is only accessible to coaches and facilitators. If you believe this is an error, please contact your administrator." />;
   }
 
   return (
     <div className="h-full w-full overflow-auto flex items-center justify-center">
-
-        <VendorPaymentForm cfDetails={cfDetails} />
-
+      <VendorPaymentForm cfDetails={cfDetails} />
     </div>
   );
 }
