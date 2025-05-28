@@ -2,17 +2,14 @@ import { Errorable } from "../../utils/errorable";
 import { fetchMondayData } from "../utils";
 import {
   ProgramProject,
-  ProgramProjectWithHours,
   ProjectMember,
-  projectsByTypes,
+  projectsByTypes
 } from "./model";
 
-import { google } from "googleapis";
 
 export interface ProjectRepository {
   fetchAllProjects(): Promise<Errorable<projectsByTypes[]>>;
   fetchProgramProjects(): Promise<Errorable<ProgramProject[]>>;
-  fetchProgramProjectWithHours(): Promise<Errorable<String[][]>>;
   fetchBudgetedHours(
     employeeEmail: string,
     projectName: string,
@@ -112,11 +109,11 @@ export function projectRepository(): ProjectRepository {
           cursor = rawAdditionalStaffingList.data.next_items_page.cursor;
         }
 
-        // Only keep the active projects (items in group FY25 Active Program Project Teams)
+        // keep the active projects in group FY25 Active Program Project Teams and FY25 Active Content Project Teams
         rawStaffingList.data.boards[0].items_page.items =
           rawStaffingList.data.boards[0].items_page.items.filter(
             (i: { group: { id: string } }) =>
-              i.group.id === "1661883063_fy23_programs_team_"
+              i.group.id === "1661883063_fy23_programs_team_" || i.group.id === "new_group97925"
           );
         const staffingList = rawStaffingList.data.boards[0].items_page.items;
         let programProjectsList: ProgramProject[] = [];
@@ -157,35 +154,6 @@ export function projectRepository(): ProjectRepository {
         return {
           data: null,
           error: new Error("fetchProgramProjects() went wrong"),
-        };
-      }
-    },
-    fetchProgramProjectWithHours: async () => {
-      try {
-        const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_SERVICE_CLIENTEMAIL;
-        const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_SERVICE_PRIVATEKEY;
-        const client = new google.auth.JWT({
-          email: GOOGLE_CLIENT_EMAIL,
-          key: GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-          scopes: [
-            "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive",
-          ],
-        });
-
-        const sheets = google.sheets({ version: "v4", auth: client });
-        const data = await sheets.spreadsheets.values.get({
-          spreadsheetId: "1XQ5X2ZFiorz2mgYX_Td3tpvkOoEUACeZZFdXVpwhf5c",
-          range: "Estimated Hours",
-          majorDimension: "ROWS",
-        });
-        const rows = data.data.values as string[][];
-        return { data: rows, error: null };
-      } catch (e) {
-        console.error(e);
-        return {
-          data: null,
-          error: new Error("fetchProgramProjectWithHours() went wrong"),
         };
       }
     },
