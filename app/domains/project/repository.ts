@@ -79,6 +79,7 @@ export function projectRepository(): ProjectRepository {
 
         let cursor: string | null =
           rawStaffingList.data.boards[0].items_page.cursor;
+        let staffedProjectsList = rawStaffingList.data.boards[0].items_page.items;
 
         while (cursor) {
           const cursorQuery = `{
@@ -101,23 +102,19 @@ export function projectRepository(): ProjectRepository {
 
           const rawAdditionalStaffingList = await fetchMondayData(cursorQuery);
           // Add the additional Monday data in the list
-          rawStaffingList.data.boards[0].items_page.items =
-            rawStaffingList.data.boards[0].items_page.items.concat(
-              rawAdditionalStaffingList.data.next_items_page.items
-            );
+          staffedProjectsList.push(...rawAdditionalStaffingList.data.next_items_page.items);
 
           cursor = rawAdditionalStaffingList.data.next_items_page.cursor;
         }
 
-        // keep the active projects in group FY25 Active Program Project Teams and FY25 Active Content Project Teams
-        rawStaffingList.data.boards[0].items_page.items =
-          rawStaffingList.data.boards[0].items_page.items.filter(
-            (i: { group: { id: string } }) =>
-              i.group.id === "1661883063_fy23_programs_team_" || i.group.id === "new_group97925"
+        // Only keep the active projects (items in group FY25 Active Program Project Teams/FY25 Active Content Project Teams)
+        staffedProjectsList = staffedProjectsList.filter(
+          (i: { group: { id: string } }) =>
+              i.group.id === "1661883063_fy23_programs_team_" ||
+              i.group.id === "new_group97925"
           );
-        const staffingList = rawStaffingList.data.boards[0].items_page.items;
         let programProjectsList: ProgramProject[] = [];
-        for (const staffedProject of staffingList) {
+        for (const staffedProject of staffedProjectsList) {
           let programProject: ProgramProject = {
             projectName: "",
             projectMembers: [],
