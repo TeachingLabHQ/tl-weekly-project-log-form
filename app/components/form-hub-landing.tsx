@@ -79,7 +79,7 @@ export const FormHubLanding: React.FC<FormHubLandingProps> = ({ userName }) => {
                 to="/weekly-project-log-form"
                 rightSection={<IconArrowRight size={16} />}
                 color="#0053B3"
-                prefetch="intent"
+                prefetch="render"
                 onClick={(e) => {
                   e.preventDefault();
                   setTimeout(() => {
