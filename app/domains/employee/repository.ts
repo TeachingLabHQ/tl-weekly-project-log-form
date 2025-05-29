@@ -10,7 +10,26 @@ export function employeeRepository(): EmployeeRepository {
   return {
     fetchEmployee: async (email: string) => {
       try {
-        let queryEmployee = `{boards(ids:2227132353) {items_page (limit: 1, query_params: {rules: [{column_id: "text25", compare_value: ["${email}"]}], operator: and}) { items { name column_values(ids:"dropdown7"){text}}}}}`;
+        let queryEmployee = `{
+  boards(ids: 2227132353) {
+    items_page(
+      limit: 1
+      query_params: {rules: [{column_id: "text25", compare_value: ["${email}"]}], operator: and}
+    ) {
+      items {
+        name
+        column_values(ids: ["dropdown7", "people"]) {
+          text
+          ... on PeopleValue {
+            persons_and_teams {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+}`;
         const result = await fetchMondayData(queryEmployee);
         const isEmployeePresent =
           result.data.boards[0].items_page.items.length === 0 ? false : true;
@@ -22,8 +41,10 @@ export function employeeRepository(): EmployeeRepository {
           };
         const businessFunction: string =
           result.data.boards[0].items_page.items[0]["column_values"][0]["text"];
+        const mondayProfileId: string =
+          result.data.boards[0].items_page.items[0]["column_values"][0]["persons_and_teams"][0]["id"];
         const name: string = result.data.boards[0].items_page.items[0]["name"];
-        const employeeInfo = { name, email, businessFunction };
+        const employeeInfo = { name, email, businessFunction, mondayProfileId };
         return { data: employeeInfo, error: null };
       } catch (error) {
         console.error("Error fetching data:", error);
