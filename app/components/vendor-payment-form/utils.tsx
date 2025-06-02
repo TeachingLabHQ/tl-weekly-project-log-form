@@ -61,9 +61,9 @@ export const taskOptions: TaskOption[] = [
   },
   {
     taskName: "Site Context + Support",
-    "Tier 1": null,
-    "Tier 2": null,
-    "Tier 3": null,
+    "Tier 1": 50,
+    "Tier 2": 50,
+    "Tier 3": 50,
     maxHours: null,
   },
   {
