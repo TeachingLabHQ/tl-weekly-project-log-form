@@ -19,6 +19,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   } = await supabaseClient.auth.getSession();
 
   let mondayProfileId = "";
+  let employeeId = "";
   console.log("session", session);
   // If user is authenticated, fetch their Monday profile
   if (session?.user?.email) {
@@ -27,6 +28,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     
     if (employee && !error) {
       mondayProfileId = employee.mondayProfileId;
+      employeeId = employee.employeeId;
     }
   }
 

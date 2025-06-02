@@ -77,6 +77,7 @@ export const useSession = () => {
           email: employee.email,
           businessFunction: employee.businessFunction,
           mondayProfileId: employee.mondayProfileId,
+          employeeId: employee.employeeId,
         };
 
         setMondayProfile({
@@ -84,6 +85,7 @@ export const useSession = () => {
           email: employee.email,
           businessFunction: employee.businessFunction,
           mondayProfileId: employee.mondayProfileId,
+          employeeId: employee.employeeId,
         });
         localStorage.setItem(MONDAY_PROFILE_KEY, JSON.stringify(newProfile));
         setIsAuthenticated(true);

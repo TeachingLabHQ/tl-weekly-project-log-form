@@ -3,4 +3,5 @@ export type EmployeeProfile = {
   email: string;
   businessFunction: string;
   mondayProfileId: string;
+  employeeId: string;
 };
