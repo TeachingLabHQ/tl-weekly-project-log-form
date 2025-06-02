@@ -15,7 +15,7 @@ export interface ProjectRepository {
     projectName: string,
     projectRole: string
   ): Promise<Errorable<number>>;
-  fetchAllBudgetedHours(): Promise<Errorable<any>>;
+  fetchAllBudgetedHours(employeeId: string): Promise<Errorable<any>>;
 }
 
 export function projectRepository(): ProjectRepository {
@@ -265,11 +265,83 @@ export function projectRepository(): ProjectRepository {
         };
       }
     },
-    fetchAllBudgetedHours: async (): Promise<Errorable<number>> => {
+    fetchAllBudgetedHours: async (employeeId: string): Promise<Errorable<any>> => {
       try {
-        const query = `{
-          boards(ids: 8577820151) {
-            items_page(limit: 500) {
+        let query = "";
+        //if employeeId is empty, fetch all budgeted hours
+        if (employeeId === "") {
+           query = `{
+            boards(ids: 8577820151) {
+             items_page(
+              limit: 500
+            ) {
+                cursor
+                items {
+                  id
+                  name
+                  column_values(ids: [
+                    "email_mknhbhe0", 
+                    "numeric_mknhqm6d", 
+                    "dropdown_mknk8zwg", 
+                    "color_mknhq0s3"
+                  ]) {
+                    id
+                    text
+                    ... on StatusValue {
+                      label
+                    }
+                    column {
+                      title
+                    }
+                  }
+                }
+              }
+            }
+          }`;
+        }else{
+          console.log("employeeId", employeeId);
+          //if employeeId is not empty, fetch the budgeted hours for the given employeeId
+          query = `{
+            boards(ids: 8577820151) {
+             items_page(
+              limit: 500
+              query_params: {rules: [{column_id: "text_mkrh19y1", compare_value: ["${employeeId}"]}]}
+            ) {
+                cursor
+                items {
+                  id
+                  name
+                  column_values(ids: [
+                    "email_mknhbhe0", 
+                    "numeric_mknhqm6d", 
+                    "dropdown_mknk8zwg", 
+                    "color_mknhq0s3"
+                  ]) {
+                    id
+                    text
+                    ... on StatusValue {
+                      label
+                    }
+                    column {
+                      title
+                    }
+                  }
+                }
+              }
+            }
+          }`;
+        }
+
+
+        let rawMondayData = await fetchMondayData(query);
+        let cursor: string | null =
+          rawMondayData.data.boards[0].items_page.cursor;
+        let allItems = rawMondayData.data.boards[0].items_page.items;
+
+        while (cursor) {
+          const cursorQuery = `{
+            next_items_page(limit: 500, cursor: "${cursor}") {
+              cursor
               items {
                 id
                 name
@@ -290,14 +362,15 @@ export function projectRepository(): ProjectRepository {
                 }
               }
             }
-          }
-        }`;
+          }`;
 
-        const rawMondayData = await fetchMondayData(query);
-        const items = rawMondayData.data.boards[0].items_page.items;
-        
+          const rawAdditionalData = await fetchMondayData(cursorQuery);
+          // Add the additional Monday data to the list
+          allItems.push(...rawAdditionalData.data.next_items_page.items);
 
-        return { data: items, error: null };
+          cursor = rawAdditionalData.data.next_items_page.cursor;
+        }
+        return { data: allItems, error: null };
       } catch (e) {
         console.error(e);
         return {

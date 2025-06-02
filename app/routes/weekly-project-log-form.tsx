@@ -42,7 +42,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   ] = await Promise.all([
     newProjectService.fetchProgramProjectsStaffing(mondayProfileId),
     newProjectService.fetchAllProjects(),
-    newProjectService.fetchAllBudgetedHours(),
+    newProjectService.fetchAllBudgetedHours(employeeId),
   ]);
 
   return {
