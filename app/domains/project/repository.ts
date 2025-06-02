@@ -9,7 +9,7 @@ import {
 
 export interface ProjectRepository {
   fetchAllProjects(): Promise<Errorable<projectsByTypes[]>>;
-  fetchProgramProjects(): Promise<Errorable<ProgramProject[]>>;
+  fetchProgramProjects(mondayProfileId: string): Promise<Errorable<ProgramProject[]>>;
   fetchBudgetedHours(
     employeeEmail: string,
     projectName: string,
@@ -52,10 +52,13 @@ export function projectRepository(): ProjectRepository {
       }
     },
 
-    fetchProgramProjects: async () => {
+    fetchProgramProjects: async (mondayProfileId: string) => {
       try {
         // Define the query to fetch staffing data from Monday
-        const firstQuery = `{
+        let firstQuery = "";
+        // if mondayProfileId is empty, fetch all program projects
+        if (mondayProfileId === "") {
+         firstQuery = `{
                      boards(ids: 6902955796) {
                       items_page(limit: 500) {
                         cursor 
@@ -74,6 +77,33 @@ export function projectRepository(): ProjectRepository {
                       }
                     }
                   }`;
+        } else {
+          // if mondayProfileId is not empty, fetch the program projects for the given mondayProfileId
+          firstQuery = `{
+  boards(ids: 6902955796) {
+    items_page(
+      query_params: {rules: [{column_id: "people0", compare_value: ["person-${mondayProfileId}"], operator: any_of}]}
+    ) {
+      cursor
+      items {
+        id
+        name
+        group {
+          id
+        }
+        column_values(
+          ids: ["project_log_name8__1", "project_lead2", "project_sponsor", "cpm23", "multiple_person", "sme_knowledge53", "people8", "multiple_person3", "people9"]
+        ) {
+          column {
+            title
+          }
+          text
+        }
+      }
+    }
+  }
+}`;
+        }
 
         let rawStaffingList = await fetchMondayData(firstQuery);
 
