@@ -1,7 +1,5 @@
 import { Button, Select, Text, TextInput } from "@mantine/core";
-import { useLoaderData } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { loader } from "~/routes/weekly-project-log-form";
 import { cn } from "../../utils/utils";
 import { useSession } from "../auth/hooks/useSession";
 import {
@@ -21,11 +19,13 @@ type ProjectRowKeys = keyof {
   workHours: string;
   budgetedHours: string;
 };
+
 export const ProjectLogsWidget = ({
   isValidated,
   projectWorkEntries,
   setProjectWorkEntries,
   setTotalWorkHours,
+  projectData,
 }: {
   isValidated: boolean | null;
   projectWorkEntries: {
@@ -47,21 +47,31 @@ export const ProjectLogsWidget = ({
     >
   >;
   setTotalWorkHours: React.Dispatch<React.SetStateAction<number>>;
+  projectData: {
+    programProjectsStaffing: any;
+    allProjects: any;
+    allBudgetedHours: any;
+  } | null;
 }) => {
-  const { programProjectsStaffing, allProjects, allBudgetedHours } =
-    useLoaderData<typeof loader>();
   const { mondayProfile } = useSession();
+  
   useEffect(() => {
-    if (mondayProfile) {
+    if (mondayProfile && projectData?.programProjectsStaffing && projectData?.allBudgetedHours) {
       getPreAssignedProgramProjects(
-        programProjectsStaffing,
+        projectData.programProjectsStaffing,
         projectWorkEntries,
         setProjectWorkEntries,
-        mondayProfile,
-        allBudgetedHours
+        {
+          name: "Sarah Johnson",
+          email: "sarah.johnson@teachinglab.org",
+          businessFunction: "Program Manager",
+          mondayProfileId: "1234567890",
+          employeeId: "1234567890",
+        },
+        projectData.allBudgetedHours
       );
     }
-  }, [mondayProfile]);
+  }, [mondayProfile, projectData]);
 
   const handleAddRow = () => {
     setProjectWorkEntries([
@@ -119,13 +129,14 @@ export const ProjectLogsWidget = ({
             if (
               updatedEntry.projectType === "Program-related Project" &&
               ((field === "projectName" && updatedEntry.projectRole) ||
-                (field === "projectRole" && updatedEntry.projectName))
+                (field === "projectRole" && updatedEntry.projectName)) &&
+              projectData?.allBudgetedHours
             ) {
               const budgetedHours = getBudgetedHoursFromMonday(
                 updatedEntry.projectName,
                 updatedEntry.projectRole,
                 mondayProfile?.email || "",
-                allBudgetedHours
+                projectData.allBudgetedHours
               );
               updatedEntry.budgetedHours = budgetedHours || "N/A";
             }
@@ -149,16 +160,16 @@ export const ProjectLogsWidget = ({
   };
 
   const handleProjectOptions = (projectType: string) => {
-    if (!allProjects) {
+    if (!projectData?.allProjects) {
       return [];
     }
 
     let projects: string[] = [];
 
     if (projectType === "Program-related Project") {
-      projects = allProjects[0]?.projects || [];
+      projects = projectData.allProjects[0]?.projects || [];
     } else if (projectType === "Internal Project") {
-      projects = allProjects[1]?.projects || [];
+      projects = projectData.allProjects[1]?.projects || [];
     }
 
     // Remove duplicates by converting to Set and back to array

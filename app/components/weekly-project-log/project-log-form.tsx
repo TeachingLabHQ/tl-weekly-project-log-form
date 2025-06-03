@@ -3,18 +3,17 @@ import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
+import { LoadingSpinner } from "~/utils/LoadingSpinner";
 import { useSession } from "../auth/hooks/useSession";
 import { ExecutiveAssistantSelector } from "./executive-assistant-selector";
 import { ProjectLogsWidget } from "./project-logs-widget";
-import { Reminders, ReminderItem } from "./reminders";
+import { Reminders } from "./reminders";
 import {
+  compareTwoStrings,
   executiveAssistantMappings,
   getClosestMonday,
-  compareTwoStrings,
   REMINDER_ITEMS,
 } from "./utils";
-import BackgroundImg from "~/assets/background.png";
-import { Link } from "react-router-dom";
 
 export type FormValues = {
   email: string;
@@ -33,8 +32,17 @@ export type SubmissionUser = {
   };
 };
 
-export const ProjectLogForm = () => {
+export const ProjectLogForm: React.FC = () => {
   const { mondayProfile } = useSession();
+  
+  // Client-side data state
+  const [projectData, setProjectData] = useState<{
+    programProjectsStaffing: any;
+    allProjects: any;
+    allBudgetedHours: any;
+  } | null>(null);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  
   const [totalWorkHours, setTotalWorkHours] = useState<number>(0);
   const [isValidated, setIsValidated] = useState<boolean | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -70,6 +78,36 @@ export const ProjectLogForm = () => {
     isExecutiveAssistant: false,
     submittedForYourself: null,
   }));
+
+  // Client-side data fetching
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      try {
+        setIsLoadingData(true);
+        
+        // This would be an API endpoint that returns the same data the loader used to return
+        const response = await fetch('/api/weekly-project-log/data');
+        if (!response.ok) {
+          throw new Error('Failed to fetch project data');
+        }
+        
+        const data = await response.json();
+        setProjectData(data);
+      } catch (error) {
+        console.error('Error fetching project data:', error);
+        // Set empty data as fallback
+        setProjectData({
+          programProjectsStaffing: null,
+          allProjects: null,
+          allBudgetedHours: null,
+        });
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchProjectData();
+  }, []);
 
   useEffect(() => {
     if (mondayProfile?.email) {
@@ -203,6 +241,13 @@ export const ProjectLogForm = () => {
     }
   };
 
+  // Show loading state while data is being fetched
+  if (isLoadingData) {
+    return (
+      <LoadingSpinner />
+    );
+  }
+
   return (
     <div className="w-full h-full grid grid-cols-12 grid-rows-[auto_auto] gap-8 py-8">
       <div className="row-start-1 col-start-2 col-span-10">
@@ -249,6 +294,7 @@ export const ProjectLogForm = () => {
               projectWorkEntries={projectWorkEntries}
               setProjectWorkEntries={setProjectWorkEntries}
               setTotalWorkHours={setTotalWorkHours}
+              projectData={projectData}
             />
           </div>
           <div className="flex flex-col gap-1">
