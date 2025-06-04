@@ -19,7 +19,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // If user is authenticated, fetch their Monday profile
   if (session?.user?.email) {
     const newEmployeeService = employeeService(employeeRepository());
-    const { data: employee, error } = await newEmployeeService.fetchMondayEmployee("sarah.johnson@teachinglab.org");
+    const { data: employee, error } = await newEmployeeService.fetchMondayEmployee(session?.user?.email || "");
     
     if (employee && !error) {
       mondayProfileId = employee.mondayProfileId;

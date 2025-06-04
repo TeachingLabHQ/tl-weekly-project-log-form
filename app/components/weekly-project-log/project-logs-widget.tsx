@@ -61,13 +61,7 @@ export const ProjectLogsWidget = ({
         projectData.programProjectsStaffing,
         projectWorkEntries,
         setProjectWorkEntries,
-        {
-          name: "Sarah Johnson",
-          email: "sarah.johnson@teachinglab.org",
-          businessFunction: "Program Manager",
-          mondayProfileId: "1234567890",
-          employeeId: "1234567890",
-        },
+        mondayProfile,
         projectData.allBudgetedHours
       );
     }
