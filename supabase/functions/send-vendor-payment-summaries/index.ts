@@ -75,6 +75,7 @@ try {
       const currentDate = new Date();
       const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
       const currentMonthISO = currentMonth.toISOString();
+      const previousMonthISO = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1).toISOString();
       const nextMonthISO = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1).toISOString();
       console.log(`Processing submissions for month starting: ${currentMonthISO}`);
 
@@ -98,8 +99,8 @@ try {
             entry_pay
           )
         `)
-        .gte("submission_date", currentMonthISO)
-        .lt("submission_date", nextMonthISO);
+        .gte("submission_date", previousMonthISO)
+        .lt("submission_date", currentMonthISO);
 
       if (submissionsError) {
         console.error(`Error fetching submissions: ${JSON.stringify(submissionsError)}`);
