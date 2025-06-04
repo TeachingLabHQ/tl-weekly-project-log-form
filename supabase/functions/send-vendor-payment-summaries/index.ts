@@ -7,7 +7,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
-import { generateProjectPDF, sendProjectEmail } from "./utils.ts";
+import { generateProjectPDF } from "./pdf-generator.ts";
+import { sendProjectEmail } from "./utils.ts";
 
 // --- Helper function for delay ---
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -97,8 +98,8 @@ try {
             entry_pay
           )
         `)
-        .gte("created_at", currentMonthISO)
-        .lt("created_at", nextMonthISO);
+        .gte("submission_date", currentMonthISO)
+        .lt("submission_date", nextMonthISO);
 
       if (submissionsError) {
         console.error(`Error fetching submissions: ${JSON.stringify(submissionsError)}`);
@@ -178,25 +179,6 @@ try {
         }
       }
       console.log(`Grouped entries into ${projectsMap.size} projects.`);
-
-
-      // Fetch projects/emails already processed this month
-      console.log("Fetching existing email logs...");
-      const { data: sentLogs, error: logCheckError } = await supabase
-        .from("vendor_payment_email_logs")
-        .select("project_name, cf_email") // Select both fields
-        .eq("month", currentMonthISO)
-        .eq("status", "sent");
-
-
-      if (logCheckError) {
-        console.error(`Error checking existing email logs: ${JSON.stringify(logCheckError)}`);
-        throw logCheckError;
-      }
-
-      // Create a set of unique keys for sent emails: "projectName|cf_email"
-      const sentEmails = new Set(sentLogs?.map(log => `${log.project_name}|${log.cf_email}`) || []);
-      console.log(`Found ${sentEmails.size} individual emails already sent this month.`);
 
 
       // Process each person within each project
