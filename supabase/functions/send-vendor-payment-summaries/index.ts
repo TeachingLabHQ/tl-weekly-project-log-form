@@ -13,6 +13,16 @@ import { sendProjectEmail } from "./utils.ts";
 // --- Helper function for delay ---
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// --- Helper function to safely extract error message ---
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String(error.message);
+  }
+  return 'Unknown error occurred';
+};
+
 // --- Define interfaces ---
 
 //note to self: The function first fetch all submission entries available for the current month. By going through each submission and each entry, we are able to group the entries by project and then by person in the projectsMap.
@@ -30,12 +40,13 @@ interface DetailedEntry {
 }
 
 // Represents one person's summary for a specific project
-interface PersonProjectSummary {
+export interface PersonProjectSummary {
   cf_name: string;
   cf_email: string;
   cf_tier: string;
   totalPayForProject: number; // This person's total pay for this project
   detailedEntries: DetailedEntry[]; // This person's entries for this project
+  submission_date: string;
 }
 
 // Represents all data for a single project, grouped by person
@@ -150,6 +161,7 @@ try {
               cf_tier: submission.cf_tier,
               totalPayForProject: 0,
               detailedEntries: [],
+              submission_date: submission.submission_date,
             };
             projectData.peopleSummaries.push(personSummary);
           }
@@ -192,7 +204,6 @@ try {
         for (const personSummary of projectData.peopleSummaries) {
           totalEmailsAttempted++;
           const personEmail = personSummary.cf_email;
-          const uniqueEmailKey = `${projectName}|${personEmail}`;
           console.log(`-- Processing person: ${personEmail} for project: ${projectName}`);
 
           let logId: number | null = null;
@@ -262,7 +273,7 @@ try {
                   .from("vendor_payment_email_logs")
                   .update({
                     status: "failed",
-                    error_message: error.message, // Store error message
+                    error_message: getErrorMessage(error), // Store error message
                   })
                   .eq("id", logId); // Update using the specific log ID
 
@@ -280,7 +291,7 @@ try {
                         cf_email: personEmail,
                         month: currentMonthISO,
                         status: "failed",
-                        error_message: `Processing failed before log ID obtained: ${error.message}`,
+                        error_message: `Processing failed before log ID obtained: ${getErrorMessage(error)}`,
                     });
                     console.log(`-- Inserted substitute 'failed' log for ${personEmail}/${projectName}`);
                 } catch (insertFailError) {
@@ -312,9 +323,9 @@ try {
       console.error(`Global error: ${JSON.stringify(error)}`);
       return new Response(
         JSON.stringify({ 
-          error: error.message,
-          stack: error.stack,
-          name: error.name
+          error: getErrorMessage(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          name: error instanceof Error ? error.name : typeof error
         }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );

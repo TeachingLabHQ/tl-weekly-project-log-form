@@ -1,20 +1,28 @@
+import { Resend } from "https://esm.sh/resend@2.0.0";
+import { PersonProjectSummary } from "./index.ts";
+
+// Initialize Resend client
+const resend = new Resend(Deno.env.get("RESEND_API_KEY") || "re_2uMtEHKA_NnTp6E81HtzZMbfDzkZacCbD"); // Use env var
+
+
+
 // --- Updated Email Sending Function ---
 export async function sendProjectEmail(
     projectName: string,
     personSummary: PersonProjectSummary, // Pass the person's summary object
     pdf: Uint8Array,
   ): Promise<void> {
+    const recipientEmail = ["yancheng.pan@teachinglab.org"];
     console.log(`Starting email sending for ${personSummary.cf_name} (${personSummary.cf_email}) on project: ${projectName}`);
     try {
-      const fromEmail = Deno.env.get("FROM_EMAIL") || "noreply@teachinglab.org";
       const supportEmail = Deno.env.get("SUPPORT_EMAIL") || "support@example.com";
   
       const pdfBase64 = btoa(String.fromCharCode(...pdf));
-      console.log(`PDF Base64 length: ${pdfBase64}`);
+      console.log(`PDF Base64 length: ${pdfBase64.length}`);
       const reportMonthYear = new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
       // Make filename person-specific
       const filename = `TeachingLab-PaymentSummary-${personSummary.cf_name.replace(/\s+/g, '')}-${projectName.replace(/\s+/g, '_')}-${reportMonthYear}.pdf`;
-      const recipientEmail = ["accountspayable@teachinglab.org", "yancheng.pan@teachinglab.org"];
+      
       const emailData = {
         from: "Teaching Lab Payments <yancheng.pan@teachinglab.org>", // Use sender name
         to: recipientEmail,

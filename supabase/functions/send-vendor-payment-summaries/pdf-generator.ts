@@ -1,27 +1,6 @@
 import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
-import { Resend } from "https://esm.sh/resend@2.0.0";
+import { PersonProjectSummary } from "./index.ts";
 
-// Initialize Resend client
-const resend = new Resend(Deno.env.get("RESEND_API_KEY") || "re_2uMtEHKA_NnTp6E81HtzZMbfDzkZacCbD"); // Use env var
-
-// --- Interfaces for Per-Person, Per-Project Reporting ---
-// (These should match or be compatible with those in index.ts)
-interface DetailedEntry {
-  task_name: string;
-  work_hours: number;
-  rate: number;
-  entry_pay: number;
-  submission_date?: string;
-}
-
-interface PersonProjectSummary {
-  cf_name: string;
-  cf_email: string;
-  cf_tier: string;
-  totalPayForProject: number;
-  detailedEntries: DetailedEntry[];
-  submission_date: string;
-}
 
 // Helper function to draw a line
 function drawLine(page: any, startX: number, startY: number, endX: number, endY: number) {
@@ -93,18 +72,15 @@ function calculateRowHeight(linesPerColumn: string[][], baseHeight: number): num
 }
 
 // Helper function to generate unique invoice number
-function generateInvoiceNumber(personName: string, projectName: string): string {
+function generateInvoiceNumber(): string {
   const now = new Date();
   const dateStr = now.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
   const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, ''); // HHMMSS
-  const personInitials = personName.split(' ').map(n => n.charAt(0)).join('').toUpperCase();
-  const projectInitials = projectName.split(' ').map(n => n.charAt(0)).join('').toUpperCase();
-  return `INV-${dateStr}-${timeStr}-${personInitials}-${projectInitials}`;
+  return `${dateStr}${timeStr}`;
 }
 
 // --- PDF Generation Function for Per-Person Summary ---
 export async function generateProjectPDF(projectName: string, personSummary: PersonProjectSummary): Promise<Uint8Array> {
-  console.log(`${personSummary}`);
   console.log(`Starting PDF generation for ${personSummary.cf_email} on project: ${projectName}`);
   try {
     const pdfDoc = await PDFDocument.create();
@@ -122,14 +98,24 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
     page.drawText(`${personSummary.cf_name} - Payment Summary`, {
       x: margin,
       y,
-      size: 24,
+      size: 20,
       font: helveticaBold,
       color: rgb(0, 0, 0),
     });
     y -= baseLineHeight * 1.5;
 
     // Generate unique invoice number
-    const invoiceNumber = generateInvoiceNumber(personSummary.cf_name, projectName);
+    const invoiceNumber = generateInvoiceNumber();
+
+    // Subtitle - Personal Summary for Project
+    page.drawText(`Project: ${projectName}`, {
+      x: margin,
+      y,
+      size: 16,
+      font: helveticaBold,
+      color: rgb(0, 0, 0),
+    });
+    y -= baseLineHeight * 1.5;
 
     // Invoice Number
     page.drawText(`Invoice #: ${invoiceNumber}`, {
@@ -141,15 +127,6 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
     });
     y -= baseLineHeight * 1.2;
 
-    // Subtitle - Personal Summary for Project
-    page.drawText(`Project: ${projectName}`, {
-      x: margin,
-      y,
-      size: 18,
-      font: helveticaBold,
-      color: rgb(0, 0, 0),
-    });
-    y -= baseLineHeight * 1.5;
 
     // Report Month
     const reportMonth = new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
@@ -318,9 +295,9 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
 
       // Draw cell borders (vertical lines)
       drawLine(page, margin, rowStartY, margin, rowStartY - rowHeight); // Leftmost
-      columns.forEach((column, i) => {
-          if (i > 0) {
-            drawLine(page, columnPositions[i], rowStartY, columnPositions[i], rowStartY - rowHeight);
+      columns.forEach((_, index) => {
+          if (index > 0) {
+            drawLine(page, columnPositions[index], rowStartY, columnPositions[index], rowStartY - rowHeight);
           }
       });
       drawLine(page, margin + pageWidth, rowStartY, margin + pageWidth, rowStartY - rowHeight); // Rightmost
@@ -330,9 +307,6 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
       y -= rowHeight;
     });
 
-    // Calculate total for the PDF (we'll use this for verification)
-    const pdfTotalPay = sortedEntries.reduce((sum, entry) => sum + entry.entry_pay, 0);
-    
     // Add total for this person on this project
     const totalLineHeight = baseLineHeight * 1.5;
     if (y - totalLineHeight < contentBottomMargin) {
