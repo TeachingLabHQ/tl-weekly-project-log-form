@@ -17,10 +17,10 @@ export type TaskDetails = {
 export const facilitationTaskOptions: TaskDetails[] = [
   {
     taskName: "Onboarding",
-    "Tier 1": 50,
+    "Tier 1": 500,
     "Tier 2": null,
     "Tier 3": null,
-    maxHours: 10,
+    maxHours: 1,
   },
   {
     taskName:
@@ -165,25 +165,9 @@ export const REMINDER_ITEMS: ReminderItem[] = [
   {
     title: "Submission Deadline:",
     content:
-      "Ensure to submit your payment as soon as possible on the day of your work. If you need to submit a payment for a previous month, please contact the finance team.",
+      "Please submit your payment as soon as possible on the day of your work. Review your submitted hours and payment details for the previous month by the 5th of each month. This review ensures accuracy before the hours are automatically transferred to our invoice system on the 6th for approval and payment processing. If corrections need to be made to the hours worked on a particular day, you must delete and resubmit the correct hours worked on that day. All corrections must be made by the 5th of each month. If you missed the monthly payment deadline, please contact the finance team: finance@teachinglab.org.",
   },
-  {
-    title: "FY26 Facilitation Payment Guide:",
-    content: (
-      <>
-        Please review the{" "}
-        <a
-          href="https://docs.google.com/document/d/1N8FOqieDQWt0sGJH1pFqyMnWv4Rb4ykmuvlhBShWrfA/edit?tab=t.0"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ textDecoration: "underline" }}
-        >
-          FY26 Facilitation Payment Guide
-        </a>{" "}
-        for detailed information about payment processes and requirements.
-      </>
-    ),
-  },
+ 
 ];
 
 export const shouldExcludeVendorPaymentDate = (date: Date): boolean => {
