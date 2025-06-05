@@ -1,9 +1,9 @@
 -- Create vendor_payment_submissions table
 CREATE TABLE IF NOT EXISTS vendor_payment_submissions (
     id SERIAL PRIMARY KEY,
-    cf_email VARCHAR(500) NOT NULL,
-    cf_name VARCHAR(500) NOT NULL,
-    cf_tier VARCHAR(500) NOT NULL,
+    cf_email text NOT NULL,
+    cf_name text NOT NULL,
+    cf_tier text NOT NULL,
     total_pay DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

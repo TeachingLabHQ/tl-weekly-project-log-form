@@ -2,8 +2,8 @@
 CREATE TABLE IF NOT EXISTS vendor_payment_entries (
     id SERIAL PRIMARY KEY,
     submission_id INTEGER NOT NULL REFERENCES vendor_payment_submissions(id) ON DELETE CASCADE,
-    task_name VARCHAR(255) NOT NULL,
-    project_name VARCHAR(255) NOT NULL,
+    task_name text NOT NULL,
+    project_name text NOT NULL,
     work_hours DECIMAL(10,2) NOT NULL,
     rate DECIMAL(10,2) NOT NULL,
     entry_pay DECIMAL(10,2) NOT NULL,
