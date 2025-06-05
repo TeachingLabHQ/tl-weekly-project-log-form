@@ -102,12 +102,25 @@ export default function VendorPaymentFormRoute() {
             name: "Daisann Colbert",
             tier: [{
               type: "facilitator",
-              value: "Tier 1",
+              value: "Tier 2",
             },
             {
-              type: "dataEvaluation",
-              value: "Tier 1",
+              type: "copyRightPermissions",
+              value: "Tier 2",
             },
+            {
+              type: "copyEditor",
+              value: "Tier 2",
+            },
+            {
+              type: "presentationDesign",
+              value: "Tier 2",
+            },
+            {
+              type: "contentDeveloper",
+              value: "Tier 2",
+            },
+            
             ],
           });
         }
@@ -182,8 +195,26 @@ export default function VendorPaymentFormRoute() {
             name: "Ellen Greig",
             tier: [{
               type: "facilitator",
-              value: "Tier 1",
-            }],
+              value: "Tier 2",
+            },
+            {
+              type: "copyRightPermissions",
+              value: "Tier 2",
+            },
+            {
+              type: "copyEditor",
+              value: "Tier 2",
+            },
+            {
+              type: "presentationDesign",
+              value: "Tier 2",
+            },
+            {
+              type: "contentDeveloper",
+              value: "Tier 2",
+            },
+            
+            ],
           });
         }
        
