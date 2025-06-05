@@ -168,3 +168,37 @@ export const REMINDER_ITEMS: ReminderItem[] = [
       "Ensure to submit your payment as soon as possible on the day of your work. If you need to submit a payment for a previous month, please contact the finance team.",
   },
 ];
+
+export const shouldExcludeVendorPaymentDate = (date: Date): boolean => {
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const currentDay = today.getDate();
+  
+  const dateMonth = date.getMonth();
+  const dateYear = date.getFullYear();
+  
+  // If today is 6th or earlier, allow prior month dates + ALL current month dates
+  if (currentDay <= 6) {
+    const priorMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const priorMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    
+    // Allow all prior month dates
+    if (dateYear === priorMonthYear && dateMonth === priorMonth) {
+      return false; // Don't exclude prior month dates
+    }
+    
+    // Allow ALL current month dates (including future dates)
+    if (dateYear === currentYear && dateMonth === currentMonth) {
+      return false; // Don't exclude any current month dates
+    }
+  } else {
+    // If today is 7th or later, only allow current month dates from today onwards
+    if (dateYear === currentYear && dateMonth === currentMonth && date >= today) {
+      return false; // Don't exclude current month dates from today onwards
+    }
+  }
+  
+  // Exclude all other dates
+  return true;
+};

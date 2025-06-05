@@ -3,13 +3,11 @@ import { DateInput } from "@mantine/dates";
 import { useFetcher, useNavigate } from "@remix-run/react";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
+import { CoachFacilitatorDetails } from "~/domains/coachFacilitator/repository";
 import { Reminders } from "../weekly-project-log/reminders";
 import { PaymentHistory } from "./payment-history/payment-history";
-import { REMINDER_ITEMS, Tier } from "./utils";
+import { REMINDER_ITEMS, shouldExcludeVendorPaymentDate } from "./utils";
 import { VendorPaymentWidget } from "./vendor-payment-widget";
-import { CoachFacilitatorDetails } from "~/domains/coachFacilitator/repository";
-
-
 
 type FetcherData =
   | {
@@ -19,7 +17,6 @@ type FetcherData =
   | undefined;
 
 export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CoachFacilitatorDetails|null }) => {
-  const navigate = useNavigate();
   const fetcher = useFetcher<FetcherData>();
   const [isValidated, setIsValidated] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -171,6 +168,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CoachFacilitatorDe
                   placeholder="Select date"
                   required
                   className="w-full "
+                  excludeDate={shouldExcludeVendorPaymentDate}
                   error={isValidated === true && !workDate ? "Date is required" : null}
                 />
               </div>
