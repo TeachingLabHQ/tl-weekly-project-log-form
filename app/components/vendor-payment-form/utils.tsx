@@ -167,6 +167,23 @@ export const REMINDER_ITEMS: ReminderItem[] = [
     content:
       "Ensure to submit your payment as soon as possible on the day of your work. If you need to submit a payment for a previous month, please contact the finance team.",
   },
+  {
+    title: "FY26 Facilitation Payment Guide:",
+    content: (
+      <>
+        Please review the{" "}
+        <a
+          href="https://docs.google.com/document/d/1N8FOqieDQWt0sGJH1pFqyMnWv4Rb4ykmuvlhBShWrfA/edit?tab=t.0"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: "underline" }}
+        >
+          FY26 Facilitation Payment Guide
+        </a>{" "}
+        for detailed information about payment processes and requirements.
+      </>
+    ),
+  },
 ];
 
 export const shouldExcludeVendorPaymentDate = (date: Date): boolean => {
