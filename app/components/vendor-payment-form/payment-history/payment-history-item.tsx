@@ -30,7 +30,7 @@ export const PaymentHistoryItem = ({
   };
 
   useEffect(() => {
-    if ( fetcher.data) {
+    if (fetcher.data) {
       if (fetcher.data.success) {
         notifications.show({
           title: 'Submission Deleted',
@@ -48,7 +48,7 @@ export const PaymentHistoryItem = ({
         console.log("Deletion failed, server error:", fetcher.data.error);
       }
     }
-  }, [fetcher.state, fetcher.data, revalidate, notifications]);
+  }, [fetcher.state, fetcher.data, revalidate]);
 
   return (
     <Accordion.Item value={paymentRequest.id.toString()}>

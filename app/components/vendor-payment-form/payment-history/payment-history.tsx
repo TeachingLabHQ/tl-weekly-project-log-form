@@ -1,21 +1,13 @@
-import { useLoaderData, useRevalidator } from "@remix-run/react";
 import { Accordion } from "@mantine/core";
-import { PaymentHistoryItem } from "./payment-history-item";
-import { VendorPaymentSubmissionWithEntries } from "~/domains/vendor-payment/model";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { vendorPaymentRepository } from "~/domains/vendor-payment/repository";
-import { vendorPaymentService } from "~/domains/vendor-payment/service";
-import { createSupabaseServerClient } from "../../../../supabase/supabase.server";
+import { useLoaderData, useRevalidator } from "@remix-run/react";
+import { CoachFacilitatorDetails } from "~/domains/coachFacilitator/repository";
 import { loader } from "~/routes/vendor-payment-form";
+import { PaymentHistoryItem } from "./payment-history-item";
 
-type CfDetails = {
-  email: string;
-  name: string;
-  tier: string;
-} | null;
+
 
 type PaymentHistoryProps = {
-  cfDetails: CfDetails;
+  cfDetails: CoachFacilitatorDetails | null;
 };
 
 export const PaymentHistory = ({ cfDetails }: PaymentHistoryProps) => {

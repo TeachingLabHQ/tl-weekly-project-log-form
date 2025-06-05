@@ -4,7 +4,10 @@ import { fetchMondayData } from "../utils";
 export interface CoachFacilitatorDetails {
   email: string;
   name: string;
-  tier: string;
+  tier: {
+    type: string;
+    value: string;
+  }[];
 }
 
 export interface CoachFacilitatorRepository {
@@ -51,10 +54,12 @@ export function coachFacilitatorRepository(): CoachFacilitatorRepository {
 
         // Extract the required information
         const name = matchingItem.name;
-        const tier =
-          matchingItem.column_values.find(
+        const tier = [{
+          type: "facilitator",
+          value: matchingItem.column_values.find(
             (col: any) => col.column.title === "FY 25' Compensation"
-          )?.text || "";
+          )?.text || "",
+        }];
 
         const coachFacilitatorInfo: CoachFacilitatorDetails = {
           email,
