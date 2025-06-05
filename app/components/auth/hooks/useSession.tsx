@@ -85,7 +85,7 @@ export const useSession = () => {
           const coachFacilitatorProfile = {
             name: coachFacilitatorData?.name,
             email: coachFacilitatorData?.email,
-            businessFunction: "coach/facilitator",
+            businessFunction: "contractor",
           };
         setMondayProfile(coachFacilitatorProfile);
           localStorage.setItem(MONDAY_PROFILE_KEY, JSON.stringify(coachFacilitatorProfile));

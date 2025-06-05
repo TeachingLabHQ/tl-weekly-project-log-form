@@ -2,7 +2,7 @@ import { Button, Select, Text, TextInput, NumberInput } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { cn } from "../../utils/utils";
 import { IconX } from "@tabler/icons-react";
-import { taskOptions, Tier } from "./utils";
+import { contentDeveloperTaskOptions, copyEditorTaskOptions, copyRightPermissionsTaskOptions, dataEvaluationTaskOptions, facilitationTaskOptions, presentationDesignTaskOptions, TaskDetails, Tier } from "./utils";
 import { useLoaderData } from "@remix-run/react";
 import { loader } from "~/routes/vendor-payment-form";
 
@@ -11,6 +11,11 @@ type VendorPaymentRowKeys = keyof {
   project: string;
   workHours: string;
 };
+
+type taskOptions = {
+  taskName: string;
+  rate: number;
+}
 
 export const VendorPaymentWidget = ({
   isValidated,
@@ -35,32 +40,99 @@ export const VendorPaymentWidget = ({
     >
   >;
   setTotalWorkHours: React.Dispatch<React.SetStateAction<number>>;
-  cfTier: string;
+  cfTier: {
+    type: string;
+    value: string;
+  }[];
 }) => {
   const { projects } = useLoaderData<typeof loader>();
-  const internalProjects = new Set(projects.filter((project) => project.projectType === "Internal Project")[0].projects);
-  const programProjects = new Set(projects.filter((project) => project.projectType === "Program-related Project")[0].projects);
+  const internalProjects = new Set(projects?.filter((project) => project.projectType === "Internal Project")[0]?.projects || []);
+  const programProjects = new Set(projects?.filter((project) => project.projectType === "Program-related Project")[0]?.projects || []);
   const allProjects = new Set([...internalProjects, ...programProjects]);
   const projectOptions = Array.from(allProjects).map((project) => ({
     value: project,
     label: project,
   }));
 
+  
 
   // Filter tasks based on tier and rate availability
   const getAvailableTasks = () => {
-    return taskOptions.filter((task) => {
-      switch (cfTier) {
-        case Tier.TIER_1:
-          return task["Tier 1"] !== null && task["Tier 1"] > 0;
-        case Tier.TIER_2:
-          return task["Tier 2"] !== null && task["Tier 2"] > 0;
-        case Tier.TIER_3:
-          return task["Tier 3"] !== null && task["Tier 3"] > 0;
-        default:
-          return false;
+    let availableTasks: taskOptions[] = [];
+    if(cfTier.length === 0){
+     return availableTasks;
+    }
+    
+    for(const tier of cfTier){
+      if(tier.type === "facilitator"){
+        //add all tasks that has a not null and greater than 0 rate
+        facilitationTaskOptions.forEach((task) => {
+          const rateValue = task[tier.value as keyof TaskDetails];
+          if(rateValue !== null && typeof rateValue === 'number' && rateValue > 0){
+            availableTasks.push({
+              taskName: task.taskName,
+              rate: rateValue,
+            });
+          }
+        });
       }
-    });
+      else if(tier.type === "copyRightPermissions"){
+        copyRightPermissionsTaskOptions.forEach((task: TaskDetails) => {
+          const rateValue = task[tier.value as keyof TaskDetails];
+          if(rateValue !== null && typeof rateValue === 'number' && rateValue > 0){
+            availableTasks.push({
+              taskName: task.taskName,
+              rate: rateValue,
+            });
+          }
+        });
+      }
+      else if(tier.type === "copyEditor"){
+        copyEditorTaskOptions.forEach((task) => {
+          const rateValue = task[tier.value as keyof TaskDetails];
+          if(rateValue !== null && typeof rateValue === 'number' && rateValue > 0){
+            availableTasks.push({
+              taskName: task.taskName,
+              rate: rateValue,
+            });
+          }
+        });
+      }
+      else if(tier.type === "presentationDesign"){
+        presentationDesignTaskOptions.forEach((task) => { 
+          const rateValue = task[tier.value as keyof TaskDetails];
+          if(rateValue !== null && typeof rateValue === 'number' && rateValue > 0){
+            availableTasks.push({
+              taskName: task.taskName,
+              rate: rateValue,
+            }); 
+          }
+        });
+      }
+      else if(tier.type === "contentDeveloper"){
+        contentDeveloperTaskOptions.forEach((task) => {
+          const rateValue = task[tier.value as keyof TaskDetails];
+          if(rateValue !== null && typeof rateValue === 'number' && rateValue > 0){
+            availableTasks.push({
+              taskName: task.taskName,
+              rate: rateValue,
+            });
+          } 
+        });
+      }
+      else if(tier.type === "dataEvaluation"){
+        dataEvaluationTaskOptions.forEach((task) => {
+          const rateValue = task[tier.value as keyof TaskDetails];
+          if(rateValue !== null && typeof rateValue === 'number' && rateValue > 0){
+            availableTasks.push({
+              taskName: task.taskName,
+              rate: rateValue,
+            });
+          }
+        });
+      }
+    }
+    return availableTasks;
   };
 
   const calculateTaskTotalPay = (task: string, workHours: string): number => {
@@ -72,21 +144,7 @@ export const VendorPaymentWidget = ({
       const hours = parseFloat(workHours) || 0;
 
       // Get rate based on tier
-      let rate = 0;
-      switch (cfTier) {
-        case Tier.TIER_1:
-          rate = taskData["Tier 1"];
-          break;
-        case Tier.TIER_2:
-          rate = taskData["Tier 2"];
-          break;
-        case Tier.TIER_3:
-          rate = taskData["Tier 3"];
-          break;
-        default:
-          rate = 0;
-      }
-
+      let rate = taskData.rate || 0;
       return rate * hours;
     } catch (error) {
       console.error("Error calculating total pay:", error);
@@ -145,13 +203,13 @@ export const VendorPaymentWidget = ({
   };
 
   // Get available tasks for the current tier
-  const availableTasks = getAvailableTasks();
+  const listOfAvailableTasks = getAvailableTasks() || [];
 
   return (
     <div className="grid grid-rows gap-4">
       <div
-        className={cn("grid gap-4 grid-cols-[2fr_2fr_1fr_1fr]", {
-          "grid-cols-[2fr_2fr_1fr_1fr_0.5fr]": vendorPaymentEntries.length > 1,
+        className={cn("grid gap-4 grid-cols-[2fr_2fr_1fr_1fr_1fr]", {
+          "grid-cols-[2fr_2fr_1fr_1fr_1fr_0.5fr]": vendorPaymentEntries.length > 1,
         })}
       >
         <div className="">
@@ -171,6 +229,11 @@ export const VendorPaymentWidget = ({
         </div>
         <div className="">
           <Text fw={500} size="md">
+            Rate
+          </Text>
+        </div>
+        <div className="">
+          <Text fw={500} size="md">
             Total Pay
           </Text>
         </div>
@@ -179,8 +242,8 @@ export const VendorPaymentWidget = ({
       {vendorPaymentEntries.map((row, index) => (
         <div
           key={index}
-          className={cn("grid gap-4 grid-cols-[2fr_2fr_1fr_1fr]", {
-            "grid-cols-[2fr_2fr_1fr_1fr_0.5fr]":
+          className={cn("grid gap-4 grid-cols-[2fr_2fr_1fr_1fr_1fr]", {
+            "grid-cols-[2fr_2fr_1fr_1fr_1fr_0.5fr]":
               vendorPaymentEntries.length > 1,
           })}
         >
@@ -189,7 +252,7 @@ export const VendorPaymentWidget = ({
               value={row.task || null}
               onChange={(value) => handleChange(index, "task", value)}
               placeholder="Select a task"
-              data={availableTasks.map((option) => ({
+              data={listOfAvailableTasks.map((option) => ({
                 value: JSON.stringify(option),
                 label: option.taskName,
               }))}
@@ -230,6 +293,13 @@ export const VendorPaymentWidget = ({
                   ? "Work Hours are required"
                   : null
               }
+            />
+          </div>
+          <div>
+            <TextInput
+              value={row.task ? `$${JSON.parse(row.task).rate.toFixed(2)}` : "$0.00"}
+              readOnly
+              placeholder="Rate"
             />
           </div>
           <div>

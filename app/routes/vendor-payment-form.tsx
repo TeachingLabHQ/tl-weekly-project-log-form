@@ -1,19 +1,17 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { json, useLoaderData } from "@remix-run/react";
+import { json } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import { useSession } from "~/components/auth/hooks/useSession";
+import { AccessDeniedState } from "~/components/vendor-payment-form/access-denied-state";
 import { VendorPaymentForm } from "~/components/vendor-payment-form/vendor-payment-form";
-import { Suspense, useEffect, useState } from "react";
+import { CoachFacilitatorDetails, coachFacilitatorRepository } from "~/domains/coachFacilitator/repository";
 import { coachFacilitatorService } from "~/domains/coachFacilitator/service";
-import { coachFacilitatorRepository } from "~/domains/coachFacilitator/repository";
-import { LoginPage } from "~/components/auth/login-page";
-import { LoadingSpinner } from "~/utils/LoadingSpinner";
-import BackgroundImg from "~/assets/background.png";
-import { vendorPaymentService } from "~/domains/vendor-payment/service";
-import { vendorPaymentRepository } from "~/domains/vendor-payment/repository";
-import { createSupabaseServerClient } from "../../supabase/supabase.server";
 import { projectRepository } from "~/domains/project/repository";
 import { projectService } from "~/domains/project/service";
-import { AccessDeniedState } from "~/components/vendor-payment-form/access-denied-state";
+import { vendorPaymentRepository } from "~/domains/vendor-payment/repository";
+import { vendorPaymentService } from "~/domains/vendor-payment/service";
+import { LoadingSpinner } from "~/utils/LoadingSpinner";
+import { createSupabaseServerClient } from "../../supabase/supabase.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { supabaseClient } = createSupabaseServerClient(request);
 
@@ -30,7 +28,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     : null;
 
   if (!cfDetails?.email) {
-    return json({ submissions: [] });
+    return json({ paymentRequestHistory: [], projects: [] });
   }
 
   const newVendorPaymentService = vendorPaymentService(vendorPaymentRepository(supabaseClient));
@@ -43,11 +41,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const newProjectService = projectService(projectRepository());
 
-  const { data: projects, error: projectsError } = await newProjectService.fetchAllProjects();
-  if (projectsError) {
-    throw new Error("Failed to fetch projects");
-  }
-
+  const { data: projects } = await newProjectService.fetchAllProjects();
   return json({ paymentRequestHistory, projects });
 };
 
@@ -57,11 +51,7 @@ export default function VendorPaymentFormRoute() {
   const [isCoachOrFacilitator, setIsCoachOrFacilitator] = useState<
     boolean | null
   >(null);
-  const [cfDetails, setCfDetails] = useState<{
-    email: string;
-    name: string;
-    tier: string;
-  } | null>(null);
+  const [cfDetails, setCfDetails] = useState<CoachFacilitatorDetails | null>(null);
 
   useEffect(() => {
     const checkCoachOrFacilitator = async () => {
@@ -81,7 +71,28 @@ export default function VendorPaymentFormRoute() {
           setCfDetails({
             email: "yancheng.pan@teachinglab.org",
             name: "Yancheng Pan",
-            tier: "Tier 2",
+            tier: [{
+              type: "facilitator",
+              value: "Tier 2",
+            },
+            {
+              type: "copyRightPermissions",
+              value: "Tier 2",
+            },
+            {
+              type: "copyEditor",
+              value: "Tier 2",
+            },
+            {
+              type: "presentationDesign",
+              value: "Tier 2",
+            },
+            {
+              type: "contentDeveloper",
+              value: "Tier 2",
+            },
+            
+            ],
           });
         }
          else if(mondayProfile?.email === "daissan.colbert@teachinglab.org"){
@@ -89,7 +100,28 @@ export default function VendorPaymentFormRoute() {
           setCfDetails({
             email: "daissan.colbert@teachinglab.org",
             name: "Daisann Colbert",
-            tier: "Tier 1",
+            tier: [{
+              type: "facilitator",
+              value: "Tier 2",
+            },
+            {
+              type: "copyRightPermissions",
+              value: "Tier 2",
+            },
+            {
+              type: "copyEditor",
+              value: "Tier 2",
+            },
+            {
+              type: "presentationDesign",
+              value: "Tier 2",
+            },
+            {
+              type: "contentDeveloper",
+              value: "Tier 2",
+            },
+            
+            ],
           });
         }
         else if(mondayProfile?.email === "samantha.wilner@teachinglab.org"){
@@ -97,7 +129,31 @@ export default function VendorPaymentFormRoute() {
           setCfDetails({
             email: "samantha.wilner@teachinglab.org",
             name: "Samantha Wilner",
-            tier: "Tier 1",
+            tier: [{
+              type: "facilitator",
+              value: "Tier 1",
+            },
+            {
+              type: "contentDeveloper",
+              value: "Tier 1",
+            },
+            {
+              type: "copyEditor",
+              value: "Tier 1",
+            },
+            {
+              type: "copyRightPermissions",
+              value: "Tier 1",
+            },
+            {
+              type: "presentationDesign",
+              value: "Tier 1",
+            },
+            {
+              type: "dataEvaluation",
+              value: "Tier 1",
+            },
+            ],
           });
         }
        else if(mondayProfile?.email === "tonia.lonie@teachinglab.org"){
@@ -105,7 +161,31 @@ export default function VendorPaymentFormRoute() {
           setCfDetails({
             email: "tonia.lonie@teachinglab.org",
             name: "Tonia Lonie",
-            tier: "Tier 1",
+            tier: [{
+              type: "facilitator",
+              value: "Tier 1",
+            },
+            {
+              type: "contentDeveloper",
+              value: "Tier 1",
+            },
+            {
+              type: "copyEditor",
+              value: "Tier 1",
+            },
+            {
+              type: "copyRightPermissions",
+              value: "Tier 1",
+            },
+            {
+              type: "presentationDesign",
+              value: "Tier 1",
+            },
+            {
+              type: "dataEvaluation",
+              value: "Tier 1",
+            },
+            ],
           });
         }
         else if(mondayProfile?.email === "ellen.greig@teachinglab.org"){
@@ -113,7 +193,28 @@ export default function VendorPaymentFormRoute() {
           setCfDetails({
             email: "ellen.greig@teachinglab.org",
             name: "Ellen Greig",
-            tier: "Tier 1",
+            tier: [{
+              type: "facilitator",
+              value: "Tier 2",
+            },
+            {
+              type: "copyRightPermissions",
+              value: "Tier 2",
+            },
+            {
+              type: "copyEditor",
+              value: "Tier 2",
+            },
+            {
+              type: "presentationDesign",
+              value: "Tier 2",
+            },
+            {
+              type: "contentDeveloper",
+              value: "Tier 2",
+            },
+            
+            ],
           });
         }
        

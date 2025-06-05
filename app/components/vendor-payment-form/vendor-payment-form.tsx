@@ -1,20 +1,13 @@
-import { useEffect, useState } from "react";
-import { Button, Text, Title, Notification, Tabs } from "@mantine/core";
+import { Button, Notification, Tabs } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
-import React from "react";
-import BackgroundImg from "~/assets/background.png";
-import { VendorPaymentWidget } from "./vendor-payment-widget";
-import { taskOptions, Tier, REMINDER_ITEMS } from "./utils";
-import { useNavigate, useFetcher } from "@remix-run/react";
+import { useFetcher, useNavigate } from "@remix-run/react";
 import { IconCheck, IconX } from "@tabler/icons-react";
-import { PaymentHistory } from "./payment-history/payment-history";
+import React, { useEffect, useState } from "react";
+import { CoachFacilitatorDetails } from "~/domains/coachFacilitator/repository";
 import { Reminders } from "../weekly-project-log/reminders";
-
-type CfDetails = {
-  email: string;
-  name: string;
-  tier: string;
-} | null;
+import { PaymentHistory } from "./payment-history/payment-history";
+import { REMINDER_ITEMS, shouldExcludeVendorPaymentDate } from "./utils";
+import { VendorPaymentWidget } from "./vendor-payment-widget";
 
 type FetcherData =
   | {
@@ -23,8 +16,7 @@ type FetcherData =
     }
   | undefined;
 
-export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
-  const navigate = useNavigate();
+export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CoachFacilitatorDetails|null }) => {
   const fetcher = useFetcher<FetcherData>();
   const [isValidated, setIsValidated] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,19 +64,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
 
         // Get rate based on tier
         let rate = 0;
-        switch (cfDetails?.tier) {
-          case Tier.TIER_1:
-            rate = taskData["Tier 1"];
-            break;
-          case Tier.TIER_2:
-            rate = taskData["Tier 2"];
-            break;
-          case Tier.TIER_3:
-            rate = taskData["Tier 3"];
-            break;
-          default:
-            rate = 0;
-        }
+        rate = taskData.rate || 0;
 
         return total + rate * hours;
       } catch (error) {
@@ -188,6 +168,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
                   placeholder="Select date"
                   required
                   className="w-full "
+                  excludeDate={shouldExcludeVendorPaymentDate}
                   error={isValidated === true && !workDate ? "Date is required" : null}
                 />
               </div>
@@ -197,7 +178,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
                 vendorPaymentEntries={vendorPaymentEntries}
                 setVendorPaymentEntries={setVendorPaymentEntries}
                 setTotalWorkHours={setTotalWorkHours}
-                cfTier={cfDetails?.tier || ""}
+                cfTier={cfDetails?.tier || []}
               />
 
               <div className="flex flex-col gap-4">
@@ -239,7 +220,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CfDetails }) => {
           </Tabs.Panel>
 
           <Tabs.Panel value="history">
-            <PaymentHistory cfDetails={cfDetails} />
+            <PaymentHistory cfDetails={cfDetails || null} />
           </Tabs.Panel>
         </Tabs>
       </div>
