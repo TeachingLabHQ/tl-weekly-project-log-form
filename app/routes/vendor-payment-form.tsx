@@ -88,10 +88,6 @@ export default function VendorPaymentFormRoute() {
               value: "Tier 2",
             },
             {
-              type: "dataEvaluation",
-              value: "Tier 1",
-            },
-            {
               type: "contentDeveloper",
               value: "Tier 2",
             },
@@ -107,7 +103,12 @@ export default function VendorPaymentFormRoute() {
             tier: [{
               type: "facilitator",
               value: "Tier 1",
-            }],
+            },
+            {
+              type: "dataEvaluation",
+              value: "Tier 1",
+            },
+            ],
           });
         }
         else if(mondayProfile?.email === "samantha.wilner@teachinglab.org"){
@@ -118,7 +119,28 @@ export default function VendorPaymentFormRoute() {
             tier: [{
               type: "facilitator",
               value: "Tier 1",
-            }],
+            },
+            {
+              type: "contentDeveloper",
+              value: "Tier 1",
+            },
+            {
+              type: "copyEditor",
+              value: "Tier 1",
+            },
+            {
+              type: "copyRightPermissions",
+              value: "Tier 1",
+            },
+            {
+              type: "presentationDesign",
+              value: "Tier 1",
+            },
+            {
+              type: "dataEvaluation",
+              value: "Tier 1",
+            },
+            ],
           });
         }
        else if(mondayProfile?.email === "tonia.lonie@teachinglab.org"){
@@ -129,7 +151,28 @@ export default function VendorPaymentFormRoute() {
             tier: [{
               type: "facilitator",
               value: "Tier 1",
-            }],
+            },
+            {
+              type: "contentDeveloper",
+              value: "Tier 1",
+            },
+            {
+              type: "copyEditor",
+              value: "Tier 1",
+            },
+            {
+              type: "copyRightPermissions",
+              value: "Tier 1",
+            },
+            {
+              type: "presentationDesign",
+              value: "Tier 1",
+            },
+            {
+              type: "dataEvaluation",
+              value: "Tier 1",
+            },
+            ],
           });
         }
         else if(mondayProfile?.email === "ellen.greig@teachinglab.org"){
