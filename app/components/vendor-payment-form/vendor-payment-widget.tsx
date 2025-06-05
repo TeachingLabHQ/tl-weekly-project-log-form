@@ -208,8 +208,8 @@ export const VendorPaymentWidget = ({
   return (
     <div className="grid grid-rows gap-4">
       <div
-        className={cn("grid gap-4 grid-cols-[2fr_2fr_1fr_1fr]", {
-          "grid-cols-[2fr_2fr_1fr_1fr_0.5fr]": vendorPaymentEntries.length > 1,
+        className={cn("grid gap-4 grid-cols-[2fr_2fr_1fr_1fr_1fr]", {
+          "grid-cols-[2fr_2fr_1fr_1fr_1fr_0.5fr]": vendorPaymentEntries.length > 1,
         })}
       >
         <div className="">
@@ -229,6 +229,11 @@ export const VendorPaymentWidget = ({
         </div>
         <div className="">
           <Text fw={500} size="md">
+            Rate
+          </Text>
+        </div>
+        <div className="">
+          <Text fw={500} size="md">
             Total Pay
           </Text>
         </div>
@@ -237,8 +242,8 @@ export const VendorPaymentWidget = ({
       {vendorPaymentEntries.map((row, index) => (
         <div
           key={index}
-          className={cn("grid gap-4 grid-cols-[2fr_2fr_1fr_1fr]", {
-            "grid-cols-[2fr_2fr_1fr_1fr_0.5fr]":
+          className={cn("grid gap-4 grid-cols-[2fr_2fr_1fr_1fr_1fr]", {
+            "grid-cols-[2fr_2fr_1fr_1fr_1fr_0.5fr]":
               vendorPaymentEntries.length > 1,
           })}
         >
@@ -288,6 +293,13 @@ export const VendorPaymentWidget = ({
                   ? "Work Hours are required"
                   : null
               }
+            />
+          </div>
+          <div>
+            <TextInput
+              value={row.task ? `$${JSON.parse(row.task).rate.toFixed(2)}` : "$0.00"}
+              readOnly
+              placeholder="Rate"
             />
           </div>
           <div>
