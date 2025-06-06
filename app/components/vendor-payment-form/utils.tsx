@@ -38,7 +38,7 @@ export const facilitationTaskOptions: TaskDetails[] = [
     "Tier 3": 140,
     maxHours: {
       "Tier 1": 6,
-      "Tier 2": null,
+      "Tier 2": 6,
       "Tier 3": 6,
     },
   },
@@ -197,7 +197,7 @@ export const REMINDER_ITEMS: ReminderItem[] = [
   {
     title: "Submission Deadline:",
     content:
-      "Please submit your payment as soon as possible on the day of your work. Review your submitted hours and payment details for the previous month by the 5th of each month. This review ensures accuracy before the hours are automatically transferred to our invoice system on the 6th for approval and payment processing. If corrections need to be made to the hours worked on a particular day, you must delete and resubmit the correct hours worked on that day. All corrections must be made by the 5th of each month. If you missed the monthly payment deadline, please contact the finance team: finance@teachinglab.org.",
+      `Please log your hours and submit your payment on the same day you work. To ensure accuracy, review your "Submission History" regularly. If you need to correct your hours for a specific day, you must delete the incorrect entry and resubmit the correct hours for that day.\nAll submissions must be reviewed and finalized by the 5th of each month. On the 6th, all entries from the previous month will be automatically submitted for payment processing.\nIf you missed the monthly submission deadline, please contact the finance team: finance@teachinglab.org`,
   },
  
 ];

@@ -41,7 +41,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const newProjectService = projectService(projectRepository());
 
-  const { data: projects } = await newProjectService.fetchAllProjects();
+  const { data: projects } = await newProjectService.fetchProgramProjects();
+  console.log(projects);
   return json({ paymentRequestHistory, projects });
 };
 
@@ -73,7 +74,7 @@ export default function VendorPaymentFormRoute() {
             name: "Yancheng Pan",
             tier: [{
               type: "facilitator",
-              value: "Tier 2",
+              value: "Tier 1",
             },
             {
               type: "copyRightPermissions",

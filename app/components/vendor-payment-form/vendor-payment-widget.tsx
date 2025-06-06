@@ -47,10 +47,8 @@ export const VendorPaymentWidget = ({
   }[];
 }) => {
   const { projects } = useLoaderData<typeof loader>();
-  const internalProjects = new Set(projects?.filter((project) => project.projectType === "Internal Project")[0]?.projects || []);
-  const programProjects = new Set(projects?.filter((project) => project.projectType === "Program-related Project")[0]?.projects || []);
-  const allProjects = new Set([...internalProjects, ...programProjects]);
-  const projectOptions = Array.from(allProjects).map((project) => ({
+  const programProjects = new Set(projects || []);
+  const projectOptions = Array.from(programProjects).map((project) => ({
     value: project,
     label: project,
   }));
