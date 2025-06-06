@@ -11,7 +11,11 @@ export type TaskDetails = {
   "Tier 1": number | null;
   "Tier 2": number | null;
   "Tier 3": number | null;
-  maxHours: number | null;
+  maxHours: {
+    "Tier 1": number | null;
+    "Tier 2": number | null;
+    "Tier 3": number | null;
+  }|null;
 };
 
 export const facilitationTaskOptions: TaskDetails[] = [
@@ -20,7 +24,11 @@ export const facilitationTaskOptions: TaskDetails[] = [
     "Tier 1": 500,
     "Tier 2": null,
     "Tier 3": null,
-    maxHours: 1,
+    maxHours: {
+      "Tier 1": 1,
+      "Tier 2": null,
+      "Tier 3": null,
+    },
   },
   {
     taskName:
@@ -28,7 +36,11 @@ export const facilitationTaskOptions: TaskDetails[] = [
     "Tier 1": 110,
     "Tier 2": 125,
     "Tier 3": 140,
-    maxHours: 6,
+    maxHours: {
+      "Tier 1": 6,
+      "Tier 2": null,
+      "Tier 3": 6,
+    },
   },
   {
     taskName:
@@ -36,14 +48,22 @@ export const facilitationTaskOptions: TaskDetails[] = [
     "Tier 1": 50,
     "Tier 2": 50,
     "Tier 3": 50,
-    maxHours: null,
+    maxHours: {
+      "Tier 1": 1.5,
+      "Tier 2": 1.5,
+      "Tier 3": 1.5,
+    },
   },
   {
     taskName: "Lead Facilitation of group Professional Learning course",
     "Tier 1": 150,
     "Tier 2": 165,
     "Tier 3": 180,
-    maxHours: 6,
+    maxHours: {
+      "Tier 1": 6,
+      "Tier 2": 6,
+      "Tier 3": 6,
+    },
   },
   {
     taskName:
@@ -58,7 +78,11 @@ export const facilitationTaskOptions: TaskDetails[] = [
     "Tier 1": 100,
     "Tier 2": null,
     "Tier 3": null,
-    maxHours: 6,
+    maxHours: {
+      "Tier 1": 6,
+      "Tier 2": null,
+      "Tier 3": null,
+    },
   },
   {
     taskName: "Mentoring of other Facilitation Contractors",
@@ -100,14 +124,22 @@ export const facilitationTaskOptions: TaskDetails[] = [
     "Tier 1": 20,
     "Tier 2": 20,
     "Tier 3": 20,
-    maxHours: 3,
+    maxHours: {
+      "Tier 1": 3,
+      "Tier 2": 3,
+      "Tier 3": 3,
+    },
   },
   {
     taskName: "Non-Local Travel",
     "Tier 1": 20,
     "Tier 2": 20,
     "Tier 3": 20,
-    maxHours: 16,
+    maxHours: {
+      "Tier 1": 16,
+      "Tier 2": 16,
+      "Tier 3": 16,
+    },
   },
 ];
 

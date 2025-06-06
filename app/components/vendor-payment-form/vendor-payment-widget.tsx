@@ -15,6 +15,7 @@ type VendorPaymentRowKeys = keyof {
 type taskOptions = {
   taskName: string;
   rate: number;
+  maxHours: number | null;
 }
 
 export const VendorPaymentWidget = ({
@@ -72,6 +73,7 @@ export const VendorPaymentWidget = ({
             availableTasks.push({
               taskName: task.taskName,
               rate: rateValue,
+              maxHours: task.maxHours?.[tier.value as "Tier 1" | "Tier 2" | "Tier 3"] || null,
             });
           }
         });
@@ -83,6 +85,7 @@ export const VendorPaymentWidget = ({
             availableTasks.push({
               taskName: task.taskName,
               rate: rateValue,
+              maxHours: task.maxHours?.[tier.value as "Tier 1" | "Tier 2" | "Tier 3"] || null,
             });
           }
         });
@@ -94,6 +97,7 @@ export const VendorPaymentWidget = ({
             availableTasks.push({
               taskName: task.taskName,
               rate: rateValue,
+              maxHours: task.maxHours?.[tier.value as "Tier 1" | "Tier 2" | "Tier 3"] || null,
             });
           }
         });
@@ -105,6 +109,7 @@ export const VendorPaymentWidget = ({
             availableTasks.push({
               taskName: task.taskName,
               rate: rateValue,
+              maxHours: task.maxHours?.[tier.value as "Tier 1" | "Tier 2" | "Tier 3"] || null,
             }); 
           }
         });
@@ -116,6 +121,7 @@ export const VendorPaymentWidget = ({
             availableTasks.push({
               taskName: task.taskName,
               rate: rateValue,
+              maxHours: task.maxHours?.[tier.value as "Tier 1" | "Tier 2" | "Tier 3"] || null,
             });
           } 
         });
@@ -127,6 +133,7 @@ export const VendorPaymentWidget = ({
             availableTasks.push({
               taskName: task.taskName,
               rate: rateValue,
+              maxHours: task.maxHours?.[tier.value as "Tier 1" | "Tier 2" | "Tier 3"] || null,
             });
           }
         });
