@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { cn } from "../../utils/utils";
 import { IconX } from "@tabler/icons-react";
 import { contentDeveloperTaskOptions, copyEditorTaskOptions, copyRightPermissionsTaskOptions, dataEvaluationTaskOptions, facilitationTaskOptions, presentationDesignTaskOptions, TaskDetails, Tier } from "./utils";
-import { useLoaderData } from "@remix-run/react";
-import { loader } from "~/routes/vendor-payment-form";
 
 type VendorPaymentRowKeys = keyof {
   task: string;
@@ -24,6 +22,7 @@ export const VendorPaymentWidget = ({
   setVendorPaymentEntries,
   setTotalWorkHours,
   cfTier,
+  projects,
 }: {
   isValidated: boolean | null;
   vendorPaymentEntries: {
@@ -45,8 +44,8 @@ export const VendorPaymentWidget = ({
     type: string;
     value: string;
   }[];
+  projects: string[] | undefined;
 }) => {
-  const { projects } = useLoaderData<typeof loader>();
   const programProjects = new Set(projects || []);
   const projectOptions = Array.from(programProjects).map((project) => ({
     value: project,

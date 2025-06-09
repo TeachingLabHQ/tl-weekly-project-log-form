@@ -1,6 +1,6 @@
 import { Button, Notification, Tabs } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
-import { useFetcher, useNavigate } from "@remix-run/react";
+import { useFetcher, useNavigate, useLoaderData } from "@remix-run/react";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { CoachFacilitatorDetails } from "~/domains/coachFacilitator/repository";
@@ -8,6 +8,7 @@ import { Reminders } from "../weekly-project-log/reminders";
 import { PaymentHistory } from "./payment-history/payment-history";
 import { REMINDER_ITEMS, shouldExcludeVendorPaymentDate } from "./utils";
 import { VendorPaymentWidget } from "./vendor-payment-widget";
+import { loader } from "~/routes/vendor-payment-form";
 
 type FetcherData =
   | {
@@ -17,11 +18,13 @@ type FetcherData =
   | undefined;
 
 export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CoachFacilitatorDetails|null }) => {
+  const { paymentRequestHistory, projects } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<FetcherData>();
   const [isValidated, setIsValidated] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [workDate, setWorkDate] = useState<Date | null>(new Date());
+  const [activeTab, setActiveTab] = useState("new");
   const [vendorPaymentEntries, setVendorPaymentEntries] = useState([
     {
       task: "",
@@ -72,6 +75,22 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CoachFacilitatorDe
         return total;
       }
     }, 0);
+  };
+
+  const calculateHistoryTotalPay = (): number => {
+    return paymentRequestHistory?.reduce((total, submission) => {
+      return total + (submission.total_pay || 0);
+    }, 0) || 0;
+  };
+
+  const getCurrentTotalPay = (): string => {
+    if (activeTab === "new") {
+      return vendorPaymentEntries.length > 0
+        ? calculateTotalPay(vendorPaymentEntries).toFixed(2)
+        : "0.00";
+    } else {
+      return calculateHistoryTotalPay().toFixed(2);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -128,19 +147,18 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CoachFacilitatorDe
       {/* Total Pay Section */}
       <div className="row-start-2 md:row-start-2 col-span-1 md:col-start-10 md:col-span-2 flex flex-col items-center">
         <div className="w-full sm:max-w-xs lg:w-fit py-5 px-8 sm:px-10 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white flex flex-col items-center gap-3">
-          <h3 className="text-xl font-bold">Total Pay</h3>
+          <h3 className="text-xl font-bold">
+            {activeTab === "new" ? "Total Pay" : "Total Pay (Current Month)"}
+          </h3>
           <h1 className="text-2xl font-bold">
-            $
-            {vendorPaymentEntries.length > 0
-              ? calculateTotalPay(vendorPaymentEntries).toFixed(2)
-              : "0.00"}
+            ${getCurrentTotalPay()}
           </h1>
         </div>
       </div>
 
       {/* Tabs Section (New Submission / History) */}
       <div className="row-start-3 md:row-start-2 col-span-1 md:col-start-2 md:col-span-8 h-fit p-8 rounded-[25px] bg-white/30 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)] text-white">
-        <Tabs defaultValue="new">
+        <Tabs defaultValue="new" onChange={(value: string | null) => setActiveTab(value || "new")}>
           <Tabs.List>
             <Tabs.Tab value="new" className="hover:bg-white/10">
               New Submission
@@ -181,6 +199,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CoachFacilitatorDe
                 setVendorPaymentEntries={setVendorPaymentEntries}
                 setTotalWorkHours={setTotalWorkHours}
                 cfTier={cfDetails?.tier || []}
+                projects={projects}
               />
 
               <div className="flex flex-col gap-4">
@@ -222,7 +241,7 @@ export const VendorPaymentForm = ({ cfDetails }: { cfDetails: CoachFacilitatorDe
           </Tabs.Panel>
 
           <Tabs.Panel value="history">
-            <PaymentHistory cfDetails={cfDetails || null} />
+            <PaymentHistory cfDetails={cfDetails || null} paymentRequestHistory={paymentRequestHistory} />
           </Tabs.Panel>
         </Tabs>
       </div>

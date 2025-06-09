@@ -1,17 +1,18 @@
 import { Accordion } from "@mantine/core";
-import { useLoaderData, useRevalidator } from "@remix-run/react";
+import { useRevalidator } from "@remix-run/react";
 import { CoachFacilitatorDetails } from "~/domains/coachFacilitator/repository";
-import { loader } from "~/routes/vendor-payment-form";
 import { PaymentHistoryItem } from "./payment-history-item";
-
-
+import { VendorPaymentSubmissionWithEntries } from "~/domains/vendor-payment/model";
 
 type PaymentHistoryProps = {
   cfDetails: CoachFacilitatorDetails | null;
+  paymentRequestHistory: VendorPaymentSubmissionWithEntries[];
 };
 
-export const PaymentHistory = ({ cfDetails }: PaymentHistoryProps) => {
-  const { paymentRequestHistory } = useLoaderData<typeof loader>();
+export const PaymentHistory = ({
+  cfDetails,
+  paymentRequestHistory,
+}: PaymentHistoryProps) => {
   const { revalidate } = useRevalidator();
 
   if (!paymentRequestHistory?.length) {
