@@ -109,8 +109,8 @@ export function vendorPaymentRepository(supabase: SupabaseClient<Database>): Ven
             entries:vendor_payment_entries(*)
           `)
           .eq('cf_email', email)
-          // .gte('created_at', firstDayCurrentMonth)
-          // .lt('created_at', firstDayNextMonth)
+          .gte('submission_date', firstDayCurrentMonth)
+          .lt('submission_date', firstDayNextMonth)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
