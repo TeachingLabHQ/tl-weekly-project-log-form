@@ -227,7 +227,7 @@ export const shouldExcludeVendorPaymentDate = (date: Date): boolean => {
     }
   } else {
     // If today is 7th or later, only allow current month dates from today onwards
-    if (dateYear === currentYear && dateMonth === currentMonth && date >= today) {
+    if (dateYear === currentYear && dateMonth === currentMonth ) {
       return false; // Don't exclude current month dates from today onwards
     }
   }
