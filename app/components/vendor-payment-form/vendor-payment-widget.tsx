@@ -2,7 +2,7 @@ import { Button, Select, Text, TextInput, NumberInput } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { cn } from "../../utils/utils";
 import { IconX } from "@tabler/icons-react";
-import { contentDeveloperTaskOptions, copyEditorTaskOptions, copyRightPermissionsTaskOptions, dataEvaluationTaskOptions, facilitationTaskOptions, presentationDesignTaskOptions, TaskDetails, Tier } from "./utils";
+import { contentDeveloperTaskOptions, copyEditorTaskOptions, copyRightPermissionsTaskOptions, dataEvaluationTaskOptions, facilitationTaskOptions, presentationDesignTaskOptions, TaskDetails, Tier, filterVendorPaymentProjects } from "./utils";
 
 type VendorPaymentRowKeys = keyof {
   task: string;
@@ -47,7 +47,9 @@ export const VendorPaymentWidget = ({
   projects: string[] | undefined;
 }) => {
   const programProjects = new Set(projects || []);
-  const projectOptions = Array.from(programProjects).map((project) => ({
+  const filteredProjects = filterVendorPaymentProjects(Array.from(programProjects));
+  
+  const projectOptions = filteredProjects.map((project) => ({
     value: project,
     label: project,
   }));

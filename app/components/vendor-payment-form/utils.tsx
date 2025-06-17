@@ -120,6 +120,13 @@ export const facilitationTaskOptions: TaskDetails[] = [
     maxHours: null,
   },
   {
+    taskName: "Content Training Make-Up Work",
+    "Tier 1": 25,
+    "Tier 2": 25,
+    "Tier 3": 25,
+    maxHours: null,
+  },
+  {
     taskName: "Local Travel",
     "Tier 1": 20,
     "Tier 2": 20,
@@ -234,4 +241,31 @@ export const shouldExcludeVendorPaymentDate = (date: Date): boolean => {
   
   // Exclude all other dates
   return true;
+};
+
+export const filterVendorPaymentProjects = (projects: string[]): string[] => {
+  // Projects to exclude from the dropdown
+  const excludedProjects = [
+    "TL_Business Development",
+    "TL_Conferences", 
+    "TL_Onboarding Revamp",
+    "TL_Facilitation/Coach Development",
+    "TL_Internal Professional Learning (Non project specific)",
+    "TL_Programmatic Admin",
+    "TL_Internal Student Work Grading",
+    "TL_Coaching Program",
+    "TL_Math Playbook and Walkthrough Tool"
+  ];
+  
+  return projects.filter((project) => {
+    // Filter out projects containing "ZZ"
+    if (project.includes("ZZ")) {
+      return false;
+    }
+    // Filter out specific excluded projects
+    if (excludedProjects.includes(project)) {
+      return false;
+    }
+    return true;
+  });
 };
