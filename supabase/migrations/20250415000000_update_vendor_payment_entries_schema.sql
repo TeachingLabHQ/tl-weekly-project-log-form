@@ -6,6 +6,4 @@ ALTER TABLE vendor_payment_entries
 ALTER COLUMN task_name TYPE text;
 
 ALTER TABLE vendor_payment_entries 
-ALTER COLUMN project_name TYPE text;
-
- 
+ALTER COLUMN project_name TYPE text; 
