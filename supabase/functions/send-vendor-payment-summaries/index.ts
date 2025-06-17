@@ -82,14 +82,14 @@ try {
         );
       }
 
-      // Get current month
+      // Get previous month (since this function runs on the 6th of each month to process previous month's data)
       const currentDate = new Date();
-      const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const currentMonthISO = currentMonth.toISOString();
-      const nextMonthISO = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1).toISOString();
-      console.log(`Processing submissions for month starting: ${currentMonthISO}`);
+      const previousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+      const previousMonthISO = previousMonth.toISOString();
+      const currentMonthISO = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString();
+      console.log(`Processing submissions for previous month: ${previousMonthISO} to ${currentMonthISO}`);
 
-      // Get all submissions for the current month
+      // Get all submissions for the previous month
       console.log("Fetching submissions from database...");
       const { data: submissions, error: submissionsError } = await supabase
         .from("vendor_payment_submissions")
@@ -109,8 +109,8 @@ try {
             entry_pay
           )
         `)
-        .gte("submission_date", currentMonthISO)
-        .lt("submission_date", nextMonthISO);
+        .gte("submission_date", previousMonthISO)
+        .lt("submission_date", currentMonthISO);
 
       if (submissionsError) {
         console.error(`Error fetching submissions: ${JSON.stringify(submissionsError)}`);
@@ -120,7 +120,7 @@ try {
       console.log(`Found ${submissions?.length || 0} submissions`);
       if (!submissions || submissions.length === 0) {
         return new Response(
-          JSON.stringify({ message: `No submissions found for the current month. ${currentMonthISO} to ${nextMonthISO} + ${submissions}`  }),
+          JSON.stringify({ message: `No submissions found for the previous month. ${previousMonthISO} to ${currentMonthISO} + ${submissions}`  }),
           { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
@@ -215,7 +215,7 @@ try {
               .insert({
                 project_name: projectName,
                 cf_email: personEmail, // Add cf_email
-                month: currentMonthISO,
+                month: previousMonthISO,
                 status: "pending",
               })
               .select('id')
@@ -288,7 +288,7 @@ try {
                     await supabase.from("vendor_payment_email_logs").insert({
                         project_name: projectName,
                         cf_email: personEmail,
-                        month: currentMonthISO,
+                        month: previousMonthISO,
                         status: "failed",
                         error_message: `Processing failed before log ID obtained: ${getErrorMessage(error)}`,
                     });
