@@ -17,8 +17,8 @@ ON vendor_payment_submissions(cf_email);
 -- Add RLS (Row Level Security) policies
 ALTER TABLE vendor_payment_submissions ENABLE ROW LEVEL SECURITY;
 
--- Policy to allow users to view their own submissions based on email
-CREATE POLICY "Users can view their own submissions based on email"
+-- Policy to allow users to view their own submissions
+CREATE POLICY "Users can view their own submissions"
 ON vendor_payment_submissions
 FOR SELECT
 USING (auth.uid()::text = cf_email);
