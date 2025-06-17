@@ -232,7 +232,7 @@ try {
 
             // Generate PDF for this person's entries in this project
             console.log(`-- Generating PDF for ${personEmail} on project ${projectName}`);
-            const pdf = await generateProjectPDF(projectName, personSummary); // Pass person-specific summary
+            const pdf = await generateProjectPDF(projectName, personSummary, logId); // Pass person-specific summary
             console.log(`-- PDF generated successfully for ${personEmail}/${projectName}`);
 
             // Send email to this person for this project

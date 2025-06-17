@@ -71,16 +71,13 @@ function calculateRowHeight(linesPerColumn: string[][], baseHeight: number): num
   return Math.max(baseHeight, maxLines * 14 + 15); // Adjusted line height and padding
 }
 
-// Helper function to generate unique invoice number
-function generateInvoiceNumber(): string {
-  const now = new Date();
-  const dateStr = now.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
-  const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, ''); // HHMMSS
-  return `${dateStr}${timeStr}`;
+// Helper function to generate invoice number from log ID
+function generateInvoiceNumber(logId: number): string {
+  return logId.toString();
 }
 
 // --- PDF Generation Function for Per-Person Summary ---
-export async function generateProjectPDF(projectName: string, personSummary: PersonProjectSummary): Promise<Uint8Array> {
+export async function generateProjectPDF(projectName: string, personSummary: PersonProjectSummary, logId: number|null): Promise<Uint8Array> {
   console.log(`Starting PDF generation for ${personSummary.cf_email} on project: ${projectName}`);
   try {
     const pdfDoc = await PDFDocument.create();
@@ -105,7 +102,9 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
     y -= baseLineHeight * 1.5;
 
     // Generate unique invoice number
-    const invoiceNumber = generateInvoiceNumber();
+    const invoiceNumber = logId 
+      ? generateInvoiceNumber(logId)
+      : Date.now().toString(); // Fallback if no logId provided
 
     // Subtitle - Personal Summary for Project
     page.drawText(`Project: ${projectName}`, {
@@ -127,10 +126,23 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
     });
     y -= baseLineHeight * 1.2;
 
-
-    // Report Month
-    const reportMonth = new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    // Report Month and Invoice Date (previous month)
+    const currentDate = new Date();
+    const previousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+    const reportMonth = previousMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    const lastDayOfPreviousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+    const invoiceDate = lastDayOfPreviousMonth.toLocaleDateString();
+    
     page.drawText(`Report Month: ${reportMonth}`, {
+        x: margin,
+        y,
+        size: 12,
+        font: helveticaFont,
+    });
+    y -= baseLineHeight * 1.2;
+
+    // Invoice Date (last day of report month)
+    page.drawText(`Invoice Date: ${invoiceDate}`, {
         x: margin,
         y,
         size: 12,
@@ -155,13 +167,19 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
         font: helveticaFont,
     });
     y -= baseLineHeight * 1.0;
-    page.drawText(`Tier: ${personSummary.cf_tier}`, {
-        x: margin,
-        y,
-        size: 12,
-        font: helveticaFont,
+
+    // Tier (with text wrapping)
+    const tierText = `Tier: ${personSummary.cf_tier}`;
+    const tierLines = wrapText(tierText, pageWidth - 20, helveticaFont, 12); // 20px margin buffer
+    tierLines.forEach((line, index) => {
+        page.drawText(line, {
+            x: margin,
+            y: y - (index * baseLineHeight),
+            size: 12,
+            font: helveticaFont,
+        });
     });
-    y -= baseLineHeight * 2; // More space before table
+    y -= (tierLines.length * baseLineHeight) + baseLineHeight; // Adjust y position and add space before table
 
     // Sort entries by date (oldest first)
     const sortedEntries = [...personSummary.detailedEntries].sort((a, b) => {
