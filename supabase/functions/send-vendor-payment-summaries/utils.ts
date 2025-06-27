@@ -26,7 +26,7 @@ export async function sendProjectEmail(
       const emailData = {
         from: "Teaching Lab Payments <yancheng.pan@teachinglab.org>", // Use sender name
         to: recipientEmail,
-        subject: `Your Teaching Lab Payment Summary - ${projectName} - ${reportMonthYear}`, // Person-specific subject
+        subject: `[TEST] Your Teaching Lab Payment Summary - ${projectName} - ${reportMonthYear}`, // Person-specific subject
         html: `
           <h1>Teaching Lab - Payment Summary</h1>
           <p>Hello,</p>
