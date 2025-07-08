@@ -92,7 +92,7 @@ export async function generateProjectPDF(projectName: string, personSummary: Per
     let y = page.getHeight() - margin;
 
     // Title
-    page.drawText(`[TEST] ${personSummary.cf_name} - Payment Summary`, {
+    page.drawText(`${personSummary.cf_name} - Payment Summary`, {
       x: margin,
       y,
       size: 20,
